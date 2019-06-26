@@ -36,34 +36,34 @@ long int get_needed_megabytes(		char *output_directory,
 
 boolean filesystem_enough_space(	char *output_directory );
 
-void output_count_results(		char *count_database_filename,
-					char *count_datafile_filename,
-					char *prior_count_database_filename );
+void output_count_results(	char *mysqldump_database_count_file,
+				char *mysqldump_datafile_count_file,
+				char *mysqldump_database_yesterday_file );
 
 void remove_file(			char *filename );
 
-void output_count_datafile_count(	char *count_datafile_filename,
+void output_datafile_count(		char *mysqldump_datafile_count_file,
 					char *output_directory,
 					LIST *table_name_list,
 					LIST *big_table_name_list,
 					LIST *exclude_table_name_list,
-					char *date_stamp );
+					char *now_yyyymmdd );
 
-void output_count_database_count(	char *count_database_filename,
+void output_database_count(		char *mysqldump_database_count_file,
 					LIST *table_name_list );
 
-char *get_count_database_filename(	char *database );
+char *get_mysqldump_filename(		char *database,
+					char *date_yyyymmdd,
+					char *inner_key );
 
-char *get_count_datafile_filename(	void );
-
-char *get_prior_count_database_filename(void );
-
+/* Returns static memory */
+/* --------------------- */
 char *get_filename(			char *table_name,
-					char *date_stamp );
+					char *now_yyyymmdd );
 
 LIST *get_filename_list(
 					LIST *table_name_list,
-					char *date_stamp,
+					char *now_yyyymmdd,
 					LIST *big_table_name_list,
 					LIST *exclude_table_name_list );
 
@@ -71,7 +71,7 @@ boolean tar_small_files(
 					LIST *table_name_list,
 					char *database,
 					char *output_directory,
-					char *date_stamp,
+					char *now_yyyymmdd,
 					LIST *big_table_name_list,
 					LIST *exclude_table_name_list );
 
@@ -85,7 +85,7 @@ LIST *get_process_list(			LIST *process_list,
 					char *database,
 					char *mysql_password_file,
 					char *output_directory,
-					char *date_stamp,
+					char *now_yyyymmdd,
 					LIST *big_table_name_list,
 					LIST *exclude_table_name_list,
 					boolean each_line_insert );
@@ -102,10 +102,11 @@ int main( int argc, char **argv )
 	boolean each_line_insert;
 	LIST *big_table_name_list = {0};
 	LIST *exclude_table_name_list = {0};
-	char *date_stamp;
-	char *count_database_filename;
-	char *count_datafile_filename;
-	char *prior_count_database_filename;
+	char *now_yyyymmdd;
+	char *yesterday_yyyymmdd;
+	char *mysqldump_database_count_file;
+	char *mysqldump_datafile_count_file;
+	char *mysqldump_database_yesterday_count_file;
 
 	if ( argc < 7 )
 	{
@@ -154,31 +155,36 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	count_database_filename =
-		get_count_database_filename(
-			database );
+	now_yyyymmdd = pipe2string( "now.sh yyyymmdd" );
+	yesterday_yyyymmdd = pipe2string( "now.sh yyyymmdd -1" );
 
-	prior_count_database_filename =
-		get_prior_count_database_filename();
+	mysqldump_database_count_file =
+		get_mysqldump_filename(
+			database,
+			now_yyyymmdd,
+			"database" /* inner_key */ );
 
-	count_datafile_filename = get_count_datafile_filename();
+	mysqldump_datafile_count_file =
+		get_mysqldump_filename(
+			database,
+			now_yyyymmdd,
+			"datafile" /* inner_key */ );
 
-	/* Archive the audit file because it gets smashed. */
-	/* ----------------------------------------------- */
-	timlib_cp(	prior_count_database_filename
-				/* destination_filename */,
-			count_database_filename
-				/* source_filename */ );
+	mysqldump_database_yesterday_count_file =
+		get_mysqldump_filename(
+			database,
+			yesterday_yyyymmdd,
+			"database" /* inner_key */ );
 
-	output_count_database_count(
-		count_database_filename,
+	output_database_count(
+		mysqldump_database_count_file,
 		table_name_list );
 
 	fork_control = fork_control_new();
 
 	fork_control->processes_in_parallel = processes_in_parallel;
 
-	date_stamp = pipe2string( "date '+%Y%m%d'" );
+	now_yyyymmdd = pipe2string( "date '+%Y%m%d'" );
 
 	if ( ! ( fork_control->process_list =
 			get_process_list(
@@ -188,7 +194,7 @@ int main( int argc, char **argv )
 				database,
 				mysql_password_file,
 				output_directory,
-				date_stamp,
+				now_yyyymmdd,
 				big_table_name_list,
 				exclude_table_name_list,
 				each_line_insert ) )
@@ -208,20 +214,20 @@ int main( int argc, char **argv )
 
 	if ( each_line_insert )
 	{
-		output_count_datafile_count(
-					count_datafile_filename,
+		output_datafile_count(
+					mysqldump_datafile_count_file,
 					output_directory,
 					table_name_list,
 					big_table_name_list,
 					exclude_table_name_list,
-					date_stamp );
+					now_yyyymmdd );
 	}
 
 	if ( !tar_small_files(
 		table_name_list,
 		database,
 		output_directory,
-		date_stamp,
+		now_yyyymmdd,
 		big_table_name_list,
 		exclude_table_name_list ) )
 	{
@@ -234,13 +240,10 @@ int main( int argc, char **argv )
 	if ( each_line_insert )
 	{
 		output_count_results(
-				count_database_filename,
-				count_datafile_filename,
-				prior_count_database_filename );
+				mysqldump_database_count_file,
+				mysqldump_datafile_count_file,
+				mysqldump_database_yesterday_count_file );
 	}
-
-	/* remove_file( prior_count_database_filename ); */
-	remove_file( count_datafile_filename );
 
 	return 0;
 
@@ -252,7 +255,7 @@ LIST *get_process_list(	LIST *process_list,
 			char *database,
 			char *mysql_password_file,
 			char *output_directory,
-			char *date_stamp,
+			char *now_yyyymmdd,
 			LIST *big_table_name_list,
 			LIST *exclude_table_name_list,
 			boolean each_line_insert )
@@ -280,7 +283,9 @@ LIST *get_process_list(	LIST *process_list,
 #define MYSQL_DUMP_TEMPLATE "rm %s 2>/dev/null; touch %s && chmod o-r %s && nice -9 mysqldump --defaults-extra-file=%s -u%s --extended-insert=FALSE --force --quick --add-drop-table %s %s | %s >> %s"
 */
 
-		filename = get_filename( table_name, date_stamp );
+		/* Returns static memory */
+		/* --------------------- */
+		filename = get_filename( table_name, now_yyyymmdd );
 
 		if ( list_exists_string( big_table_name_list, table_name ) )
 		{
@@ -351,7 +356,7 @@ LIST *get_table_name_list( char *database )
 } /* get_table_name_list() */
 
 LIST *get_filename_list(	LIST *table_name_list,
-				char *date_stamp,
+				char *now_yyyymmdd,
 				LIST *big_table_name_list,
 				LIST *exclude_table_name_list )
 {
@@ -383,9 +388,12 @@ LIST *get_filename_list(	LIST *table_name_list,
 		}
 
 		list_append_pointer(	filename_list,
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
 					strdup( get_filename(
 						table_name,
-						date_stamp ) ) );
+						now_yyyymmdd ) ) );
 
 	} while( list_next( table_name_list ) );
 
@@ -394,14 +402,14 @@ LIST *get_filename_list(	LIST *table_name_list,
 } /* get_filename_list() */
 
 char *get_filename(	char *table_name,
-			char *date_stamp )
+			char *now_yyyymmdd )
 {
 	static char filename[ 128 ];
 
 	sprintf(	filename,
 			"%s_%s.sql",
 			table_name,
-			date_stamp );
+			now_yyyymmdd );
 
 	return filename;
 
@@ -411,7 +419,7 @@ boolean tar_small_files(
 		LIST *table_name_list,
 		char *database,
 		char *output_directory,
-		char *date_stamp,
+		char *now_yyyymmdd,
 		LIST *big_table_name_list,
 		LIST *exclude_table_name_list )
 {
@@ -428,7 +436,7 @@ boolean tar_small_files(
 	if ( ! ( small_filename_list =
 			get_filename_list(
 				table_name_list,
-				date_stamp,
+				now_yyyymmdd,
 				big_table_name_list,
 				exclude_table_name_list ) ) )
 	{
@@ -438,7 +446,7 @@ boolean tar_small_files(
 	sprintf( output_file,
 		 "%s_%s.tar.gz",
 		 database,
-		 date_stamp );
+		 now_yyyymmdd );
 
 	filename_list_string =
 		list_display_delimited(
@@ -464,44 +472,24 @@ boolean tar_small_files(
 
 } /* tar_small_files() */
 
-char *get_count_database_filename( char *database )
+char *get_mysqldump_filename(		char *database,
+					char *date_yyyymmdd,
+					char *inner_key )
 {
-	static char count_database_filename[ 128 ];
+	char filename[ 128 ];
 
-	sprintf( count_database_filename,
-		 "%s/mysqldump_count_%s.dat",
+	sprintf( filename,
+		 "%s/mysqldump_%s_count_%s_%s.dat",
 		 MYSQLDUMP_FORK_BACKUP_DIRECTORY,
-		 database );
+		 inner_key,
+		 database,
+		 date_yyyymmdd );
 
-	return count_database_filename;
+	return strdup( filename );
 
-} /* get_count_database_filename() */
+} /* get_mysqldump_filename() */
 
-char *get_prior_count_database_filename( void )
-{
-	static char prior_count_database_filename[ 128 ];
-
-	sprintf( prior_count_database_filename,
-		 "/tmp/mysqldump_fork_count_database_%d.dat",
-		 getpid() );
-
-	return prior_count_database_filename;
-
-} /* get_prior_count_database_filename() */
-
-char *get_count_datafile_filename( void )
-{
-	static char count_datafile_filename[ 128 ];
-
-	sprintf( count_datafile_filename,
-		 "/tmp/mysqldump_fork_count_datafile_%d.dat",
-		 getpid() );
-
-	return count_datafile_filename;
-
-} /* get_count_datafile_filename() */
-
-void output_count_database_count(	char *count_database_filename,
+void output_database_count(		char *mysqldump_database_count_file,
 					LIST *table_name_list )
 {
 	FILE *output_file;
@@ -511,14 +499,14 @@ void output_count_database_count(	char *count_database_filename,
 
 	if ( !list_rewind( table_name_list ) ) return;
 
-	if ( ! ( output_file = fopen( count_database_filename, "w" ) ) )
+	if ( ! ( output_file = fopen( mysqldump_database_count_file, "w" ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR In %s/%s()/%d: cannot open %s for write.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 count_database_filename );
+			 mysqldump_database_count_file );
 		exit( 1 );
 	}
 
@@ -541,14 +529,14 @@ void output_count_database_count(	char *count_database_filename,
 
 	fclose( output_file );
 
-} /* output_count_database_count() */
+} /* output_database_count() */
 
-void output_count_datafile_count(	char *count_datafile_filename,
+void output_datafile_count(		char *mysqldump_datafile_count_file,
 					char *output_directory,
 					LIST *table_name_list,
 					LIST *big_table_name_list,
 					LIST *exclude_table_name_list,
-					char *date_stamp )
+					char *now_yyyymmdd )
 {
 	FILE *output_file;
 	char sys_string[ 1024 ];
@@ -559,14 +547,14 @@ void output_count_datafile_count(	char *count_datafile_filename,
 
 	if ( !list_rewind( table_name_list ) ) return;
 
-	if ( ! ( output_file = fopen( count_datafile_filename, "w" ) ) )
+	if ( ! ( output_file = fopen( mysqldump_datafile_count_file, "w" ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR In %s/%s()/%d: cannot open %s for write.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 count_datafile_filename );
+			 mysqldump_datafile_count_file );
 		exit( 1 );
 	}
 
@@ -580,7 +568,9 @@ void output_count_datafile_count(	char *count_datafile_filename,
 			continue;
 		}
 
-		filename = get_filename( table_name, date_stamp );
+		/* Returns static memory */
+		/* --------------------- */
+		filename = get_filename( table_name, now_yyyymmdd );
 
 		if ( list_exists_string( big_table_name_list, table_name ) )
 		{
@@ -616,7 +606,7 @@ void output_count_datafile_count(	char *count_datafile_filename,
 
 	fclose( output_file );
 
-} /* output_count_datafile_count() */
+} /* output_datafile_count() */
 
 void remove_file( char *filename )
 {
@@ -630,9 +620,9 @@ void remove_file( char *filename )
 
 } /* remove_file() */
 
-void output_count_results(	char *count_database_filename,
-				char *count_datafile_filename,
-				char *prior_count_database_filename )
+void output_count_results(	char *mysqldump_database_count_file,
+				char *mysqldump_datafile_count_file,
+				char *mysqldump_database_yesterday_count_file )
 {
 	char sys_string[ 1024 ];
 	char *diff_results = {0};
@@ -642,29 +632,24 @@ void output_count_results(	char *count_database_filename,
 	/* ---------------------------------------- */
 	sprintf(	sys_string,
 			"diff %s %s",
-			count_database_filename,
-			count_datafile_filename );
+			mysqldump_database_count_file,
+			mysqldump_datafile_count_file );
 
 	if ( ( diff_results = pipe2string( sys_string ) ) )
 	{
 		printf( "%s\n", DIFF_WARNING_MESSAGE );
-		printf( "[%s]\n", sys_string );
-		printf( "[%s]\n", diff_results );
 	}
 
-	if ( prior_count_database_filename && *prior_count_database_filename )
-	{
-		sprintf(	sys_string,
-				"mysqldump_fork_count_drop.e %s %s",
-				count_database_filename,
-				prior_count_database_filename );
+	sprintf(	sys_string,
+			"mysqldump_fork_count_drop.e %s %s",
+			mysqldump_database_count_file,
+			mysqldump_database_yesterday_count_file );
 
-		if ( ( drop_results = pipe2string( sys_string ) ) )
-		{
-			printf( "%s: %s\n",
-				COUNT_DROP_WARNING_MESSAGE,
-				drop_results );
-		}
+	if ( ( drop_results = pipe2string( sys_string ) ) )
+	{
+		printf( "%s: %s\n",
+			COUNT_DROP_WARNING_MESSAGE,
+			drop_results );
 	}
 
 	/* Output the table of counts. */
@@ -673,8 +658,8 @@ void output_count_results(	char *count_database_filename,
 			"join -t'%c' %s %s			|"
 			"sort -t'%c' -r -n -k2			 ",
 			AUDIT_DELIMITER,
-			count_database_filename,
-			count_datafile_filename,
+			mysqldump_database_count_file,
+			mysqldump_datafile_count_file,
 			AUDIT_DELIMITER );
 
 	printf( "table%cdatabase%cbackup\n",
@@ -684,13 +669,6 @@ void output_count_results(	char *count_database_filename,
 	fflush( stdout );
 	if ( system( sys_string ) ) {};
 	fflush( stdout );
-
-#ifdef NOT_DEFINED
-	/* Output the warnings messages at the bottom. */
-	/* ------------------------------------------- */
-	if ( diff_results )
-		printf( "%s\n", DIFF_WARNING_MESSAGE );
-#endif
 
 	if ( drop_results )
 	{

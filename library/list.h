@@ -73,7 +73,10 @@ int list_item_exists( LIST *list, char *item, int (*match_fn)() );
 void *list_fetch( LIST *list, char *string, int (*match_fn)() );
 boolean item_exists( LIST *list, char *item, int (*match_fn)() );
 boolean list_exists( LIST *list, char *item, int (*match_fn)() );
-boolean list_exists_string( LIST *list, char *string );
+
+boolean list_exists_string(	LIST *list,
+				char *string );
+
 boolean list_exists_string_beginning( LIST *list, char *string );
 LIST *create_list( void );
 LIST *list_new( void );

@@ -350,6 +350,7 @@ LIST *folder_get_primary_attribute_list( LIST *attribute_list )
 	list_rewind( attribute_list );
 	do {
 		attribute = (ATTRIBUTE *)list_get_pointer( attribute_list );
+
 		if ( list_exists_string( primary_attribute_name_list,
 					 attribute->attribute_name ) )
 		{
@@ -1286,7 +1287,7 @@ LIST *folder_get_folder_name_list( char *application_name )
 	char sys_string[ 1024 ];
 	char *where;
 
-	where = "create_view_statement is null and folder <> 'null';";
+	where = "create_view_statement is null and folder <> 'null'";
 
 	sprintf(sys_string,
 		"get_folder_data	application=%s			"
@@ -2015,6 +2016,7 @@ LIST *folder_get_table_name_list( char *application_name )
 	LIST *folder_name_list;
 	LIST *table_name_list;
 	char *folder_name;
+	char *table_name;
 
 	folder_name_list = folder_get_folder_name_list( application_name );
 
@@ -2025,14 +2027,18 @@ LIST *folder_get_table_name_list( char *application_name )
 	do {
 		folder_name = list_get_pointer( folder_name_list );
 
-		list_append_pointer(
-			table_name_list,
+		table_name =
 			/* ------------------------------ */
 			/* Returns heap memory [strdup()] */
 			/* ------------------------------ */
 			appaserver_library_get_table_name(
 				application_name,
-				folder_name ) );
+				folder_name );
+
+		if ( folder_table_exists( table_name ) )
+		{
+			list_append_pointer( table_name_list, table_name );
+		}
 
 	} while( list_next( folder_name_list ) );
 
@@ -2040,3 +2046,20 @@ LIST *folder_get_table_name_list( char *application_name )
 
 } /* folder_get_table_name_list() */
 
+LIST *folder_fetch_table_name_list( void )
+{
+	return pipe2list( "echo \"show tables;\" | sql.e" );
+}
+
+boolean folder_table_exists( char *table_name )
+{
+	static LIST *table_name_list = {0};
+
+	if ( !table_name_list )
+	{
+		table_name_list = folder_fetch_table_name_list();
+	}
+
+	return list_exists_string( table_name_list, table_name );
+
+} /* folder_table_exists() */

@@ -157,8 +157,13 @@ void subtract_attributes_in_dictionary(
 				int piece_offset );
 LIST *get_primary_data_list(	char *entity,
 				char *folder );
+
+/* ------------------------------ */
+/* Returns heap memory [strdup()] */
+/* ------------------------------ */
 char *get_table_name( 		char *application_name,
 				char *folder );
+
 char *get_folder_name(		char *application_name,
 				char *table_name );
 void output_insert_database_row(char *data_pipe_string,

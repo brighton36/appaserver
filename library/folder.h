@@ -344,4 +344,9 @@ LIST *folder_get_process_dictionary_list(
 LIST *folder_get_table_name_list(
 				char *application_name );
 
+boolean folder_table_exists(	char *table_name );
+
+LIST *folder_fetch_table_name_list(
+				void );
+
 #endif

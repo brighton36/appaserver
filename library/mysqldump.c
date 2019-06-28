@@ -186,6 +186,11 @@ LIST *mysqldump_fetch_folder_list(
 
 } /* mysqldump_fetch_folder_list() */
 
+#ifdef NOT_DEFINED
+
+This was to check if the table no longer exists.
+------------------------------------------------
+
 LIST *mysqldump_get_table_not_exists_drop_name_list(
 				LIST *mysqldump_database_yesterday_folder_list )
 {
@@ -221,6 +226,8 @@ LIST *mysqldump_get_table_not_exists_drop_name_list(
 	return not_exists_name_list;
 
 } /* mysqldump_get_table_not_exists_drop_name_list() */
+
+#endif
 
 LIST *mysqldump_get_reached_percentage_drop_name_list(
 				LIST *mysqldump_database_folder_list,

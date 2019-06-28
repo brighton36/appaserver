@@ -150,6 +150,11 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	table_name_list =
+		list_subtract_list(
+			table_name_list,
+			exclude_table_name_list );
+
 	now_yyyymmdd = pipe2string( "now.sh yyyymmdd" );
 	yesterday_yyyymmdd = pipe2string( "now.sh yyyymmdd -1" );
 
@@ -464,8 +469,9 @@ char *get_mysqldump_filename(		char *database,
 	char filename[ 128 ];
 
 	sprintf( filename,
-		 "%s/mysqldump_%s_count_%s_%s.dat",
+		 "%s/%s/son/mysqldump_%s_count_%s_%s.dat",
 		 MYSQLDUMP_FORK_BACKUP_DIRECTORY,
+		 database,
 		 inner_key,
 		 database,
 		 date_yyyymmdd );

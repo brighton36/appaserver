@@ -66,10 +66,13 @@ void mysqldump_fork_count_drop(
 			mysqldump->mysqldump_database_folder_list,
 			PERCENTAGE_DROP_THRESHOLD );
 
+/* This was to check if the table no longer exists.
+   ------------------------------------------------
 	list_append_list(
 		mysqldump->reached_percentage_drop_name_list,
 		mysqldump_get_table_not_exists_drop_name_list(
 			mysqldump->mysqldump_database_yesterday_folder_list ) );
+*/
 
 	if ( list_length( mysqldump->reached_percentage_drop_name_list ) )
 	{

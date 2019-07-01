@@ -63,7 +63,8 @@ enum preupdate_change_state {		from_null_to_something,
 #define HORIZONTAL_MENU_CLASS			"menu"
 #define VERTICAL_MENU_CLASS			"vertical_menu"
 #define SUBMIT_BUTTON_LABEL			"|    Submit    |"
-#define TRANSMIT_PROMPT	"&lt;Left Click&gt; to view or &lt;Right Click&gt; to save."
+/* #define TRANSMIT_PROMPT	"&lt;Left Click&gt; to view or &lt;Right Click&gt; to save." */
+#define TRANSMIT_PROMPT	"Link to file."
 #define SYNCHRONIZE_CURRENT_LOGFILE_NAME	"synchronize_current.txt"
 #define MAX_QUERY_ROWS_FOR_PRIMARY_KEY_DROP_DOWNS 	5
 #define FROM_PREPROMPT				"ffrom_preprompt"

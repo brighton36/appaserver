@@ -3906,3 +3906,11 @@ char *timlib_get_first_line(	char *destination,
 
 } /* timlib_get_first_line() */
 
+char *timlib_dollar_round_string( double amount )
+{
+	static char return_string[ 64 ];
+
+	sprintf( return_string, "%.0lf", amount );
+	return return_string;
+
+} /* timlib_dollar_round_string() */

@@ -564,4 +564,7 @@ char *timlib_pad_zero(		int number,
 char *timlib_get_first_line(	char *destination,
 				char *input_filename );
 
+char *timlib_dollar_round_string(
+				double amount );
+
 #endif

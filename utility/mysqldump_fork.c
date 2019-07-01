@@ -48,7 +48,7 @@ void build_datafile_count_file(		char *mysqldump_datafile_count_file,
 					LIST *exclude_table_name_list,
 					char *now_yyyymmdd );
 
-void output_database_count(		char *mysqldump_database_count_file,
+boolean output_database_count(		char *mysqldump_database_count_file,
 					LIST *table_name_list );
 
 char *get_mysqldump_filename(		char *database,
@@ -480,7 +480,7 @@ char *get_mysqldump_filename(		char *database,
 
 } /* get_mysqldump_filename() */
 
-void output_database_count(		char *mysqldump_database_count_file,
+boolean output_database_count(		char *mysqldump_database_count_file,
 					LIST *table_name_list )
 {
 	FILE *output_file;
@@ -488,17 +488,18 @@ void output_database_count(		char *mysqldump_database_count_file,
 	char *table_name;
 	char *results;
 
-	if ( !list_rewind( table_name_list ) ) return;
+	if ( !list_rewind( table_name_list ) ) return 1;
 
 	if ( ! ( output_file = fopen( mysqldump_database_count_file, "w" ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR In %s/%s()/%d: cannot open %s for write.\n",
+			 "Warning In %s/%s()/%d: cannot open %s for write.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 mysqldump_database_count_file );
-		exit( 1 );
+
+		return 0;
 	}
 
 	do {
@@ -519,6 +520,7 @@ void output_database_count(		char *mysqldump_database_count_file,
 	} while( list_next( table_name_list ) );
 
 	fclose( output_file );
+	return 1;
 
 } /* output_database_count() */
 

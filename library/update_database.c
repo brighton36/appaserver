@@ -1158,7 +1158,6 @@ void update_database_execute_for_row(
 				&update_folder->
 					post_change_process->executable,
 				application_name,
-				(char *)0 /* database_string */,
 				session,
 				"update" /* state */,
 				login_name,

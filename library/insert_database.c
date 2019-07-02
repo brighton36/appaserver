@@ -350,7 +350,6 @@ void insert_database_execute_post_change_process_row_zero(
 		process_convert_parameters(
 			&post_change_process->executable,
 			application_name,
-			(char *)0 /* database_string */,
 			session,
 			"insert" /* state */,
 			login_name,
@@ -441,7 +440,6 @@ void insert_database_execute_post_change_process_each_row(
 			process_convert_parameters(
 				&post_change_process->executable,
 				application_name,
-				(char *)0 /* database_string */,
 				session,
 				"insert" /* state */,
 				login_name,

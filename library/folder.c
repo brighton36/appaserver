@@ -753,7 +753,6 @@ LIST *folder_get_drop_down_process_list(
 	process_convert_parameters(
 			&populate_drop_down_process->executable,
 			application_name,
-			(char *)0 /* database_string */,
 			session,
 			state,
 			login_name,

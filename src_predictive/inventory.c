@@ -20,29 +20,6 @@
 #include "ledger.h"
 #include "entity.h"
 
-INVENTORY_PURCHASE_RETURN *inventory_purchase_return_new( void )
-{
-	INVENTORY_PURCHASE_RETURN *h;
-
-	h = (INVENTORY_PURCHASE_RETURN *)
-		calloc(
-			1,
-			sizeof( INVENTORY_PURCHASE_RETURN ) );
-
-	if ( !h )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit(1 );
-	}
-
-	return h;
-
-} /* inventory_purchase_return_new() */
-
 INVENTORY *inventory_new( char *inventory_name )
 {
 	INVENTORY *h = (INVENTORY *)calloc( 1, sizeof( INVENTORY ) );
@@ -331,6 +308,8 @@ FILE *inventory_purchase_get_update_pipe(
 
 } /* inventory_purchase_get_update_pipe() */
 
+/* Update everything with a database_ */
+/* ---------------------------------- */
 void inventory_purchase_list_update(
 				char *application_name,
 				LIST *inventory_purchase_list )
@@ -1216,19 +1195,23 @@ void inventory_reset_quantity_on_hand(
 				inventory_purchase_list );
 
 		inventory_purchase->quantity_on_hand =
-			inventory_get_quantity_on_hand(
-				inventory_purchase->arrived_quantity,
-				inventory_purchase->missing_quantity );
+			inventory_purchase_get_quantity_on_hand(
+				   inventory_purchase->arrived_quantity,
+				   inventory_purchase->missing_quantity,
+				   inventory_purchase_get_returned_quantity(
+					inventory_purchase->
+					     inventory_purchase_return_list ) );
 
 	} while( list_next( inventory_purchase_list ) );
 
 } /* inventory_reset_quantity_on_hand() */
 
-int inventory_get_quantity_on_hand(
+int inventory_purchase_get_quantity_on_hand(
 			int arrived_quantity,
-			int missing_quantity )
+			int missing_quantity,
+			int returned_quantity )
 {
-	return arrived_quantity - missing_quantity;
+	return arrived_quantity - missing_quantity - returned_quantity;
 }
 
 void inventory_set_quantity_on_hand_fifo(
@@ -1667,29 +1650,6 @@ LIST *inventory_get_balance_list(
 
 } /* inventory_get_balance_list() */
  
-INVENTORY_PURCHASE_RETURN *inventory_purchase_return_list_seek(
-				LIST *inventory_purchase_return_list,
-				char *return_date_time )
-{
-	INVENTORY_PURCHASE_RETURN *i;
-
-	if ( !list_rewind( inventory_purchase_return_list ) )
-		return (INVENTORY_PURCHASE_RETURN *)0;
-
-	do {
-		i = list_get( inventory_purchase_return_list );
-
-		if ( strcmp( i->return_date_time, return_date_time ) == 0 )
-		{
-			return i;
-		}
-
-	} while( list_next( inventory_purchase_return_list ) );
-
-	return (INVENTORY_PURCHASE_RETURN *)0;
-
-} /* inventory_purchase_list_return_seek() */
-
 INVENTORY_PURCHASE *inventory_purchase_list_seek(
 				LIST *inventory_purchase_list,
 				char *inventory_name )
@@ -3893,117 +3853,6 @@ void inventory_folder_table_display(
 
 } /* inventory_folder_table_display() */
 
-char *inventory_purchase_return_get_select( void )
-{
-	char *select;
-
-	select =
-	"return_date_time,returned_quantity,sales_tax,transaction_date_time";
-
-	return select;
-}
-
-LIST *inventory_purchase_fetch_return_list(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *inventory_name )
-{
-	char sys_string[ 1024 ];
-	char where[ 512 ];
-	char *select;
-	char *folder;
-	char *ledger_where;
-	char *inventory_where;
-	char input_buffer[ 2048 ];
-	FILE *input_pipe;
-	INVENTORY_PURCHASE_RETURN *inventory_purchase_return;
-	LIST *return_list;
-
-	select = inventory_purchase_return_get_select();
-
-	folder = "inventory_purchase_return";
-
-	ledger_where = ledger_get_transaction_where(
-					full_name,
-					street_address,
-					purchase_date_time,
-					(char *)0 /* folder_name */,
-					"purchase_date_time" );
-
-	inventory_where = inventory_get_where( inventory_name );
-
-	sprintf( where, "%s and %s", ledger_where, inventory_where );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=%s			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			",
-		 application_name,
-		 select,
-		 folder,
-		 where );
-
-	input_pipe = popen( sys_string, "r" );
-	return_list = list_new();
-
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		inventory_purchase_return =
-			inventory_purchase_return_parse(
-				application_name,
-				full_name,
-				street_address,
-				input_buffer );
-
-		list_append_pointer(	return_list,
-					inventory_purchase_return );
-	}
-
-	pclose( input_pipe );
-
-	return return_list;
-
-} /* inventory_purchase_fetch_return_list() */
-
-INVENTORY_PURCHASE_RETURN *inventory_purchase_return_parse(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *input_buffer )
-{
-	INVENTORY_PURCHASE_RETURN *p;
-	char piece_buffer[ 256 ];
-
-	p = inventory_purchase_return_new();
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-	p->return_date_time = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-	p->sales_tax = atof( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
-	if ( *piece_buffer )
-	{
-		p->transaction_date_time =
-		p->database_transaction_date_time =
-			strdup( piece_buffer );
-
-		p->transaction =
-			ledger_transaction_with_load_new(
-					application_name,
-					full_name,
-					street_address,
-					p->transaction_date_time );
-	}
-
-	return p;
-
-} /* inventory_purchase_return_parse() */
-
 char *inventory_get_where( char *inventory_name )
 {
 	static char where[ 256 ];
@@ -4020,90 +3869,24 @@ char *inventory_get_where( char *inventory_name )
 
 } /* inventory_get_where() */
 
-TRANSACTION *inventory_purchase_return_transaction_new(
-					char **transaction_date_time,
-					char *application_name,
-					char *fund_name,
-					char *full_name,
-					char *street_address,
-					double unit_cost,
-					char *inventory_account_name,
-					char *return_date_time,
-					int returned_quantity,
-					double sales_tax )
+int inventory_purchase_get_returned_quantity(
+				LIST *inventory_purchase_return_list )
 {
-	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
-	char *account_payable_account = {0};
-	char *account_receivable_account = {0};
-	char *sales_tax_expense_account = {0};
+	INVENTORY_PURCHASE_RETURN *i;
+	int returned_quantity;
 
-	if ( !full_name )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty full_name.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	if ( !list_rewind( inventory_purchase_return_list ) ) return 0;
 
-	inventory_get_inventory_purchase_return_account_names(
-			&account_payable_account,
-			&account_receivable_account,
-			&sales_tax_expense_account,
-			application_name,
-			fund_name );
+	returned_quantity = 0;
 
-	transaction =
-		ledger_transaction_new(
-			full_name,
-			street_address,
-			ledger_get_transaction_date_time(
-				date_get_now_yyyy_mm_dd(
-					date_get_utc_offset() )
-						/* transaction_date */ ),
-			(char *)0 /* memo  */ );
+	do {
+		i = list_get( inventory_purchase_return_list );
 
-	return transaction;
+		returned_quantity += i->returned_quantity;
 
-} /* inventory_purchase_return_transaction_new() */
+	} while( list_next( inventory_purchase_return_list ) );
 
-void inventory_get_inventory_purchase_return_account_names(
-				char **account_payable_account,
-				char **account_receivable_account,
-				char **sales_tax_expense_account,
-				char *application_name,
-				char *fund_name )
-{
-	char *key;
+	return returned_quantity;
 
-	key = LEDGER_ACCOUNT_PAYABLE_KEY;
-	*account_payable_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */,
-			__FUNCTION__ );
-
-	key = LEDGER_ACCOUNT_RECEIVABLE_KEY;
-	*account_receivable_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */,
-			__FUNCTION__ );
-
-	key = LEDGER_SALES_TAX_EXPENSE_KEY;
-	*sales_tax_expense_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */,
-			__FUNCTION__ );
-
-} /* inventory_get_inventory_purchase_return_account_names() */
+} /* inventory_purchase_get_returned_quantity() */
 

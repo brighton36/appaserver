@@ -14,7 +14,7 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "inventory.h"
+#include "inventory_purchase_return.h"
 #include "entity.h"
 #include "ledger.h"
 #include "purchase.h"
@@ -145,6 +145,8 @@ void post_change_inventory_purchase_return_insert(
 	PURCHASE_ORDER *purchase_order;
 	INVENTORY_PURCHASE *inventory_purchase;
 	INVENTORY_PURCHASE_RETURN *inventory_purchase_return;
+	TRANSACTION *transaction;
+	char sys_string[ 1024 ];
 
 	purchase_order =
 		purchase_order_fetch_new(
@@ -204,8 +206,9 @@ void post_change_inventory_purchase_return_insert(
 			 return_date_time );
 	}
 
+	transaction =
 	inventory_purchase_return->transaction =
-		inventory_purchase_return_transaction_new(
+		inventory_purchase_return_build_transaction(
 			&inventory_purchase_return->transaction_date_time,
 			application_name,
 			(char *)0 /* fund_name */,
@@ -215,7 +218,44 @@ void post_change_inventory_purchase_return_insert(
 			inventory_purchase->inventory_account_name,
 			inventory_purchase_return->return_date_time,
 			inventory_purchase_return->returned_quantity,
-			inventory_purchase_return->sales_tax );
+			inventory_purchase_return->sales_tax,
+			purchase_get_sum_vendor_payment_amount(
+				purchase_order->vendor_payment_list ) );
+
+	inventory_purchase_return->transaction_date_time =
+		inventory_purchase_return_journal_ledger_refresh(
+					application_name,
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					transaction->transaction_amount,
+					transaction->journal_ledger_list );
+
+	inventory_purchase_return_update(
+		application_name,
+		inventory_purchase->full_name,
+		inventory_purchase->street_address,
+		purchase_date_time,
+		inventory_name,
+		return_date_time,
+		transaction->transaction_date_time,
+		(char *)0 /* database_transaction_date_time */ );
+
+	/* Update everything with a database_ */
+	/* ---------------------------------- */
+	inventory_purchase_list_update(
+		application_name,
+		purchase_order->inventory_purchase_list );
+
+	sprintf( sys_string,
+"propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
+	 		application_name,
+	 		inventory_name,
+			(purchase_order->transaction_date_time)
+				? purchase_order->transaction_date_time
+				: "" );
+
+	system( sys_string );
 
 } /* post_change_inventory_purchase_return_insert() */
 
@@ -465,10 +505,15 @@ void post_change_inventory_purchase_missing_quantity_update(
 			inventory_name );
 
 	inventory_purchase->quantity_on_hand =
-		inventory_get_quantity_on_hand(
-			inventory_purchase->arrived_quantity,
-			inventory_purchase->missing_quantity );
+		inventory_purchase_get_quantity_on_hand(
+			   inventory_purchase->arrived_quantity,
+			   inventory_purchase->missing_quantity,
+			   inventory_purchase_get_returned_quantity(
+				inventory_purchase->
+				     inventory_purchase_return_list ) );
 
+	/* Update everything with a database_ */
+	/* ---------------------------------- */
 	inventory_purchase_list_update(
 		application_name,
 		purchase_order->
@@ -481,11 +526,6 @@ void post_change_inventory_purchase_missing_quantity_update(
 			(purchase_order->transaction_date_time)
 				? purchase_order->transaction_date_time
 				: "" );
-
-	system( sys_string );
-
-	strcpy(sys_string,
-"propagate_purchase_order_accounts ignored fund transaction_date_time" );
 
 	system( sys_string );
 
@@ -539,9 +579,12 @@ void post_change_inventory_purchase_ordered_quantity_update(
 			inventory_purchase->unit_cost );
 
 	inventory_purchase->quantity_on_hand =
-		inventory_get_quantity_on_hand(
+		inventory_purchase_get_quantity_on_hand(
 			inventory_purchase->arrived_quantity,
-			inventory_purchase->missing_quantity );
+			inventory_purchase->missing_quantity,
+			inventory_purchase_get_returned_quantity(
+			inventory_purchase->
+				inventory_purchase_return_list ) );
 
 	inventory_purchase_list_update(
 		application_name,
@@ -882,9 +925,12 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 	}
 
 	inventory_purchase->quantity_on_hand =
-		inventory_get_quantity_on_hand(
+		inventory_purchase_get_quantity_on_hand(
 			inventory_purchase->arrived_quantity,
-			inventory_purchase->missing_quantity );
+			inventory_purchase->missing_quantity,
+			inventory_purchase_get_returned_quantity(
+			inventory_purchase->
+				inventory_purchase_return_list ) );
 
 	inventory_purchase->average_unit_cost =
 		inventory_purchase->capitalized_unit_cost;
@@ -970,3 +1016,4 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 
 } /* post_change_inventory_purchase_insert_title_passage_rule_null() */
 #endif
+

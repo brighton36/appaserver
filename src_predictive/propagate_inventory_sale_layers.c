@@ -201,8 +201,8 @@ double propagate_inventory_sale_layers_latest(
 		inventory_sale->quantity );
 */
 
-	/* Update inventory_purchase->quantity_on_hand */
-	/* ------------------------------------------- */
+	/* Update everything with a database_ */
+	/* ---------------------------------- */
 	inventory_purchase_list_update(
 		application_name,
 		inventory->inventory_purchase_list );
@@ -290,8 +290,8 @@ void propagate_inventory_sale_layers_not_latest(
 			inventory->inventory_purchase_list );
 	}
 
-	/* Update inventory_purchase->quantity_on_hand */
-	/* ------------------------------------------- */
+	/* Update everything with a database_ */
+	/* ---------------------------------- */
 	inventory_purchase_list_update(
 		application_name,
 		inventory->inventory_purchase_list );

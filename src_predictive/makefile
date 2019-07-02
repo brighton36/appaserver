@@ -129,6 +129,7 @@ SOURCE_LIBRARY= 							\
 		purchase.o						\
 		customer.o						\
 		inventory.o						\
+		inventory_purchase_return.o				\
 		depreciation.o						\
 		accrual.o						\
 		employee.o						\
@@ -705,6 +706,11 @@ ledger.o: ledger.c ledger.h
 inventory.o: inventory.c inventory.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c inventory.c
+
+inventory_purchase_return.o: inventory_purchase_return.c		\
+		inventory_purchase_return.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c inventory_purchase_return.c
 
 purchase.o: purchase.c purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

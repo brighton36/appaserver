@@ -11,6 +11,7 @@
 
 #include "list.h"
 #include "hash_table.h"
+#include "inventory_purchase_return.h"
 #include "ledger.h"
 
 /* Enumerated types */
@@ -45,17 +46,6 @@ typedef struct
 	char *inventory_account_name;
 	char *cost_of_goods_sold_account_name;
 } INVENTORY_SALE;
-
-typedef struct
-{
-	char *return_date_time;
-	int returned_quantity;
-	double sales_tax;
-	double database_sales_tax;
-	char *transaction_date_time;
-	char *database_transaction_date_time;
-	TRANSACTION *transaction;
-} INVENTORY_PURCHASE_RETURN;
 
 typedef struct
 {
@@ -283,13 +273,6 @@ char *inventory_get_non_zero_quantity_on_hand_arrived_date_time(
 				char *application_name,
 				char *inventory_name,
 				char *function );
-
-/*
-char *inventory_get_last_zero_quantity_on_hand_purchase_date_time(
-				char *application_name,
-				char *inventory_name,
-				char *completed_date_time );
-*/
 
 char *inventory_sale_get_prior_purchase_date_time(
 				char *application_name,
@@ -598,11 +581,6 @@ double inventory_sale_get_extension(
 				int quantity,
 				double discount_amount );
 
-/*
-void inventory_sale_set_extension(
-				INVENTORY_SALE *inventory_sale );
-*/
-
 INVENTORY_PURCHASE *inventory_get_inventory_purchase(
 				LIST *inventory_purchase_list,
 				char *inventory_name );
@@ -645,9 +623,10 @@ double inventory_purchase_get_extension(
 				int ordered_quantity,
 				double unit_cost );
 
-int inventory_get_quantity_on_hand(
+int inventory_purchase_get_quantity_on_hand(
 				int arrived_quantity,
-				int missing_quantity );
+				int missing_quantity,
+				int returned_quantity );
 
 void inventory_set_quantity_on_hand_fifo(
 				LIST *inventory_sale_list,
@@ -687,46 +666,10 @@ void inventory_folder_table_display(
 				char *inventory_name,
 				char *heading );
 
-LIST *inventory_purchase_fetch_return_list(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *inventory_name );
-
-INVENTORY_PURCHASE_RETURN *inventory_purchase_return_parse(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *input_buffer );
-
 char *inventory_get_where(	char *inventory_name );
 
-char *inventory_purchase_return_get_select(
-				void );
-
-INVENTORY_PURCHASE_RETURN *inventory_purchase_return_list_seek(
-				LIST *inventory_purchase_return_list,
-				char *return_date_time );
-
-TRANSACTION *inventory_purchase_return_transaction_new(
-				char **transaction_date_time,
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				double unit_cost,
-				char *inventory_account_name,
-				char *return_date_time,
-				int returned_quantity,
-				double sales_tax );
-
-void inventory_get_inventory_purchase_return_account_names(
-				char **account_payable_account,
-				char **account_receivable_account,
-				char **sales_tax_expense_account,
-				char *application_name,
-				char *fund_name );
+int inventory_purchase_get_returned_quantity(
+				LIST *inventory_purchase_return_list );
 
 #endif
 

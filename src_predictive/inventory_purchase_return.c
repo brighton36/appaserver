@@ -171,9 +171,12 @@ INVENTORY_PURCHASE_RETURN *inventory_purchase_return_parse(
 	p->return_date_time = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-	p->sales_tax = atof( piece_buffer );
+	p->returned_quantity = atoi( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+	p->sales_tax = atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 	if ( *piece_buffer )
 	{
 		p->transaction_date_time =
@@ -362,6 +365,7 @@ LIST *inventory_purchase_return_get_journal_ledger_list(
 				inventory_account_name );
 
 	journal_ledger->credit_amount = inventory_amount;
+	journal_ledger->credit_amount = inventory_amount;
 
 	list_append_pointer( journal_ledger_list, journal_ledger );
 
@@ -504,4 +508,20 @@ void inventory_purchase_return_pipe_update(
 	}
 
 } /* inventory_purchase_return_pipe_update() */
+
+boolean inventory_purchase_return_delete(
+			LIST *inventory_purchase_return_list,
+			char *return_date_time )
+{
+	if ( !inventory_purchase_return_list_seek(
+		inventory_purchase_return_list,
+		return_date_time ) )
+	{
+		return 0;
+	}
+
+	list_delete_current( inventory_purchase_return_list );
+	return 1;
+
+} /* inventory_purchase_return_delete() */
 

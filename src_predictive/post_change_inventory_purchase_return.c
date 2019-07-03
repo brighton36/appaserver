@@ -228,6 +228,8 @@ void post_change_inventory_purchase_return_insert(
 					transaction->transaction_amount,
 					transaction->journal_ledger_list );
 
+	/* Update INVENTORY_PURCHASE_RETURN.transaction_date_time */
+	/* ------------------------------------------------------ */
 	inventory_purchase_return_update(
 		application_name,
 		inventory_purchase->full_name,
@@ -238,8 +240,26 @@ void post_change_inventory_purchase_return_insert(
 		transaction->transaction_date_time,
 		(char *)0 /* database_transaction_date_time */ );
 
-	/* Update everything with a database_ */
-	/* ---------------------------------- */
+	/* Update INVENTORY_PURCHASE.quantity_on_hand */
+	/* ------------------------------------------ */
+	inventory_purchase->quantity_on_hand =
+		inventory_purchase_get_quantity_on_hand(
+			   inventory_purchase->arrived_quantity,
+			   inventory_purchase->missing_quantity,
+			   inventory_purchase_get_returned_quantity(
+				inventory_purchase->
+				     inventory_purchase_return_list ) );
+
+fprintf( stderr, "%s/%s()/%d: returned_quantity = %d, quantity_on_hand = %d, database = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+inventory_purchase_get_returned_quantity(
+				inventory_purchase->
+				     inventory_purchase_return_list ),
+inventory_purchase->quantity_on_hand,
+inventory_purchase->database_quantity_on_hand );
+
 	inventory_purchase_list_update(
 		application_name,
 		purchase_order->inventory_purchase_list );
@@ -372,8 +392,16 @@ void post_change_inventory_purchase_return_update(
 		transaction->transaction_date_time,
 		(char *)0 /* database_transaction_date_time */ );
 
-	/* Update everything with a database_ */
-	/* ---------------------------------- */
+	/* Update INVENTORY_PURCHASE.quantity_on_hand */
+	/* ------------------------------------------ */
+	inventory_purchase->quantity_on_hand =
+		inventory_purchase_get_quantity_on_hand(
+			   inventory_purchase->arrived_quantity,
+			   inventory_purchase->missing_quantity,
+			   inventory_purchase_get_returned_quantity(
+				inventory_purchase->
+				     inventory_purchase_return_list ) );
+
 	inventory_purchase_list_update(
 		application_name,
 		purchase_order->inventory_purchase_list );
@@ -408,8 +436,8 @@ void post_change_inventory_purchase_return_delete(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
-			char *return_date_time,
-			char *inventory_name )
+			char *inventory_name,
+			char *return_date_time )
 {
 	PURCHASE_ORDER *purchase_order;
 	INVENTORY_PURCHASE *inventory_purchase;
@@ -466,12 +494,13 @@ void post_change_inventory_purchase_return_delete(
 	if ( !inventory_purchase_return->transaction )
 	{
 		fprintf( stderr,
-		"Warning in %s/%s()/%d: no transaction for [%s/%s]\n",
+		"Error in %s/%s()/%d: no transaction for [%s/%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 inventory_name,
 			 return_date_time );
+		exit( 1 );
 	}
 
 	ledger_delete(	application_name,
@@ -495,6 +524,34 @@ void post_change_inventory_purchase_return_delete(
 			transaction->
 			journal_ledger_list,
 		application_name );
+
+	/* Update INVENTORY_PURCHASE.quantity_on_hand */
+	/* ------------------------------------------ */
+	if ( !inventory_purchase_return_delete(
+		inventory_purchase->
+			inventory_purchase_return_list,
+		return_date_time ) )
+	{
+		fprintf( stderr,
+"Error in %s/%s()/%d: cannot delete return_date_time = [%s]\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 return_date_time );
+		exit( 1 );
+	}
+
+	inventory_purchase->quantity_on_hand =
+		inventory_purchase_get_quantity_on_hand(
+			   inventory_purchase->arrived_quantity,
+			   inventory_purchase->missing_quantity,
+			   inventory_purchase_get_returned_quantity(
+				inventory_purchase->
+				     inventory_purchase_return_list ) );
+
+	inventory_purchase_list_update(
+		application_name,
+		purchase_order->inventory_purchase_list );
 
 	sprintf( sys_string,
 	"propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",

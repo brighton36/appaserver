@@ -39,6 +39,12 @@ current_count=`	echo "select count(*) from $table;"	|\
 		sql.e					|\
 		tee $last_time_file`
 
+if [ "$current_count" = "" ]
+then
+	echo "Error in $0: could not get current count." 1>&2
+	exit 1
+fi
+
 change=`expr $current_count - $last_time_count`
 
 echo "Current:    $current_count"

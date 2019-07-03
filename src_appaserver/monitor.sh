@@ -86,6 +86,13 @@ do
 	tail -10 /var/log/apache2/error.log
 	sleep $delay_seconds
 
+	# Who
+	# ---
+	clear
+	echo "Who"
+	who
+	sleep $delay_seconds
+
 	# All the others
 	# --------------
 	find /var/log -name '*.log' -mtime 1 2>/dev/null	|

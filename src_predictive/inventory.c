@@ -92,7 +92,7 @@ void inventory_load(			char **inventory_account_name,
 	char piece_buffer[ 128 ];
 
 	select =
-"credit_account,cost_of_goods_sold_account,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance";
+"inventory_account,cost_of_goods_sold_account,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance";
 
 /*
 	sprintf(	where,
@@ -1830,10 +1830,25 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 				return (LIST *)0;
 			}
 
+/*
 			inventory_balance->quantity_on_hand =
 				inventory_balance->
 					inventory_purchase->
 					ordered_quantity;
+*/
+
+			inventory_balance->quantity_on_hand =
+			     inventory_purchase_get_quantity_on_hand(
+				   inventory_balance->
+					inventory_purchase->
+					arrived_quantity,
+				   inventory_balance->
+					inventory_purchase->
+					missing_quantity,
+				   inventory_purchase_get_returned_quantity(
+					inventory_balance->
+					     inventory_purchase->
+					     inventory_purchase_return_list ) );
 
 			inventory_balance->
 				average_unit_cost =
@@ -1862,12 +1877,29 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 
 		if ( inventory_balance->inventory_purchase )
 		{
+/*
 			inventory_balance->quantity_on_hand =
 				prior_inventory_balance->
 					quantity_on_hand +
 				inventory_balance->
 				inventory_purchase->
 					ordered_quantity;
+*/
+
+			inventory_balance->quantity_on_hand =
+				prior_inventory_balance->
+					quantity_on_hand +
+			        inventory_purchase_get_quantity_on_hand(
+				   inventory_balance->
+					inventory_purchase->
+					arrived_quantity,
+				   inventory_balance->
+					inventory_purchase->
+					missing_quantity,
+				   inventory_purchase_get_returned_quantity(
+					inventory_balance->
+					     inventory_purchase->
+					     inventory_purchase_return_list ) );
 
 			purchase_total_cost =
 				(double)
@@ -2334,13 +2366,24 @@ double inventory_purchase_get_total_cost_balance(
 			double *average_unit_cost,
 			double total_cost_balance,
 			double capitalized_unit_cost,
-			int ordered_quantity )
+			int ordered_quantity,
+			int arrived_quantity,
+			int missing_quantity,
+			int returned_quantity )
 {
 	double capitalized_extension;
 
 	if ( double_virtually_same( *average_unit_cost, 0.0 ) )
 	{
+/*
 		*quantity_on_hand = ordered_quantity;
+*/
+		*quantity_on_hand =
+			     inventory_purchase_get_quantity_on_hand(
+				   arrived_quantity,
+				   missing_quantity,
+				   returned_quantity );
+
 		*average_unit_cost = capitalized_unit_cost;
 		return (double)ordered_quantity * capitalized_unit_cost;
 	}
@@ -2350,7 +2393,17 @@ double inventory_purchase_get_total_cost_balance(
 			ordered_quantity,
 			capitalized_unit_cost );
 
+/*
 	*quantity_on_hand = *quantity_on_hand + ordered_quantity;
+*/
+
+	*quantity_on_hand =
+		*quantity_on_hand +
+			inventory_purchase_get_quantity_on_hand(
+				   arrived_quantity,
+				   missing_quantity,
+				   returned_quantity );
+
 	total_cost_balance += capitalized_extension;
 	*average_unit_cost = total_cost_balance / (double)*quantity_on_hand;
 
@@ -2475,7 +2528,7 @@ void inventory_list_delete(	LIST *inventory_list,
 char *inventory_sale_get_select( void )
 {
 	char *select =
-"inventory_sale.full_name,inventory_sale.street_address,inventory_sale.sale_date_time,inventory_sale.inventory_name,quantity,inventory_sale.retail_price,discount_amount,extension,cost_of_goods_sold,customer_sale.completed_date_time,inventory.credit_account,inventory.cost_of_goods_sold_account";
+"inventory_sale.full_name,inventory_sale.street_address,inventory_sale.sale_date_time,inventory_sale.inventory_name,quantity,inventory_sale.retail_price,discount_amount,extension,cost_of_goods_sold,customer_sale.completed_date_time,inventory.inventory_account,inventory.cost_of_goods_sold_account";
 
 	return select;
 
@@ -2732,6 +2785,14 @@ LIST *inventory_get_inventory_purchase_list(
 		inventory_purchase->inventory_account_name =
 			inventory_get_inventory_account_name(
 				application_name,
+				inventory_purchase->inventory_name );
+
+		inventory_purchase->inventory_purchase_return_list =
+			inventory_purchase_return_fetch_list(
+				application_name,
+				inventory_purchase->full_name,
+				inventory_purchase->street_address,
+				inventory_purchase->purchase_date_time,
 				inventory_purchase->inventory_name );
 
 		list_append_pointer(
@@ -3739,7 +3800,7 @@ char *inventory_get_inventory_account_name(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=credit_account		"
+		 "			select=inventory_account	"
 		 "			folder=inventory		"
 		 "			where=\"%s\"			",
 		 application_name,

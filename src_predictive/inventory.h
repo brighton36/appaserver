@@ -436,7 +436,10 @@ double inventory_purchase_get_total_cost_balance(
 				double *average_unit_cost,
 				double total_cost_balance,
 				double capitalized_unit_cost,
-				int ordered_quantity );
+				int ordered_quantity,
+				int arrived_quantity,
+				int missing_quantity,
+				int returned_quantity );
 
 double inventory_sale_get_average_cost_of_goods_sold(
 				double *total_cost_balance,

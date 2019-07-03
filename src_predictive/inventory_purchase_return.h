@@ -34,6 +34,13 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+LIST *inventory_purchase_return_fetch_list(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time,
+				char *inventory_name );
+
 LIST *inventory_purchase_fetch_return_list(
 				char *application_name,
 				char *full_name,

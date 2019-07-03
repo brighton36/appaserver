@@ -76,6 +76,21 @@ char *inventory_purchase_return_get_select( void )
 	return select;
 }
 
+LIST *inventory_purchase_return_fetch_list(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *purchase_date_time,
+					char *inventory_name )
+{
+	return inventory_purchase_fetch_return_list(
+					application_name,
+					full_name,
+					street_address,
+					purchase_date_time,
+					inventory_name );
+}
+
 LIST *inventory_purchase_fetch_return_list(
 					char *application_name,
 					char *full_name,

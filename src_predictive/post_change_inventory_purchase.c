@@ -1131,7 +1131,6 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 				inventory_purchase_return_list  ) -
 		inventory_purchase->missing_quantity;
 
-
 	inventory_purchase->average_unit_cost =
 		inventory_purchase->capitalized_unit_cost;
 

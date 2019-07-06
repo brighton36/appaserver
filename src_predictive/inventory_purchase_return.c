@@ -525,13 +525,3 @@ boolean inventory_purchase_return_list_delete(
 
 } /* inventory_purchase_return_list_delete() */
 
-void inventory_purchase_return_database_delete(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *inventory_name,
-				char *return_date_time )
-{
-} /* inventory_purchase_return_database_delete() */
-

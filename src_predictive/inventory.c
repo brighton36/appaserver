@@ -1802,6 +1802,7 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 	INVENTORY_BALANCE *prior_inventory_balance = {0};
 	double purchase_total_cost;
 	int total_missing_quantity = 0;
+	int quantity_minus_returned;
 	boolean first_time = 1;
 
 	inventory_balance_list =
@@ -1833,7 +1834,7 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 					ordered_quantity;
 */
 
-			inventory_balance->quantity_on_hand =
+			quantity_minus_returned =
 				inventory_purchase_get_quantity_minus_returned(
 					inventory_balance->
 					       inventory_purchase->
@@ -1841,6 +1842,9 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 					inventory_balance->
 					       inventory_purchase->
 					       inventory_purchase_return_list );
+
+			inventory_balance->quantity_on_hand =
+				quantity_minus_returned;
 
 			inventory_balance->
 				average_unit_cost =
@@ -1878,22 +1882,22 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 					ordered_quantity;
 */
 
+			quantity_minus_returned =
+				inventory_purchase_get_quantity_minus_returned(
+					inventory_balance->
+					       inventory_purchase->
+					       ordered_quantity,
+					inventory_balance->
+					       inventory_purchase->
+					       inventory_purchase_return_list );
+
 			inventory_balance->quantity_on_hand =
 				prior_inventory_balance->
 					quantity_on_hand +
-				inventory_purchase_get_quantity_minus_returned(
-					inventory_balance->
-						inventory_purchase->
-						ordered_quantity,
-					inventory_balance->
-						inventory_purchase->
-						inventory_purchase_return_list);
+					quantity_minus_returned;
 
 			purchase_total_cost =
-				(double)
-				inventory_balance->
-					inventory_purchase->
-					ordered_quantity *
+				(double)quantity_minus_returned *
 				inventory_balance->
 					inventory_purchase->
 					capitalized_unit_cost;
@@ -1968,9 +1972,7 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 					quantity;
 */
 
-			inventory_balance->quantity_on_hand =
-				prior_inventory_balance->
-					quantity_on_hand -
+			quantity_minus_returned =
 				inventory_sale_get_quantity_minus_returned(
 					inventory_balance->
 						inventory_sale->
@@ -1978,6 +1980,11 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 					inventory_balance->
 						inventory_sale->
 						inventory_sale_return_list );
+
+			inventory_balance->quantity_on_hand =
+				prior_inventory_balance->
+					quantity_on_hand -
+					quantity_minus_returned;
 		}
 
 		prior_inventory_balance = inventory_balance;
@@ -2374,10 +2381,13 @@ double inventory_purchase_get_total_cost_balance(
 	if ( double_virtually_same( *average_unit_cost, 0.0 ) )
 	{
 		*quantity_on_hand = ordered_minus_returned_quantity;
+
 		*average_unit_cost = capitalized_unit_cost;
+
 		total_cost_balance =
 			(double)ordered_minus_returned_quantity *
 			capitalized_unit_cost;
+
 		return total_cost_balance;
 	}
 
@@ -3521,13 +3531,24 @@ void inventory_purchase_list_set_capitalized_unit_cost(
 				inventory_purchase->extension /
 				sum_inventory_extension;
 
+/*
 			capitalized_extra =
 				(extra_cost * percent_of_total) /
 				(double)inventory_purchase->ordered_quantity;
+*/
+
+			capitalized_extra =
+				(extra_cost * percent_of_total) /
+				(double)
+				inventory_purchase_get_quantity_minus_returned(
+					inventory_purchase->ordered_quantity,
+					inventory_purchase->
+						inventory_purchase_return_list);
 
 			inventory_purchase->capitalized_unit_cost =
 				inventory_purchase->unit_cost +
 				capitalized_extra;
+
 		}
 
 	} while ( list_next( inventory_purchase_list ) );

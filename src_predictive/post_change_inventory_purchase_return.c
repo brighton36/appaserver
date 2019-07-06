@@ -85,6 +85,8 @@ int main( int argc, char **argv )
 	state = argv[ 6 ];
 	preupdate_inventory_name = argv[ 7 ];
 
+	/* If executed out of context. */
+	/* --------------------------- */
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
 		exit( 0 );
 
@@ -101,6 +103,19 @@ int main( int argc, char **argv )
 			purchase_date_time,
 			inventory_name,
 			return_date_time );
+	}
+	else
+	if ( strcmp( state, "delete" ) == 0 )
+	{
+		char sys_string[ 1024 ];
+
+		sprintf( sys_string,
+	"propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
+	 	 	application_name,
+	 	 	inventory_name,
+		 	return_date_time );
+
+		if ( system( sys_string ) ) {};
 	}
 	else
 	if ( strcmp( state, "insert" ) == 0 )
@@ -246,16 +261,6 @@ void post_change_inventory_purchase_return_insert(
 			inventory_purchase->inventory_purchase_return_list ) -
 		inventory_purchase->missing_quantity,
 
-fprintf( stderr, "%s/%s()/%d: returned_quantity = %d, quantity_on_hand = %d, database = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-inventory_purchase_get_returned_quantity(
-				inventory_purchase->
-				     inventory_purchase_return_list ),
-inventory_purchase->quantity_on_hand,
-inventory_purchase->database_quantity_on_hand );
-
 	inventory_purchase_list_update(
 		application_name,
 		purchase_order->inventory_purchase_list );
@@ -342,10 +347,10 @@ void post_change_inventory_purchase_return_update(
 		exit( 1 );
 	}
 
-	if ( inventory_purchase_return->transaction )
+	if ( !inventory_purchase_return->transaction )
 	{
 		fprintf( stderr,
-		"Warning in %s/%s()/%d: transaction exists for [%s/%s]\n",
+		"Warning in %s/%s()/%d: NO transaction exists for [%s/%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -436,7 +441,6 @@ void post_change_inventory_purchase_return_predelete(
 	PURCHASE_ORDER *purchase_order;
 	INVENTORY_PURCHASE *inventory_purchase;
 	INVENTORY_PURCHASE_RETURN *inventory_purchase_return;
-	char sys_string[ 1024 ];
 
 	purchase_order =
 		purchase_order_new(
@@ -533,35 +537,17 @@ void post_change_inventory_purchase_return_predelete(
 		exit( 1 );
 	}
 
-	/* Delete the row from the DB for propagate_inventory_sale_layers */
-	/* -------------------------------------------------------------- */
-	inventory_purchase_return_database_delete(
-		application_name,
-		inventory_purchase->full_name,
-		inventory_purchase->street_address,
-		inventory_purchase->purchase_date_time,
-		inventory_purchase->inventory_name,
-		inventory_purchase_return->return_date_time );
-
 	/* Update INVENTORY_PURCHASE.quantity_on_hand */
 	/* ------------------------------------------ */
 	inventory_purchase->quantity_on_hand =
 		inventory_purchase_get_quantity_minus_returned(
 			inventory_purchase->arrived_quantity,
 			inventory_purchase->inventory_purchase_return_list ) -
-		inventory_purchase->missing_quantity,
+		inventory_purchase->missing_quantity;
 
 	inventory_purchase_list_update(
 		application_name,
 		purchase_order->inventory_purchase_list );
-
-	sprintf( sys_string,
-	"propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
-	 	 application_name,
-	 	 inventory_name,
-		 inventory_purchase_return->return_date_time );
-
-	if ( system( sys_string ) ) {};
 
 } /* post_change_inventory_purchase_predelete() */
 

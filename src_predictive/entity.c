@@ -359,7 +359,7 @@ void entity_propagate_purchase_order_ledger_accounts(
 
 } /* entity_propagate_purchase_order_ledger_accounts() */
 
-ENTITY_SELF *entity_self_sale_inventory_load(
+ENTITY_SELF *entity_self_inventory_load(
 			char *application_name,
 			char *inventory_name )
 {
@@ -433,7 +433,7 @@ ENTITY_SELF *entity_self_sale_inventory_load(
 
 	return entity_self;
 
-} /* entity_self_sale_inventory_load() */
+} /* entity_self_inventory_load() */
 
 char *entity_get_title_passage_rule_string(
 				enum title_passage_rule title_passage_rule )

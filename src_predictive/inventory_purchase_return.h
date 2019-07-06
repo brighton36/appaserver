@@ -126,7 +126,7 @@ char *inventory_purchase_return_journal_ledger_refresh(
 				double transaction_amount,
 				LIST *journal_ledger_list );
 
-boolean inventory_purchase_return_delete(
+boolean inventory_purchase_return_list_delete(
 				LIST *inventory_purchase_return_list,
 				char *return_date_time );
 

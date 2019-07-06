@@ -103,7 +103,7 @@ int main( int argc, char **argv )
 		output_medium = "table";
 
 	entity_self =
-		entity_self_sale_inventory_load(
+		entity_self_inventory_load(
 			application_name,
 			inventory_name );
 

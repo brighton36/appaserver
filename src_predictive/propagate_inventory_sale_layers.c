@@ -1,8 +1,8 @@
-/* ---------------------------------------------------------------	*/
-/* src_predictive/propagate_inventory_sale_layers.c			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/propagate_inventory_sale_layers.c	*/
+/* -----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -106,7 +106,7 @@ int main( int argc, char **argv )
 	else
 	{
 		entity_self =
-			entity_self_sale_inventory_load(
+			entity_self_inventory_load(
 				application_name,
 				inventory_name );
 
@@ -263,7 +263,7 @@ void propagate_inventory_sale_layers_not_latest(
 
 	if ( inventory_cost_method == inventory_fifo )
 	{
-		inventory_reset_quantity_on_hand(
+		inventory_purchase_list_reset_quantity_on_hand(
 			inventory->inventory_purchase_list );
 
 		inventory_set_quantity_on_hand_CGS_fifo(
@@ -273,7 +273,7 @@ void propagate_inventory_sale_layers_not_latest(
 	else
 	if ( inventory_cost_method == inventory_lifo )
 	{
-		inventory_reset_quantity_on_hand(
+		inventory_purchase_list_reset_quantity_on_hand(
 			inventory->inventory_purchase_list );
 
 		inventory_set_quantity_on_hand_CGS_lifo(
@@ -282,7 +282,7 @@ void propagate_inventory_sale_layers_not_latest(
 	}
 	else
 	{
-		inventory_reset_quantity_on_hand(
+		inventory_purchase_list_reset_quantity_on_hand(
 			inventory->inventory_purchase_list );
 
 		inventory_set_quantity_on_hand_fifo(

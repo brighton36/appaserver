@@ -15,6 +15,7 @@
 #include "piece.h"
 #include "appaserver_library.h"
 #include "inventory.h"
+#include "inventory_purchase_return.h"
 #include "purchase.h"
 #include "customer.h"
 #include "ledger.h"
@@ -1182,7 +1183,7 @@ double inventory_sale_get_sum_cost_of_goods_sold(
 
 } /* inventory_sale_get_sum_cost_of_goods_sold() */
 
-void inventory_reset_quantity_on_hand(
+void inventory_purchase_list_reset_quantity_on_hand(
 			LIST *inventory_purchase_list )
 {
 	INVENTORY_PURCHASE *inventory_purchase;
@@ -1195,24 +1196,16 @@ void inventory_reset_quantity_on_hand(
 				inventory_purchase_list );
 
 		inventory_purchase->quantity_on_hand =
-			inventory_purchase_get_quantity_on_hand(
-				   inventory_purchase->arrived_quantity,
-				   inventory_purchase->missing_quantity,
-				   inventory_purchase_get_returned_quantity(
-					inventory_purchase->
-					     inventory_purchase_return_list ) );
+			inventory_purchase_get_quantity_minus_returned(
+				inventory_purchase->
+					arrived_quantity,
+				inventory_purchase->
+					inventory_purchase_return_list ) -
+			inventory_purchase->missing_quantity;
 
 	} while( list_next( inventory_purchase_list ) );
 
-} /* inventory_reset_quantity_on_hand() */
-
-int inventory_purchase_get_quantity_on_hand(
-			int arrived_quantity,
-			int missing_quantity,
-			int returned_quantity )
-{
-	return arrived_quantity - missing_quantity - returned_quantity;
-}
+} /* inventory_purchase_list_reset_quantity_on_hand() */
 
 void inventory_set_quantity_on_hand_fifo(
 			LIST *inventory_sale_list,
@@ -1222,7 +1215,8 @@ void inventory_set_quantity_on_hand_fifo(
 
 	if ( !list_rewind( inventory_sale_list ) ) return;
 
-	inventory_reset_quantity_on_hand( inventory_purchase_list );
+	inventory_purchase_list_reset_quantity_on_hand(
+		inventory_purchase_list );
 
 	do {
 		inventory_sale = list_get( inventory_sale_list );
@@ -1243,7 +1237,8 @@ void inventory_set_quantity_on_hand_CGS_fifo(
 
 	if ( !list_rewind( inventory_sale_list ) ) return;
 
-	inventory_reset_quantity_on_hand( inventory_purchase_list );
+	inventory_purchase_list_reset_quantity_on_hand(
+		inventory_purchase_list );
 
 	do {
 		inventory_sale = list_get( inventory_sale_list );
@@ -1319,7 +1314,8 @@ void inventory_set_quantity_on_hand_CGS_lifo(
 
 	if ( !list_rewind( inventory_sale_list ) ) return;
 
-	inventory_reset_quantity_on_hand( inventory_purchase_list );
+	inventory_purchase_list_reset_quantity_on_hand(
+		inventory_purchase_list );
 
 	do {
 		inventory_sale = list_get( inventory_sale_list );
@@ -1838,17 +1834,13 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 */
 
 			inventory_balance->quantity_on_hand =
-			     inventory_purchase_get_quantity_on_hand(
-				   inventory_balance->
-					inventory_purchase->
-					arrived_quantity,
-				   inventory_balance->
-					inventory_purchase->
-					missing_quantity,
-				   inventory_purchase_get_returned_quantity(
+				inventory_purchase_get_quantity_minus_returned(
 					inventory_balance->
-					     inventory_purchase->
-					     inventory_purchase_return_list ) );
+					       inventory_purchase->
+					       ordered_quantity,
+					inventory_balance->
+					       inventory_purchase->
+					       inventory_purchase_return_list );
 
 			inventory_balance->
 				average_unit_cost =
@@ -1882,24 +1874,20 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 				prior_inventory_balance->
 					quantity_on_hand +
 				inventory_balance->
-				inventory_purchase->
+					inventory_purchase->
 					ordered_quantity;
 */
 
 			inventory_balance->quantity_on_hand =
 				prior_inventory_balance->
 					quantity_on_hand +
-			        inventory_purchase_get_quantity_on_hand(
-				   inventory_balance->
-					inventory_purchase->
-					arrived_quantity,
-				   inventory_balance->
-					inventory_purchase->
-					missing_quantity,
-				   inventory_purchase_get_returned_quantity(
+				inventory_purchase_get_quantity_minus_returned(
 					inventory_balance->
-					     inventory_purchase->
-					     inventory_purchase_return_list ) );
+						inventory_purchase->
+						ordered_quantity,
+					inventory_balance->
+						inventory_purchase->
+						inventory_purchase_return_list);
 
 			purchase_total_cost =
 				(double)
@@ -1971,12 +1959,25 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 					inventory_sale->
 					quantity;
 
+/*
 			inventory_balance->quantity_on_hand =
 				prior_inventory_balance->
 					quantity_on_hand -
 				inventory_balance->
 				inventory_sale->
 					quantity;
+*/
+
+			inventory_balance->quantity_on_hand =
+				prior_inventory_balance->
+					quantity_on_hand -
+				inventory_sale_get_quantity_minus_returned(
+					inventory_balance->
+						inventory_sale->
+						quantity,
+					inventory_balance->
+						inventory_sale->
+						inventory_sale_return_list );
 		}
 
 		prior_inventory_balance = inventory_balance;
@@ -2366,50 +2367,37 @@ double inventory_purchase_get_total_cost_balance(
 			double *average_unit_cost,
 			double total_cost_balance,
 			double capitalized_unit_cost,
-			int ordered_quantity,
-			int arrived_quantity,
-			int missing_quantity,
-			int returned_quantity )
+			int ordered_minus_returned_quantity )
 {
 	double capitalized_extension;
 
 	if ( double_virtually_same( *average_unit_cost, 0.0 ) )
 	{
-/*
-		*quantity_on_hand = ordered_quantity;
-*/
-		*quantity_on_hand =
-			     inventory_purchase_get_quantity_on_hand(
-				   arrived_quantity,
-				   missing_quantity,
-				   returned_quantity );
-
+		*quantity_on_hand = ordered_minus_returned_quantity;
 		*average_unit_cost = capitalized_unit_cost;
-		return (double)ordered_quantity * capitalized_unit_cost;
+		total_cost_balance =
+			(double)ordered_minus_returned_quantity *
+			capitalized_unit_cost;
+		return total_cost_balance;
 	}
 
 	capitalized_extension =
 		inventory_purchase_get_extension(
-			ordered_quantity,
+			ordered_minus_returned_quantity,
 			capitalized_unit_cost );
-
-/*
-	*quantity_on_hand = *quantity_on_hand + ordered_quantity;
-*/
 
 	*quantity_on_hand =
 		*quantity_on_hand +
-			inventory_purchase_get_quantity_on_hand(
-				   arrived_quantity,
-				   missing_quantity,
-				   returned_quantity );
+		ordered_minus_returned_quantity;
 
 	total_cost_balance += capitalized_extension;
+
 	*average_unit_cost = total_cost_balance / (double)*quantity_on_hand;
 
 	return total_cost_balance;
 
 } /* inventory_purchase_get_total_cost_balance() */
+
 
 double inventory_purchase_get_extension(int ordered_quantity,
 					double unit_cost )
@@ -3030,26 +3018,34 @@ HASH_TABLE *inventory_get_arrived_inventory_purchase_hash_table(
 		inventory_purchase = inventory_purchase_new();
 
 		inventory_purchase_parse(
-				&inventory_purchase->full_name,
-				&inventory_purchase->street_address,
-				&inventory_purchase->purchase_date_time,
-				&inventory_purchase->inventory_name,
-				&inventory_purchase->ordered_quantity,
-				&inventory_purchase->unit_cost,
-				&inventory_purchase->extension,
-				&inventory_purchase->database_extension,
-				&inventory_purchase->capitalized_unit_cost,
-				&inventory_purchase->
-					database_capitalized_unit_cost,
-				&inventory_purchase->arrived_quantity,
-				&inventory_purchase->database_arrived_quantity,
-				&inventory_purchase->missing_quantity,
-				&inventory_purchase->quantity_on_hand,
-				&inventory_purchase->database_quantity_on_hand,
-				&inventory_purchase->average_unit_cost,
-				&inventory_purchase->database_average_unit_cost,
-				&inventory_purchase->arrived_date_time,
-				input_buffer );
+			&inventory_purchase->full_name,
+			&inventory_purchase->street_address,
+			&inventory_purchase->purchase_date_time,
+			&inventory_purchase->inventory_name,
+			&inventory_purchase->ordered_quantity,
+			&inventory_purchase->unit_cost,
+			&inventory_purchase->extension,
+			&inventory_purchase->database_extension,
+			&inventory_purchase->capitalized_unit_cost,
+			&inventory_purchase->
+				database_capitalized_unit_cost,
+			&inventory_purchase->arrived_quantity,
+			&inventory_purchase->database_arrived_quantity,
+			&inventory_purchase->missing_quantity,
+			&inventory_purchase->quantity_on_hand,
+			&inventory_purchase->database_quantity_on_hand,
+			&inventory_purchase->average_unit_cost,
+			&inventory_purchase->database_average_unit_cost,
+			&inventory_purchase->arrived_date_time,
+			input_buffer );
+
+		inventory_purchase->inventory_purchase_return_list =
+			inventory_purchase_fetch_return_list(
+				application_name,
+				inventory_purchase->full_name,
+				inventory_purchase->street_address,
+				inventory_purchase->purchase_date_time,
+				inventory_purchase->inventory_name );
 
 		key = inventory_purchase_get_hash_table_key(
 				inventory_purchase->full_name,
@@ -3160,6 +3156,14 @@ HASH_TABLE *inventory_get_completed_inventory_sale_hash_table(
 			&inventory_sale->inventory_account_name,
 			&inventory_sale->cost_of_goods_sold_account_name,
 			input_buffer );
+
+		inventory_sale->inventory_sale_return_list =
+			inventory_sale_fetch_return_list(
+				application_name,
+				inventory_sale->full_name,
+				inventory_sale->street_address,
+				inventory_sale->sale_date_time,
+				inventory_sale->inventory_name );
 
 		key = inventory_sale_get_hash_table_key(
 				inventory_sale->full_name,
@@ -3831,9 +3835,13 @@ void inventory_balance_list_table_display(
 				inventory_balance->
 					inventory_purchase->
 					full_name,
+				inventory_purchase_get_quantity_minus_returned(
 				inventory_balance->
 					inventory_purchase->
 					ordered_quantity,
+				inventory_balance->
+					inventory_purchase->
+					inventory_purchase_return_list),
 				inventory_balance->
 					inventory_purchase->
 					capitalized_unit_cost );
@@ -3930,6 +3938,26 @@ char *inventory_get_where( char *inventory_name )
 
 } /* inventory_get_where() */
 
+int inventory_purchase_get_quantity_minus_returned(
+				int quantity,
+				LIST *inventory_purchase_return_list )
+{
+	return	quantity -
+		inventory_purchase_get_returned_quantity(
+			inventory_purchase_return_list );
+
+}
+
+int inventory_sale_get_quantity_minus_returned(
+				int quantity,
+				LIST *inventory_sale_return_list )
+{
+	return	quantity -
+		inventory_sale_get_returned_quantity(
+			inventory_sale_return_list );
+
+}
+
 int inventory_purchase_get_returned_quantity(
 				LIST *inventory_purchase_return_list )
 {
@@ -3950,4 +3978,35 @@ int inventory_purchase_get_returned_quantity(
 	return returned_quantity;
 
 } /* inventory_purchase_get_returned_quantity() */
+
+int inventory_sale_get_returned_quantity(
+				LIST *inventory_sale_return_list )
+{
+	INVENTORY_SALE_RETURN *i;
+	int returned_quantity;
+
+	if ( !list_rewind( inventory_sale_return_list ) ) return 0;
+
+	returned_quantity = 0;
+
+	do {
+		i = list_get( inventory_sale_return_list );
+
+		returned_quantity += i->returned_quantity;
+
+	} while( list_next( inventory_sale_return_list ) );
+
+	return returned_quantity;
+
+} /* inventory_sale_get_returned_quantity() */
+
+LIST *inventory_sale_fetch_return_list(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *inventory_name )
+{
+	return (LIST *)0;
+}
 

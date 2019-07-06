@@ -251,6 +251,7 @@ void post_change_inventory_purchase_insert_FOB_shipping(
 			inventory_purchase->arrived_quantity =
 				inventory_purchase->ordered_quantity;
 
+/*
 			inventory_purchase->quantity_on_hand =
 				inventory_purchase_get_quantity_on_hand(
 				   inventory_purchase->arrived_quantity,
@@ -258,6 +259,14 @@ void post_change_inventory_purchase_insert_FOB_shipping(
 				   inventory_purchase_get_returned_quantity(
 					inventory_purchase->
 					     inventory_purchase_return_list ) );
+*/
+
+			inventory_purchase->quantity_on_hand =
+				inventory_purchase_get_quantity_minus_returned(
+					inventory_purchase->arrived_quantity,
+					inventory_purchase->
+					     inventory_purchase_return_list  ) -
+				inventory_purchase->missing_quantity;
 
 			/* Update everything with a database_ */
 			/* ---------------------------------- */
@@ -389,6 +398,7 @@ void post_change_inventory_purchase_insert_FOB_destination(
 			inventory_purchase->arrived_quantity =
 				inventory_purchase->ordered_quantity;
 
+/*
 			inventory_purchase->quantity_on_hand =
 				inventory_purchase_get_quantity_on_hand(
 				   inventory_purchase->arrived_quantity,
@@ -396,6 +406,14 @@ void post_change_inventory_purchase_insert_FOB_destination(
 				   inventory_purchase_get_returned_quantity(
 					inventory_purchase->
 					     inventory_purchase_return_list ) );
+*/
+
+			inventory_purchase->quantity_on_hand =
+				inventory_purchase_get_quantity_minus_returned(
+					inventory_purchase->arrived_quantity,
+					inventory_purchase->
+					     inventory_purchase_return_list  ) -
+				inventory_purchase->missing_quantity;
 
 			/* Update everything with a database_ */
 			/* ---------------------------------- */
@@ -648,6 +666,7 @@ void post_change_inventory_purchase_missing_quantity_update(
 			purchase_order->inventory_purchase_list,
 			inventory_name );
 
+/*
 	inventory_purchase->quantity_on_hand =
 			inventory_purchase_get_quantity_on_hand(
 				   inventory_purchase->arrived_quantity,
@@ -655,6 +674,15 @@ void post_change_inventory_purchase_missing_quantity_update(
 				   inventory_purchase_get_returned_quantity(
 					inventory_purchase->
 					     inventory_purchase_return_list ) );
+*/
+
+	inventory_purchase->quantity_on_hand =
+		inventory_purchase_get_quantity_minus_returned(
+			inventory_purchase->arrived_quantity,
+			inventory_purchase->
+				inventory_purchase_return_list  ) -
+		inventory_purchase->missing_quantity;
+
 
 	/* Update everything with a database_ */
 	/* ---------------------------------- */
@@ -727,6 +755,7 @@ void post_change_inventory_purchase_ordered_quantity_update(
 			inventory_purchase->ordered_quantity,
 			inventory_purchase->unit_cost );
 
+/*
 	inventory_purchase->quantity_on_hand =
 			inventory_purchase_get_quantity_on_hand(
 				   inventory_purchase->arrived_quantity,
@@ -734,6 +763,14 @@ void post_change_inventory_purchase_ordered_quantity_update(
 				   inventory_purchase_get_returned_quantity(
 					inventory_purchase->
 					     inventory_purchase_return_list ) );
+*/
+	inventory_purchase->quantity_on_hand =
+		inventory_purchase_get_quantity_minus_returned(
+			inventory_purchase->
+				arrived_quantity,
+			inventory_purchase->
+				inventory_purchase_return_list  ) -
+		inventory_purchase->missing_quantity;
 
 	/* Update everything with a database_ */
 	/* ---------------------------------- */
@@ -1077,6 +1114,7 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 			inventory_purchase->ordered_quantity;
 	}
 
+/*
 	inventory_purchase->quantity_on_hand =
 		inventory_purchase_get_quantity_on_hand(
 				   inventory_purchase->arrived_quantity,
@@ -1084,6 +1122,15 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 				   inventory_purchase_get_returned_quantity(
 					inventory_purchase->
 					     inventory_purchase_return_list ) );
+*/
+	inventory_purchase->quantity_on_hand =
+		inventory_purchase_get_quantity_minus_returned(
+			inventory_purchase->
+				arrived_quantity,
+			inventory_purchase->
+				inventory_purchase_return_list  ) -
+		inventory_purchase->missing_quantity;
+
 
 	inventory_purchase->average_unit_cost =
 		inventory_purchase->capitalized_unit_cost;

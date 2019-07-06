@@ -509,7 +509,7 @@ void inventory_purchase_return_pipe_update(
 
 } /* inventory_purchase_return_pipe_update() */
 
-boolean inventory_purchase_return_delete(
+boolean inventory_purchase_return_list_delete(
 			LIST *inventory_purchase_return_list,
 			char *return_date_time )
 {
@@ -523,5 +523,15 @@ boolean inventory_purchase_return_delete(
 	list_delete_current( inventory_purchase_return_list );
 	return 1;
 
-} /* inventory_purchase_return_delete() */
+} /* inventory_purchase_return_list_delete() */
+
+void inventory_purchase_return_database_delete(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time,
+				char *inventory_name,
+				char *return_date_time )
+{
+} /* inventory_purchase_return_database_delete() */
 

@@ -20,6 +20,26 @@
 /* Constants */
 /* --------- */
 
+/* Stubs */
+/* ----- */
+typedef struct
+{
+	char *return_date_time;
+	int returned_quantity;
+	double sales_tax;
+	double database_sales_tax;
+	char *transaction_date_time;
+	char *database_transaction_date_time;
+	TRANSACTION *transaction;
+} INVENTORY_SALE_RETURN;
+
+LIST *inventory_sale_fetch_return_list(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *inventory_name );
+
 /* Structures */
 /* ---------- */
 typedef struct
@@ -45,6 +65,7 @@ typedef struct
 	double database_cost_of_goods_sold;
 	char *inventory_account_name;
 	char *cost_of_goods_sold_account_name;
+	LIST *inventory_sale_return_list;
 } INVENTORY_SALE;
 
 typedef struct
@@ -291,7 +312,7 @@ void inventory_last_inventory_balance_update(
 				char *inventory_name,
 				char *application_name );
 
-void inventory_reset_quantity_on_hand(
+void inventory_purchase_list_reset_quantity_on_hand(
 				LIST *inventory_purchase_list );
 
 void inventory_set_average_inventory_balance_list(
@@ -436,10 +457,7 @@ double inventory_purchase_get_total_cost_balance(
 				double *average_unit_cost,
 				double total_cost_balance,
 				double capitalized_unit_cost,
-				int ordered_quantity,
-				int arrived_quantity,
-				int missing_quantity,
-				int returned_quantity );
+				int ordered_minus_returned_quantity );
 
 double inventory_sale_get_average_cost_of_goods_sold(
 				double *total_cost_balance,
@@ -673,6 +691,17 @@ char *inventory_get_where(	char *inventory_name );
 
 int inventory_purchase_get_returned_quantity(
 				LIST *inventory_purchase_return_list );
+
+int inventory_purchase_get_quantity_minus_returned(
+				int quantity,
+				LIST *inventory_purchase_return_list );
+
+int inventory_sale_get_returned_quantity(
+				LIST *inventory_sale_return_list );
+
+int inventory_sale_get_quantity_minus_returned(
+				int quantity,
+				LIST *inventory_sale_return_list );
 
 #endif
 

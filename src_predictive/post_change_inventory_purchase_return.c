@@ -43,7 +43,7 @@ void post_change_inventory_purchase_return_update(
 				char *return_date_time,
 				char *preupdate_inventory_name );
 
-void post_change_inventory_purchase_return_delete(
+void post_change_inventory_purchase_return_predelete(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -92,11 +92,9 @@ int main( int argc, char **argv )
 	/* INVENTORY_PURCHASE_RETURN.transaction_date_time DOES exist, */
 	/* so execute predelete.				       */
 	/* ----------------------------------------------------------- */
-	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
-
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		post_change_inventory_purchase_return_delete(
+		post_change_inventory_purchase_return_predelete(
 			application_name,
 			full_name,
 			street_address,
@@ -243,12 +241,10 @@ void post_change_inventory_purchase_return_insert(
 	/* Update INVENTORY_PURCHASE.quantity_on_hand */
 	/* ------------------------------------------ */
 	inventory_purchase->quantity_on_hand =
-		inventory_purchase_get_quantity_on_hand(
-			   inventory_purchase->arrived_quantity,
-			   inventory_purchase->missing_quantity,
-			   inventory_purchase_get_returned_quantity(
-				inventory_purchase->
-				     inventory_purchase_return_list ) );
+		inventory_purchase_get_quantity_minus_returned(
+			inventory_purchase->arrived_quantity,
+			inventory_purchase->inventory_purchase_return_list ) -
+		inventory_purchase->missing_quantity,
 
 fprintf( stderr, "%s/%s()/%d: returned_quantity = %d, quantity_on_hand = %d, database = %d\n",
 __FILE__,
@@ -395,12 +391,10 @@ void post_change_inventory_purchase_return_update(
 	/* Update INVENTORY_PURCHASE.quantity_on_hand */
 	/* ------------------------------------------ */
 	inventory_purchase->quantity_on_hand =
-		inventory_purchase_get_quantity_on_hand(
-			   inventory_purchase->arrived_quantity,
-			   inventory_purchase->missing_quantity,
-			   inventory_purchase_get_returned_quantity(
-				inventory_purchase->
-				     inventory_purchase_return_list ) );
+		inventory_purchase_get_quantity_minus_returned(
+			inventory_purchase->arrived_quantity,
+			inventory_purchase->inventory_purchase_return_list ) -
+		inventory_purchase->missing_quantity,
 
 	inventory_purchase_list_update(
 		application_name,
@@ -431,7 +425,7 @@ void post_change_inventory_purchase_return_update(
 
 } /* post_change_inventory_purchase_return_update() */
 
-void post_change_inventory_purchase_return_delete(
+void post_change_inventory_purchase_return_predelete(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -525,12 +519,10 @@ void post_change_inventory_purchase_return_delete(
 			journal_ledger_list,
 		application_name );
 
-	/* Update INVENTORY_PURCHASE.quantity_on_hand */
-	/* ------------------------------------------ */
-	if ( !inventory_purchase_return_delete(
+	if ( !inventory_purchase_return_list_delete(
 		inventory_purchase->
 			inventory_purchase_return_list,
-		return_date_time ) )
+		inventory_purchase_return->return_date_time ) )
 	{
 		fprintf( stderr,
 "Error in %s/%s()/%d: cannot delete return_date_time = [%s]\n",
@@ -541,13 +533,23 @@ void post_change_inventory_purchase_return_delete(
 		exit( 1 );
 	}
 
+	/* Delete the row from the DB for propagate_inventory_sale_layers */
+	/* -------------------------------------------------------------- */
+	inventory_purchase_return_database_delete(
+		application_name,
+		inventory_purchase->full_name,
+		inventory_purchase->street_address,
+		inventory_purchase->purchase_date_time,
+		inventory_purchase->inventory_name,
+		inventory_purchase_return->return_date_time );
+
+	/* Update INVENTORY_PURCHASE.quantity_on_hand */
+	/* ------------------------------------------ */
 	inventory_purchase->quantity_on_hand =
-		inventory_purchase_get_quantity_on_hand(
-			   inventory_purchase->arrived_quantity,
-			   inventory_purchase->missing_quantity,
-			   inventory_purchase_get_returned_quantity(
-				inventory_purchase->
-				     inventory_purchase_return_list ) );
+		inventory_purchase_get_quantity_minus_returned(
+			inventory_purchase->arrived_quantity,
+			inventory_purchase->inventory_purchase_return_list ) -
+		inventory_purchase->missing_quantity,
 
 	inventory_purchase_list_update(
 		application_name,
@@ -561,5 +563,5 @@ void post_change_inventory_purchase_return_delete(
 
 	if ( system( sys_string ) ) {};
 
-} /* post_change_inventory_purchase_delete() */
+} /* post_change_inventory_purchase_predelete() */
 

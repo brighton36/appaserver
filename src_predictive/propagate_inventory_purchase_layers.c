@@ -155,18 +155,8 @@ void propagate_inventory_purchase_layers_latest(
 			inventory_purchase->ordered_quantity;
 	}
 
-/*
 	inventory_purchase->quantity_on_hand =
 		inventory_purchase->arrived_quantity;
-*/
-
-	inventory_purchase->quantity_on_hand =
-		inventory_purchase_get_quantity_on_hand(
-			   inventory_purchase->arrived_quantity,
-			   inventory_purchase->missing_quantity,
-			   inventory_purchase_get_returned_quantity(
-				inventory_purchase->
-				     inventory_purchase_return_list ) );
 
 	inventory_purchase->extension =
 		inventory_purchase_get_extension(
@@ -179,12 +169,7 @@ void propagate_inventory_purchase_layers_latest(
 			&inventory->last_inventory_balance->average_unit_cost,
 			inventory->last_inventory_balance->total_cost_balance,
 			inventory_purchase->capitalized_unit_cost,
-			inventory_purchase->ordered_quantity,
-			inventory_purchase->arrived_quantity,
-			inventory_purchase->missing_quantity,
-			inventory_purchase_get_returned_quantity(
-				inventory_purchase->
-					inventory_purchase_return_list ) );
+			inventory_purchase->ordered_quantity );
 
 	inventory_last_inventory_balance_update(
 		inventory->last_inventory_balance->quantity_on_hand,

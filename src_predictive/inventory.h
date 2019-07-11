@@ -86,6 +86,8 @@ typedef struct
 	int database_arrived_quantity;
 	int quantity_on_hand;
 	int database_quantity_on_hand;
+	LIST *layer_inventory_sale_list;
+	int layer_quantity_remaining;
 	double average_unit_cost;
 	double database_average_unit_cost;
 	char *inventory_account_name;
@@ -255,6 +257,10 @@ void inventory_update_quantity_on_hand_CGS_last_inventory_balance(
 				enum inventory_cost_method );
 
 LIST *inventory_get_average_cost_inventory_balance_list(
+				LIST *inventory_purchase_list,
+				LIST *inventory_sale_list );
+
+LIST *inventory_get_fifo_inventory_balance_list(
 				LIST *inventory_purchase_list,
 				LIST *inventory_sale_list );
 
@@ -662,7 +668,7 @@ void inventory_purchase_list_set_capitalized_unit_cost(
 char *inventory_balance_list_display(
 				LIST *inventory_balance_list );
 
-void inventory_balance_list_table_display(
+void inventory_balance_list_average_table_display(
 				FILE *output_pipe,
 				LIST *inventory_balance_list );
 
@@ -702,6 +708,19 @@ int inventory_sale_get_returned_quantity(
 int inventory_sale_get_quantity_minus_returned(
 				int quantity,
 				LIST *inventory_sale_return_list );
+
+/* ---------------------------------------------------- */
+/* Sets inventory_purchase.layer_inventory_sale_list,	*/
+/*      inventory_purchase.layer_quantity_remaining,	*/
+/*      inventory_sale.cost_of_goods_sold.		*/
+/* ---------------------------------------------------- */
+void inventory_set_fifo_layer_inventory_sale_list(
+				LIST *inventory_purchase_list,
+				LIST *inventory_sale_list );
+
+LIST *inventory_get_fifo_layer_inventory_sale_list(
+				int *layer_quantity_remaining,
+				LIST *inventory_sale_list );
 
 #endif
 

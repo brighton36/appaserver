@@ -77,6 +77,13 @@ int main( int argc, char **argv )
 	preupdate_account_number = argv[ 10 ];
 	preupdate_date_time = argv[ 11 ];
 
+fprintf( stderr, "%s/%s()/%d: Turned off.\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+
+exit( 0 );
+
 	/* If Changed the financial institution's name or address */
 	/* ------------------------------------------------------ */
 	if ( strcmp( account_number, "account_number" ) == 0 ) exit( 0 );

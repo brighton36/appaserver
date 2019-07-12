@@ -29,24 +29,27 @@
 /* --------- */
 #define STDOUT_PROCESS		"delimiter2padded_columns.e '^'"
 #define TABLE_PROCESS		"html_table.e '' '%s' '^' '%s'"
-#define HEADING			"Arrived/Completed^Operation^FullName^Quantity^CostPer^OnHand^Avg. Cost^Balance"
+#define HEADING			"Arrived/Completed^Operation^FullName^Quantity^CostPer^CGS^OnHand^Avg. Cost^Balance"
 #define FOLDER_TABLE_HEADING	"OnHand^Avg^Balance"
 #define PROMPT			"Press here to view report."
 
 /* Prototypes */
 /* ---------- */
-LIST *get_PDF_row_list(			LIST *inventory_balance_list );
+LIST *get_average_PDF_row_list(		LIST *inventory_balance_list );
 
-LIST *get_PDF_heading_list(		void );
+LIST *get_average_PDF_heading_list(	void );
 
-void inventory_balance_detail_stdout(	char *application_name,
+void inventory_balance_average_stdout(	char *application_name,
 					INVENTORY *inventory );
 
-void inventory_balance_detail_table(	char *application_name,
+void inventory_balance_fifo_stdout(	char *application_name,
+					INVENTORY *inventory );
+
+void inventory_balance_average_table(	char *application_name,
 					INVENTORY *inventory,
 					char *process_name );
 
-void inventory_balance_detail_PDF(	char *application_name,
+void inventory_balance_average_PDF(	char *application_name,
 					INVENTORY *inventory,
 					char *process_name,
 					char *document_root_directory );
@@ -103,7 +106,7 @@ int main( int argc, char **argv )
 		output_medium = "table";
 
 	entity_self =
-		entity_self_sale_inventory_load(
+		entity_self_inventory_load(
 			application_name,
 			inventory_name );
 
@@ -132,15 +135,26 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "stdout" ) == 0 )
 	{
-		inventory_balance_detail_stdout(
-			application_name,
-			entity_self->sale_inventory
-				/* inventory */ );
+		if ( entity_self->inventory_cost_method == inventory_average )
+		{
+			inventory_balance_average_stdout(
+				application_name,
+				entity_self->sale_inventory
+					/* inventory */ );
+		}
+		else
+		if ( entity_self->inventory_cost_method == inventory_fifo )
+		{
+			inventory_balance_fifo_stdout(
+				application_name,
+				entity_self->sale_inventory
+					/* inventory */ );
+		}
 	}
 	else
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
-		inventory_balance_detail_table(
+		inventory_balance_average_table(
 			application_name,
 			entity_self->sale_inventory
 				/* inventory */,
@@ -149,7 +163,7 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( output_medium, "PDF" ) == 0 )
 	{
-		inventory_balance_detail_PDF(
+		inventory_balance_average_PDF(
 			application_name,
 			entity_self->sale_inventory
 				/* inventory */,
@@ -164,7 +178,52 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void inventory_balance_detail_stdout(	char *application_name,
+void inventory_balance_fifo_stdout(	char *application_name,
+					INVENTORY *inventory )
+{
+	FILE *output_pipe;
+
+	output_pipe = popen( STDOUT_PROCESS, "w" );
+
+	/* ---------------------------------------------------- */
+	/* Sets inventory_purchase.quantity_on_hand,		*/
+	/*      inventory_purchase.layer_consumed_quantity,	*/
+	/*      inventory_sale.layer_inventory_purchase_list,	*/
+	/*      inventory_sale.cost_of_goods_sold.		*/
+	/* ---------------------------------------------------- */
+	inventory_set_fifo_layer_inventory_purchase_list(
+			inventory->inventory_purchase_list,
+			inventory->inventory_sale_list );
+
+	printf( "\nInventory FIFO Balance List:\n" );
+
+	fprintf( output_pipe,
+		 "%s\n",
+		 HEADING );
+
+/*
+	inventory_balance_list_fifo_table_display(
+		output_pipe,
+		inventory->inventory_purchase_list );
+*/
+
+	pclose( output_pipe );
+
+	output_pipe = popen( STDOUT_PROCESS, "w" );
+
+	printf( "\nINVENTORY:\n" );
+	
+	inventory_folder_table_display(
+		output_pipe,
+		application_name,
+		inventory->inventory_name,
+		FOLDER_TABLE_HEADING );
+
+	pclose( output_pipe );
+
+} /* inventory_balance_fifo_stdout() */
+
+void inventory_balance_average_stdout(	char *application_name,
 					INVENTORY *inventory )
 {
 	FILE *output_pipe;
@@ -182,7 +241,7 @@ void inventory_balance_detail_stdout(	char *application_name,
 		 "%s\n",
 		 HEADING );
 
-	inventory_balance_list_table_display(
+	inventory_balance_list_average_table_display(
 		output_pipe,
 		inventory->inventory_balance_list );
 
@@ -200,9 +259,9 @@ void inventory_balance_detail_stdout(	char *application_name,
 
 	pclose( output_pipe );
 
-} /* inventory_balance_detail_stdout() */
+} /* inventory_balance_average_stdout() */
 
-void inventory_balance_detail_table(	char *application_name,
+void inventory_balance_average_table(	char *application_name,
 					INVENTORY *inventory,
 					char *process_name )
 {
@@ -224,13 +283,12 @@ void inventory_balance_detail_table(	char *application_name,
 
 	output_pipe = popen( output_process, "w" );
 
-/* here1 */
 	inventory->inventory_balance_list =
 		inventory_get_average_cost_inventory_balance_list(
 			inventory->inventory_purchase_list,
 			inventory->inventory_sale_list );
 
-	inventory_balance_list_table_display(
+	inventory_balance_list_average_table_display(
 		output_pipe,
 		inventory->inventory_balance_list );
 
@@ -250,9 +308,9 @@ void inventory_balance_detail_table(	char *application_name,
 
 	pclose( output_pipe );
 
-} /* inventory_balance_detail_table() */
+} /* inventory_balance_average_table() */
 
-void inventory_balance_detail_PDF(	char *application_name,
+void inventory_balance_average_PDF(	char *application_name,
 					INVENTORY *inventory,
 					char *process_name,
 					char *document_root_directory )
@@ -361,7 +419,7 @@ void inventory_balance_detail_PDF(	char *application_name,
 
 	list_append_pointer( latex->table_list, latex_table );
 
-	latex_table->heading_list = get_PDF_heading_list();
+	latex_table->heading_list = get_average_PDF_heading_list();
 
 	inventory->inventory_balance_list =
 		inventory_get_average_cost_inventory_balance_list(
@@ -369,7 +427,7 @@ void inventory_balance_detail_PDF(	char *application_name,
 			inventory->inventory_sale_list );
 
 	latex_table->row_list =
-		get_PDF_row_list(
+		get_average_PDF_row_list(
 			inventory->inventory_balance_list );
 
 	latex_longtable_output(
@@ -390,9 +448,9 @@ void inventory_balance_detail_PDF(	char *application_name,
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
 
-} /* inventory_balance_detail_PDF() */
+} /* inventory_balance_average_PDF() */
 
-LIST *get_PDF_heading_list( void )
+LIST *get_average_PDF_heading_list( void )
 {
 	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
@@ -429,9 +487,9 @@ LIST *get_PDF_heading_list( void )
 
 	return heading_list;
 
-} /* get_PDF_heading_list() */
+} /* get_average_PDF_heading_list() */
 
-LIST *get_PDF_row_list( LIST *inventory_balance_list )
+LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 {
 	LATEX_ROW *latex_row;
 	LIST *row_list;
@@ -490,6 +548,13 @@ LIST *get_PDF_row_list( LIST *inventory_balance_list )
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
+
+			/* Skip CGS */
+			/* -------- */
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( "" ),
+				0 /* not large_bold */ );
 		}
 		else
 		if ( inventory_balance->inventory_sale )
@@ -517,11 +582,18 @@ LIST *get_PDF_row_list( LIST *inventory_balance_list )
 				"%d",
 				inventory_balance->
 					inventory_sale->
-					quantity );
+					sold_quantity );
 
 			latex_append_column_data_list(
 				latex_row->column_data_list,
 				strdup( buffer ),
+				0 /* not large_bold */ );
+
+			/* Skip CostPer */
+			/* ------------ */
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( "" ),
 				0 /* not large_bold */ );
 
 			sprintf(buffer,
@@ -576,5 +648,5 @@ LIST *get_PDF_row_list( LIST *inventory_balance_list )
 
 	return row_list;
 
-} /* get_PDF_row_list() */
+} /* get_average_PDF_row_list() */
 

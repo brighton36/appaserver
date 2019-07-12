@@ -389,7 +389,6 @@ int main( int argc, char **argv )
 	process_convert_parameters(
 		&process->executable,
 		application_name,
-		database_string,
 		session,
 		(char *)0 /* state */,
 		login_name,

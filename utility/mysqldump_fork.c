@@ -239,7 +239,10 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( each_line_insert )
+	if ( each_line_insert
+	&&    timlib_file_exists( mysqldump_database_count_file )
+	&&    timlib_file_exists( mysqldump_datafile_count_file )
+	&&    timlib_file_exists( mysqldump_database_yesterday_count_file ) )
 	{
 		output_count_results(
 				mysqldump_database_count_file,
@@ -609,13 +612,20 @@ void output_count_results(	char *mysqldump_database_count_file,
 	char *diff_results = {0};
 	char *drop_results = {0};
 
+	if ( !timlib_file_exists( mysqldump_database_count_file )
+	||   !timlib_file_exists( mysqldump_datafile_count_file )
+	||   !timlib_file_exists( mysqldump_database_yesterday_count_file ) )
+	{
+		return;
+	}
+
 	/* Output the warnings messages at the top. */
 	/* ---------------------------------------- */
 	sprintf(	sys_string,
 			"diff %s %s",
 			mysqldump_database_count_file,
 			mysqldump_datafile_count_file );
-
+	
 	if ( ( diff_results = pipe2string( sys_string ) ) )
 	{
 		printf( "%s\n", DIFF_WARNING_MESSAGE );

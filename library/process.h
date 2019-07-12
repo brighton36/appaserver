@@ -68,7 +68,6 @@ LIST *process2list(		char *executable );
 
 void process_convert_parameters(char **executable,
 				char *application_name,
-				char *database_string,
 				char *session,
 				char *state,
 				char *person,
@@ -153,7 +152,6 @@ void process_set_dictionary(	PROCESS *process,
 void process_replace_parameter_variables(	
 				char *executable,
 				char *application_name,
-				char *database_string,
 				char *session,
 				char *state,
 				char *person,

@@ -67,7 +67,7 @@ typedef struct
 	double extension;
 	double capitalized_extension;
 	double database_capitalized_extension;
-	char *credit_account_name;
+	char *inventory_account_name;
 } PURCHASE_SPECIFIC_INVENTORY;
 
 typedef struct
@@ -609,21 +609,8 @@ LIST *purchase_prepaid_asset_distinct_account_extract(
 LIST *purchase_get_amount_due_purchase_order_list(
 				char *application_name );
 
-/*
-LIST *purchase_fetch_tax_recovery_list(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *asset_name,
-				char *serial_number );
+double purchase_get_sum_vendor_payment_amount(
+				LIST *vendor_payment_list );
 
-char *purchase_tax_recovery_get_select(
-				void );
-
-TAX_RECOVERY *purchase_tax_recovery_new(
-				void );
-
-*/
 #endif
 

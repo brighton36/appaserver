@@ -635,7 +635,6 @@ void post_change_sort_order_post_change_process_execute(
 	process_convert_parameters(
 		&post_change_process->executable,
 		application_name,
-		(char *)0 /* database_string */,
 		(char *)0 /* session */,
 		"sort" /* state */,
 		(char *)0 /* login_name */,

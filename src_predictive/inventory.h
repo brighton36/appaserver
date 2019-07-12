@@ -11,6 +11,7 @@
 
 #include "list.h"
 #include "hash_table.h"
+#include "inventory_purchase_return.h"
 #include "ledger.h"
 
 /* Enumerated types */
@@ -18,6 +19,26 @@
 
 /* Constants */
 /* --------- */
+
+/* Stubs */
+/* ----- */
+typedef struct
+{
+	char *return_date_time;
+	int returned_quantity;
+	double sales_tax;
+	double database_sales_tax;
+	char *transaction_date_time;
+	char *database_transaction_date_time;
+	TRANSACTION *transaction;
+} INVENTORY_SALE_RETURN;
+
+LIST *inventory_sale_fetch_return_list(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *inventory_name );
 
 /* Structures */
 /* ---------- */
@@ -35,7 +56,7 @@ typedef struct
 	char *sale_date_time;
 	char *inventory_name;
 	char *completed_date_time;
-	int quantity;
+	int sold_quantity;
 	double retail_price;
 	double discount_amount;
 	double extension;
@@ -44,18 +65,9 @@ typedef struct
 	double database_cost_of_goods_sold;
 	char *inventory_account_name;
 	char *cost_of_goods_sold_account_name;
+	LIST *inventory_sale_return_list;
+	LIST *layer_inventory_purchase_list;
 } INVENTORY_SALE;
-
-typedef struct
-{
-	char *return_date_time;
-	int returned_quantity;
-	double sales_tax;
-	double database_sales_tax;
-	char *transaction_date_time;
-	char *database_transaction_date_time;
-	TRANSACTION *transaction;
-} INVENTORY_PURCHASE_RETURN;
 
 typedef struct
 {
@@ -75,6 +87,7 @@ typedef struct
 	int database_arrived_quantity;
 	int quantity_on_hand;
 	int database_quantity_on_hand;
+	int layer_consumed_quantity;
 	double average_unit_cost;
 	double database_average_unit_cost;
 	char *inventory_account_name;
@@ -247,6 +260,10 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 				LIST *inventory_purchase_list,
 				LIST *inventory_sale_list );
 
+LIST *inventory_get_fifo_inventory_balance_list(
+				LIST *inventory_purchase_list,
+				LIST *inventory_sale_list );
+
 INVENTORY_BALANCE *inventory_balance_new(
 				void );
 
@@ -284,13 +301,6 @@ char *inventory_get_non_zero_quantity_on_hand_arrived_date_time(
 				char *inventory_name,
 				char *function );
 
-/*
-char *inventory_get_last_zero_quantity_on_hand_purchase_date_time(
-				char *application_name,
-				char *inventory_name,
-				char *completed_date_time );
-*/
-
 char *inventory_sale_get_prior_purchase_date_time(
 				char *application_name,
 				char *inventory_name,
@@ -308,7 +318,7 @@ void inventory_last_inventory_balance_update(
 				char *inventory_name,
 				char *application_name );
 
-void inventory_reset_quantity_on_hand(
+void inventory_purchase_list_reset_quantity_on_hand(
 				LIST *inventory_purchase_list );
 
 void inventory_set_average_inventory_balance_list(
@@ -453,7 +463,7 @@ double inventory_purchase_get_total_cost_balance(
 				double *average_unit_cost,
 				double total_cost_balance,
 				double capitalized_unit_cost,
-				int ordered_quantity );
+				int ordered_minus_returned_quantity );
 
 double inventory_sale_get_average_cost_of_goods_sold(
 				double *total_cost_balance,
@@ -545,7 +555,7 @@ void inventory_sale_parse(
 				char **street_address,
 				char **sale_date_time,
 				char **inventory_name,
-				int *quantity,
+				int *sold_quantity,
 				double *retail_price,
 				double *discount_amount,
 				double *extension,
@@ -598,11 +608,6 @@ double inventory_sale_get_extension(
 				int quantity,
 				double discount_amount );
 
-/*
-void inventory_sale_set_extension(
-				INVENTORY_SALE *inventory_sale );
-*/
-
 INVENTORY_PURCHASE *inventory_get_inventory_purchase(
 				LIST *inventory_purchase_list,
 				char *inventory_name );
@@ -645,9 +650,10 @@ double inventory_purchase_get_extension(
 				int ordered_quantity,
 				double unit_cost );
 
-int inventory_get_quantity_on_hand(
+int inventory_purchase_get_quantity_on_hand(
 				int arrived_quantity,
-				int missing_quantity );
+				int missing_quantity,
+				int returned_quantity );
 
 void inventory_set_quantity_on_hand_fifo(
 				LIST *inventory_sale_list,
@@ -662,7 +668,7 @@ void inventory_purchase_list_set_capitalized_unit_cost(
 char *inventory_balance_list_display(
 				LIST *inventory_balance_list );
 
-void inventory_balance_list_table_display(
+void inventory_balance_list_average_table_display(
 				FILE *output_pipe,
 				LIST *inventory_balance_list );
 
@@ -687,46 +693,51 @@ void inventory_folder_table_display(
 				char *inventory_name,
 				char *heading );
 
-LIST *inventory_purchase_fetch_return_list(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *inventory_name );
-
-INVENTORY_PURCHASE_RETURN *inventory_purchase_return_parse(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *input_buffer );
-
 char *inventory_get_where(	char *inventory_name );
 
-char *inventory_purchase_return_get_select(
-				void );
+int inventory_purchase_get_returned_quantity(
+				LIST *inventory_purchase_return_list );
 
-INVENTORY_PURCHASE_RETURN *inventory_purchase_return_list_seek(
-				LIST *inventory_purchase_return_list,
-				char *return_date_time );
+int inventory_purchase_get_quantity_minus_returned(
+				int quantity,
+				LIST *inventory_purchase_return_list );
 
-TRANSACTION *inventory_purchase_return_transaction_new(
-				char **transaction_date_time,
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				double unit_cost,
-				char *inventory_account_name,
-				char *return_date_time,
-				int returned_quantity,
-				double sales_tax );
+int inventory_sale_get_returned_quantity(
+				LIST *inventory_sale_return_list );
 
-void inventory_get_inventory_purchase_return_account_names(
-				char **account_payable_account,
-				char **account_receivable_account,
-				char **sales_tax_expense_account,
-				char *application_name,
-				char *fund_name );
+int inventory_sale_get_quantity_minus_returned(
+				int quantity,
+				LIST *inventory_sale_return_list );
+
+/* ---------------------------------------------------- */
+/* Sets inventory_purchase.quantity_on_hand,		*/
+/*      inventory_purchase.layer_consumed_quantity,	*/
+/*      inventory_sale.layer_inventory_purchase_list,	*/
+/*      inventory_sale.cost_of_goods_sold.		*/
+/* ---------------------------------------------------- */
+void inventory_set_fifo_layer_inventory_purchase_list(
+				LIST *inventory_purchase_list,
+				LIST *inventory_sale_list );
+
+LIST *inventory_get_fifo_layer_inventory_purchase_list(
+				double *cost_of_goods_sold,
+				int sold_quantity,
+				LIST *inventory_purchase_list );
+
+/* ---------------------------------------------------- */
+/* Sets inventory_purchase.quantity_on_hand,		*/
+/*      inventory_purchase.layer_consumed_quantity,	*/
+/*      inventory_sale.layer_inventory_purchase_list,	*/
+/*      inventory_sale.cost_of_goods_sold.		*/
+/* ---------------------------------------------------- */
+void inventory_set_lifo_layer_inventory_purchase_list(
+				LIST *inventory_purchase_list,
+				LIST *inventory_sale_list );
+
+LIST *inventory_get_lifo_layer_inventory_purchase_list(
+				double *cost_of_goods_sold,
+				int sold_quantity,
+				LIST *inventory_purchase_list );
 
 #endif
 

@@ -500,7 +500,6 @@ LIST *process_parameter_get_folder_element_list(
 		process_convert_parameters(
 				&process->executable,
 			 	application_name,
-				database_string,
 				session,
 				(char *)0 /* state */,
 				login_name,
@@ -1905,7 +1904,6 @@ LIST *process_parameter_get_prompt_process_list(
 	process_convert_parameters(
 			&populate_drop_down_process->executable,
 			application_name,
-			(char *)0 /* database_string */,
 			session,
 			(char *)0 /* state */,
 			login_name,

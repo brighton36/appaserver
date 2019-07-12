@@ -299,6 +299,7 @@ boolean entity_load(	char **city,
 	free( results );
 
 	return 1;
+
 } /* entity_load() */
 
 void entity_propagate_purchase_order_ledger_accounts(
@@ -358,7 +359,7 @@ void entity_propagate_purchase_order_ledger_accounts(
 
 } /* entity_propagate_purchase_order_ledger_accounts() */
 
-ENTITY_SELF *entity_self_sale_inventory_load(
+ENTITY_SELF *entity_self_inventory_load(
 			char *application_name,
 			char *inventory_name )
 {
@@ -432,7 +433,7 @@ ENTITY_SELF *entity_self_sale_inventory_load(
 
 	return entity_self;
 
-} /* entity_self_sale_inventory_load() */
+} /* entity_self_inventory_load() */
 
 char *entity_get_title_passage_rule_string(
 				enum title_passage_rule title_passage_rule )
@@ -490,7 +491,7 @@ LIST *entity_get_inventory_list(
 	FILE *input_pipe;
 
 	select =
-"inventory_name,credit_account,cost_of_goods_sold_account";
+"inventory_name,inventory_account,cost_of_goods_sold_account";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -522,7 +523,7 @@ LIST *entity_get_inventory_list(
 		if ( !*piece_buffer )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: empty credit_account_name for inventory = (%s).\n",
+"ERROR in %s/%s()/%d: empty inventory_account for inventory = (%s).\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,

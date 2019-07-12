@@ -79,6 +79,7 @@ EXTERNAL_LIBRARY=							\
 		${LEDGER_LIBRARY}/depreciation.o			\
 		${LEDGER_LIBRARY}/customer.o				\
 		${LEDGER_LIBRARY}/inventory.o				\
+		${LEDGER_LIBRARY}/inventory_purchase_return.o		\
 		${LEDGER_LIBRARY}/fixed_asset.o				\
 		${LEDGER_LIBRARY}/entity.o
 

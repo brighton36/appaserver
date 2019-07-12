@@ -426,7 +426,7 @@ void post_change_inventory_sale_quantity_update(
 	inventory_sale->extension =
 		inventory_sale_get_extension(
 			inventory_sale->retail_price,
-			inventory_sale->quantity,
+			inventory_sale->sold_quantity,
 			inventory_sale->discount_amount );
 
 	inventory_sale_list_update(
@@ -563,7 +563,7 @@ void post_change_inventory_sale_retail_price_update(
 	inventory_sale->extension =
 		inventory_sale_get_extension(
 			inventory_sale->retail_price,
-			inventory_sale->quantity,
+			inventory_sale->sold_quantity,
 			inventory_sale->discount_amount );
 
 	customer_sale->invoice_amount =
@@ -679,7 +679,7 @@ void post_change_inventory_sale_discount_amount_update(
 	inventory_sale->extension =
 		inventory_sale_get_extension(
 			inventory_sale->retail_price,
-			inventory_sale->quantity,
+			inventory_sale->sold_quantity,
 			inventory_sale->discount_amount );
 
 	customer_sale->invoice_amount =

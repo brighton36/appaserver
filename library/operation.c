@@ -257,7 +257,6 @@ boolean operation_perform(
 			process_convert_parameters(
 				&local_executable,
 				application_name,
-				database_string,
 				session,
 				state,
 				login_name,

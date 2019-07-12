@@ -37,6 +37,7 @@ void bank_upload_propagate(	char *minimum_bank_date );
 /* Returns either file_row_count or table_insert_count */
 /* --------------------------------------------------- */
 int load_bank_spreadsheet(	int *transaction_count,
+				char **minimum_bank_date,
 				char *application_name,
 				char *login_name,
 				char *fund_name,
@@ -90,6 +91,7 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	int load_count = 0;
 	int transaction_count = 0;
+	char *minimum_bank_date = {0};
 	char buffer[ 128 ];
 
 	/* Exits if not found. */
@@ -238,10 +240,14 @@ int main( int argc, char **argv )
 				execute );
 	}
 	else
+	/* ------------ */
+	/* If full load */
+	/* ------------ */
 	{
 		load_count =
 			load_bank_spreadsheet(
 				&transaction_count,
+				&minimum_bank_date,
 				application_name,
 				login_name,
 				fund_name,
@@ -272,10 +278,30 @@ int main( int argc, char **argv )
 
 			if ( system( sys_string ) ) {};
 		}
+	/* ------------ */
+	/* If full load */
+	/* ------------ */
 	}
 
 	if ( execute )
 	{
+		if ( !minimum_bank_date )
+		{
+			fprintf( stderr,
+		"Warning in %s/%s()/%d: did not fetch minimum_bank_date.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+		}
+		else
+		{
+			bank_upload_transaction_balance_propagate(
+				minimum_bank_date );
+
+			bank_upload_propagate(
+				minimum_bank_date );
+		}
+
 		process_increment_execution_count(
 			application_name,
 			process_name,
@@ -438,6 +464,7 @@ void bank_upload_propagate( char *minimum_bank_date )
 /* ---------------------------------------------------- */
 int load_bank_spreadsheet(
 			int *transaction_count,
+			char **minimum_bank_date,
 			char *application_name,
 			char *login_name,
 			char *fund_name,
@@ -617,11 +644,6 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				table.
 				bank_upload_table_list );
-
-		bank_upload_transaction_balance_propagate(
-			bank_upload_structure->
-				file.
-				minimum_bank_date );
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -633,6 +655,11 @@ int load_bank_spreadsheet(
 
 		printf( "\n" );
 	}
+
+	*minimum_bank_date =
+		bank_upload_structure->
+			file.
+			minimum_bank_date;
 
 	if ( !execute )
 		return bank_upload_structure->file.file_row_count;

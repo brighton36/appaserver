@@ -695,7 +695,6 @@ void delete_database_execute_delete_row_list_pipe(
 			process_convert_parameters(
 				&post_change_process->executable,
 				application_name,
-				(char *)0 /* database_string */,
 				(char *)0 /* session */,
 				"predelete" /* state */,
 				(char *)0 /* login_name */,
@@ -747,7 +746,6 @@ void delete_database_execute_delete_row_list_pipe(
 			process_convert_parameters(
 				&post_change_process->executable,
 				application_name,
-				(char *)0 /* database_string */,
 				(char *)0 /* session */,
 				"delete" /* state */,
 				(char *)0 /* login_name */,

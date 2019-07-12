@@ -1,8 +1,8 @@
-/* ---------------------------------------------------------------	*/
-/* src_predictive/propagate_inventory_sale_layers.c			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/propagate_inventory_sale_layers.c	*/
+/* -----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -106,7 +106,7 @@ int main( int argc, char **argv )
 	else
 	{
 		entity_self =
-			entity_self_sale_inventory_load(
+			entity_self_inventory_load(
 				application_name,
 				inventory_name );
 
@@ -171,7 +171,7 @@ double propagate_inventory_sale_layers_latest(
 	inventory_sale->extension =
 		inventory_sale_get_extension(
 				inventory_sale->retail_price,
-				inventory_sale->quantity,
+				inventory_sale->sold_quantity,
 				inventory_sale->discount_amount );
 
 	inventory_sale->
@@ -184,7 +184,7 @@ double propagate_inventory_sale_layers_latest(
 			&inventory->last_inventory_balance->total_cost_balance,
 			&inventory->last_inventory_balance->quantity_on_hand,
 			inventory->last_inventory_balance->average_unit_cost,
-			inventory_sale->quantity,
+			inventory_sale->sold_quantity,
 			inventory_cost_method,
 			inventory_sale->completed_date_time );
 /*
@@ -194,15 +194,15 @@ double propagate_inventory_sale_layers_latest(
 			&inventory->last_inventory_balance->total_cost_balance,
 			&inventory->last_inventory_balance->quantity_on_hand,
 			inventory->last_inventory_balance->average_unit_cost,
-			inventory_sale->quantity );
+			inventory_sale->sold_quantity );
 
 	inventory_purchase_fifo_decrement_quantity_on_hand(
 		inventory->inventory_purchase_list,
-		inventory_sale->quantity );
+		inventory_sale->sold_quantity );
 */
 
-	/* Update inventory_purchase->quantity_on_hand */
-	/* ------------------------------------------- */
+	/* Update everything with a database_ */
+	/* ---------------------------------- */
 	inventory_purchase_list_update(
 		application_name,
 		inventory->inventory_purchase_list );
@@ -263,7 +263,7 @@ void propagate_inventory_sale_layers_not_latest(
 
 	if ( inventory_cost_method == inventory_fifo )
 	{
-		inventory_reset_quantity_on_hand(
+		inventory_purchase_list_reset_quantity_on_hand(
 			inventory->inventory_purchase_list );
 
 		inventory_set_quantity_on_hand_CGS_fifo(
@@ -273,7 +273,7 @@ void propagate_inventory_sale_layers_not_latest(
 	else
 	if ( inventory_cost_method == inventory_lifo )
 	{
-		inventory_reset_quantity_on_hand(
+		inventory_purchase_list_reset_quantity_on_hand(
 			inventory->inventory_purchase_list );
 
 		inventory_set_quantity_on_hand_CGS_lifo(
@@ -282,7 +282,7 @@ void propagate_inventory_sale_layers_not_latest(
 	}
 	else
 	{
-		inventory_reset_quantity_on_hand(
+		inventory_purchase_list_reset_quantity_on_hand(
 			inventory->inventory_purchase_list );
 
 		inventory_set_quantity_on_hand_fifo(
@@ -290,8 +290,8 @@ void propagate_inventory_sale_layers_not_latest(
 			inventory->inventory_purchase_list );
 	}
 
-	/* Update inventory_purchase->quantity_on_hand */
-	/* ------------------------------------------- */
+	/* Update everything with a database_ */
+	/* ---------------------------------- */
 	inventory_purchase_list_update(
 		application_name,
 		inventory->inventory_purchase_list );

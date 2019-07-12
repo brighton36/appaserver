@@ -171,7 +171,7 @@ double propagate_inventory_sale_layers_latest(
 	inventory_sale->extension =
 		inventory_sale_get_extension(
 				inventory_sale->retail_price,
-				inventory_sale->quantity,
+				inventory_sale->sold_quantity,
 				inventory_sale->discount_amount );
 
 	inventory_sale->
@@ -184,7 +184,7 @@ double propagate_inventory_sale_layers_latest(
 			&inventory->last_inventory_balance->total_cost_balance,
 			&inventory->last_inventory_balance->quantity_on_hand,
 			inventory->last_inventory_balance->average_unit_cost,
-			inventory_sale->quantity,
+			inventory_sale->sold_quantity,
 			inventory_cost_method,
 			inventory_sale->completed_date_time );
 /*
@@ -194,11 +194,11 @@ double propagate_inventory_sale_layers_latest(
 			&inventory->last_inventory_balance->total_cost_balance,
 			&inventory->last_inventory_balance->quantity_on_hand,
 			inventory->last_inventory_balance->average_unit_cost,
-			inventory_sale->quantity );
+			inventory_sale->sold_quantity );
 
 	inventory_purchase_fifo_decrement_quantity_on_hand(
 		inventory->inventory_purchase_list,
-		inventory_sale->quantity );
+		inventory_sale->sold_quantity );
 */
 
 	/* Update everything with a database_ */

@@ -186,11 +186,12 @@ void inventory_balance_fifo_stdout(	char *application_name,
 	output_pipe = popen( STDOUT_PROCESS, "w" );
 
 	/* ---------------------------------------------------- */
-	/* Sets inventory_purchase.layer_inventory_sale_list,	*/
-	/*      inventory_purchase.layer_quantity_remaining,	*/
+	/* Sets inventory_purchase.quantity_on_hand,		*/
+	/*      inventory_purchase.layer_consumed_quantity,	*/
+	/*      inventory_sale.layer_inventory_purchase_list,	*/
 	/*      inventory_sale.cost_of_goods_sold.		*/
 	/* ---------------------------------------------------- */
-	inventory_set_fifo_layer_inventory_sale_list(
+	inventory_set_fifo_layer_inventory_purchase_list(
 			inventory->inventory_purchase_list,
 			inventory->inventory_sale_list );
 
@@ -581,7 +582,7 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 				"%d",
 				inventory_balance->
 					inventory_sale->
-					quantity );
+					sold_quantity );
 
 			latex_append_column_data_list(
 				latex_row->column_data_list,

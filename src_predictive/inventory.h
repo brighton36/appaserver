@@ -56,7 +56,7 @@ typedef struct
 	char *sale_date_time;
 	char *inventory_name;
 	char *completed_date_time;
-	int quantity;
+	int sold_quantity;
 	double retail_price;
 	double discount_amount;
 	double extension;
@@ -66,6 +66,7 @@ typedef struct
 	char *inventory_account_name;
 	char *cost_of_goods_sold_account_name;
 	LIST *inventory_sale_return_list;
+	LIST *layer_inventory_purchase_list;
 } INVENTORY_SALE;
 
 typedef struct
@@ -86,8 +87,7 @@ typedef struct
 	int database_arrived_quantity;
 	int quantity_on_hand;
 	int database_quantity_on_hand;
-	LIST *layer_inventory_sale_list;
-	int layer_quantity_remaining;
+	int layer_consumed_quantity;
 	double average_unit_cost;
 	double database_average_unit_cost;
 	char *inventory_account_name;
@@ -555,7 +555,7 @@ void inventory_sale_parse(
 				char **street_address,
 				char **sale_date_time,
 				char **inventory_name,
-				int *quantity,
+				int *sold_quantity,
 				double *retail_price,
 				double *discount_amount,
 				double *extension,
@@ -710,17 +710,34 @@ int inventory_sale_get_quantity_minus_returned(
 				LIST *inventory_sale_return_list );
 
 /* ---------------------------------------------------- */
-/* Sets inventory_purchase.layer_inventory_sale_list,	*/
-/*      inventory_purchase.layer_quantity_remaining,	*/
+/* Sets inventory_purchase.quantity_on_hand,		*/
+/*      inventory_purchase.layer_consumed_quantity,	*/
+/*      inventory_sale.layer_inventory_purchase_list,	*/
 /*      inventory_sale.cost_of_goods_sold.		*/
 /* ---------------------------------------------------- */
-void inventory_set_fifo_layer_inventory_sale_list(
+void inventory_set_fifo_layer_inventory_purchase_list(
 				LIST *inventory_purchase_list,
 				LIST *inventory_sale_list );
 
-LIST *inventory_get_fifo_layer_inventory_sale_list(
-				int *layer_quantity_remaining,
+LIST *inventory_get_fifo_layer_inventory_purchase_list(
+				double *cost_of_goods_sold,
+				int sold_quantity,
+				LIST *inventory_purchase_list );
+
+/* ---------------------------------------------------- */
+/* Sets inventory_purchase.quantity_on_hand,		*/
+/*      inventory_purchase.layer_consumed_quantity,	*/
+/*      inventory_sale.layer_inventory_purchase_list,	*/
+/*      inventory_sale.cost_of_goods_sold.		*/
+/* ---------------------------------------------------- */
+void inventory_set_lifo_layer_inventory_purchase_list(
+				LIST *inventory_purchase_list,
 				LIST *inventory_sale_list );
+
+LIST *inventory_get_lifo_layer_inventory_purchase_list(
+				double *cost_of_goods_sold,
+				int sold_quantity,
+				LIST *inventory_purchase_list );
 
 #endif
 

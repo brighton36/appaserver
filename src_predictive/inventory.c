@@ -673,6 +673,8 @@ LIST *inventory_purchase_entity_get_list(
 				&inventory_purchase->arrived_date_time,
 				input_buffer );
 
+/* Not here. See inventory_purchase_arrived_date_get_list()
+
 		inventory_purchase->inventory_purchase_return_list =
 			inventory_purchase_fetch_return_list(
 				application_name,
@@ -680,6 +682,7 @@ LIST *inventory_purchase_entity_get_list(
 				inventory_purchase->street_address,
 				inventory_purchase->purchase_date_time,
 				inventory_purchase->inventory_name );
+*/
 
 		list_append_pointer(
 			inventory_purchase_list,
@@ -881,6 +884,14 @@ LIST *inventory_purchase_arrived_date_get_list(
 				&inventory_purchase->arrived_date_time,
 				input_buffer );
 
+		inventory_purchase->inventory_purchase_return_list =
+			inventory_purchase_fetch_return_list(
+				application_name,
+				inventory_purchase->full_name,
+				inventory_purchase->street_address,
+				inventory_purchase->purchase_date_time,
+				inventory_purchase->inventory_name );
+
 		list_append_pointer( purchase_list, inventory_purchase );
 	}
 
@@ -889,6 +900,115 @@ LIST *inventory_purchase_arrived_date_get_list(
 	return purchase_list;
 
 } /* inventory_purchase_arrived_date_get_list() */
+
+LIST *inventory_sale_completed_date_get_list(
+				char *application_name,
+				char *inventory_name,
+				char *earliest_completed_date_time,
+				char *latest_completed_date_time )
+{
+	char sys_string[ 2048 ];
+	char earliest_completed_where[ 128 ];
+	char latest_completed_where[ 128 ];
+	char where[ 1024 ];
+	char *join_where;
+	char *select;
+	char *folder;
+	FILE *input_pipe;
+	char input_buffer[ 512 ];
+	INVENTORY_SALE *inventory_sale;
+	LIST *sale_list;
+	char escape_buffer[ 128 ];
+
+	select = inventory_sale_get_select();
+
+	folder = "customer_sale,inventory_sale,inventory";
+
+	if ( earliest_completed_date_time && *earliest_completed_date_time )
+	{
+		sprintf( earliest_completed_where,
+			 "purchase_order.completed_date_time >= '%s'",
+			 earliest_completed_date_time );
+	}
+	else
+	{
+		strcpy( earliest_completed_where, "1 = 1" );
+	}
+
+	if ( latest_completed_date_time && *latest_completed_date_time )
+	{
+		sprintf( latest_completed_where,
+			 "purchase_order.completed_date_time <= '%s'",
+			 latest_completed_date_time );
+	}
+	else
+	{
+		strcpy( latest_completed_where, "1 = 1" );
+	}
+
+	join_where = inventory_get_inventory_sale_join_where();
+
+	sprintf( where,
+	 	 "inventory_sale.inventory_name = '%s' and	"
+		 "completed_date_time is not null and		"
+		 "%s						",
+	 	 escape_character(
+			escape_buffer,
+			inventory_name,
+			'\'' ),
+		 join_where );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			"
+		 "			order=completed_date_time	",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+	sale_list = list_new();
+
+	while ( get_line( input_buffer, input_pipe ) )
+	{
+		inventory_sale = inventory_sale_new();
+
+		inventory_sale_parse(
+			&inventory_sale->full_name,
+			&inventory_sale->street_address,
+			&inventory_sale->sale_date_time,
+			&inventory_sale->inventory_name,
+			&inventory_sale->sold_quantity,
+			&inventory_sale->retail_price,
+			&inventory_sale->discount_amount,
+			&inventory_sale->extension,
+			&inventory_sale->database_extension,
+			&inventory_sale->cost_of_goods_sold,
+			&inventory_sale->database_cost_of_goods_sold,
+			&inventory_sale->completed_date_time,
+			&inventory_sale->inventory_account_name,
+			&inventory_sale->cost_of_goods_sold_account_name,
+			input_buffer );
+
+		inventory_sale->inventory_sale_return_list =
+			inventory_sale_fetch_return_list(
+				application_name,
+				inventory_sale->full_name,
+				inventory_sale->street_address,
+				inventory_sale->sale_date_time,
+				inventory_sale->inventory_name );
+
+		list_append_pointer( sale_list, inventory_sale );
+	}
+
+	pclose( input_pipe );
+
+	return sale_list;
+
+} /* inventory_sale_completed_date_get_list() */
 
 LIST *inventory_sale_get_list(
 				char *application_name,
@@ -1092,7 +1212,7 @@ void inventory_purchase_fifo_decrement_quantity_on_hand(
 				int quantity )
 {
 	INVENTORY_PURCHASE *inventory_purchase;
-	int total_quantity_on_hand = quantity;
+	int total_quantity_remaining = quantity;
 
 	if ( !list_rewind( purchase_list ) || !quantity ) return;
 
@@ -1105,9 +1225,9 @@ void inventory_purchase_fifo_decrement_quantity_on_hand(
 		}
 		else
 		if ( inventory_purchase->quantity_on_hand <
-		     total_quantity_on_hand )
+		     total_quantity_remaining )
 		{
-			total_quantity_on_hand -= 
+			total_quantity_remaining -= 
 				inventory_purchase->quantity_on_hand;
 
 			inventory_purchase->quantity_on_hand = 0;
@@ -1115,7 +1235,7 @@ void inventory_purchase_fifo_decrement_quantity_on_hand(
 		else
 		{
 			inventory_purchase->quantity_on_hand -=
-				total_quantity_on_hand;
+				total_quantity_remaining;
 
 			break;
 		}
@@ -1129,7 +1249,7 @@ void inventory_purchase_lifo_decrement_quantity_on_hand(
 				int quantity )
 {
 	INVENTORY_PURCHASE *inventory_purchase;
-	int total_quantity_on_hand = quantity;
+	int total_quantity_remaining = quantity;
 
 	if ( !list_go_tail( purchase_list ) || !quantity ) return;
 
@@ -1142,9 +1262,9 @@ void inventory_purchase_lifo_decrement_quantity_on_hand(
 		}
 		else
 		if ( inventory_purchase->quantity_on_hand <
-		     total_quantity_on_hand )
+		     total_quantity_remaining )
 		{
-			total_quantity_on_hand -= 
+			total_quantity_remaining -= 
 				inventory_purchase->quantity_on_hand;
 
 			inventory_purchase->quantity_on_hand = 0;
@@ -1152,7 +1272,7 @@ void inventory_purchase_lifo_decrement_quantity_on_hand(
 		else
 		{
 			inventory_purchase->quantity_on_hand -=
-				total_quantity_on_hand;
+				total_quantity_remaining;
 
 			break;
 		}
@@ -1258,7 +1378,7 @@ double inventory_decrement_quantity_on_hand_get_CGS_fifo(
 {
 	INVENTORY_PURCHASE *inventory_purchase;
 	double cost_of_goods_sold = 0.0;
-	int total_quantity_on_hand = quantity;
+	int total_quantity_remaining = quantity;
 
 	if ( !list_rewind( inventory_purchase_list ) || !quantity )
 	{
@@ -1276,13 +1396,13 @@ double inventory_decrement_quantity_on_hand_get_CGS_fifo(
 		}
 		else
 		if ( inventory_purchase->quantity_on_hand <
-		     total_quantity_on_hand )
+		     total_quantity_remaining )
 		{
 			cost_of_goods_sold +=
 				inventory_purchase->capitalized_unit_cost *
 				(double)inventory_purchase->quantity_on_hand;
 
-			total_quantity_on_hand -= 
+			total_quantity_remaining -= 
 				inventory_purchase->quantity_on_hand;
 
 			inventory_purchase->quantity_on_hand = 0;
@@ -1292,10 +1412,10 @@ double inventory_decrement_quantity_on_hand_get_CGS_fifo(
 			cost_of_goods_sold +=
 				( inventory_purchase->capitalized_unit_cost *
 				  (double)
-				      total_quantity_on_hand );
+				      total_quantity_remaining );
 
 			inventory_purchase->quantity_on_hand -=
-				total_quantity_on_hand;
+				total_quantity_remaining;
 
 			return cost_of_goods_sold;
 		}
@@ -1339,7 +1459,7 @@ double inventory_decrement_quantity_on_hand_get_CGS_lifo(
 {
 	INVENTORY_PURCHASE *inventory_purchase;
 	double cost_of_goods_sold = 0.0;
-	int total_quantity_on_hand = quantity;
+	int total_quantity_remaining = quantity;
 
 	if ( !list_go_tail( inventory_purchase_list ) || !quantity )
 	{
@@ -1361,13 +1481,13 @@ double inventory_decrement_quantity_on_hand_get_CGS_lifo(
 		}
 
 		if ( inventory_purchase->quantity_on_hand <
-		     total_quantity_on_hand )
+		     total_quantity_remaining )
 		{
 			cost_of_goods_sold +=
 				inventory_purchase->capitalized_unit_cost *
 				(double)inventory_purchase->quantity_on_hand;
 
-			total_quantity_on_hand -= 
+			total_quantity_remaining -= 
 				inventory_purchase->quantity_on_hand;
 
 			inventory_purchase->quantity_on_hand = 0;
@@ -1377,10 +1497,10 @@ double inventory_decrement_quantity_on_hand_get_CGS_lifo(
 			cost_of_goods_sold +=
 				( inventory_purchase->capitalized_unit_cost *
 				  (double)
-				      total_quantity_on_hand );
+				      total_quantity_remaining );
 
 			inventory_purchase->quantity_on_hand -=
-				total_quantity_on_hand;
+				total_quantity_remaining;
 
 			return cost_of_goods_sold;
 		}
@@ -2002,6 +2122,182 @@ LIST *inventory_get_fifo_inventory_balance_list(
 	return inventory_balance_list;
 
 } /* inventory_get_fifo_inventory_balance_list() */
+
+LIST *inventory_sort_inventory_balance_list(
+				LIST *inventory_purchase_list,
+				LIST *inventory_sale_list )
+{
+	LIST *inventory_balance_list;
+	INVENTORY_BALANCE *inventory_balance = {0};
+	INVENTORY_BALANCE *prior_inventory_balance = {0};
+	double purchase_total_cost;
+	int total_missing_quantity = 0;
+	int quantity_minus_returned;
+	boolean first_time = 1;
+
+	inventory_balance_list =
+		inventory_get_balance_list(
+			inventory_purchase_list,
+			inventory_sale_list );
+
+	if ( !list_rewind( inventory_balance_list ) ) return (LIST *)0;
+
+	do {
+		inventory_balance = list_get( inventory_balance_list );
+
+		if ( first_time )
+		{
+			if ( !inventory_balance->inventory_purchase )
+			{
+				fprintf( stderr,
+"ERROR in %s/%s()/%d: inventory balance must start with a purchase.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				return (LIST *)0;
+			}
+
+			quantity_minus_returned =
+				inventory_purchase_get_quantity_minus_returned(
+					inventory_balance->
+					       inventory_purchase->
+					       ordered_quantity,
+					inventory_balance->
+					       inventory_purchase->
+					       inventory_purchase_return_list );
+
+			inventory_balance->quantity_on_hand =
+				quantity_minus_returned;
+
+			inventory_balance->
+				average_unit_cost =
+			inventory_balance->
+				inventory_purchase->
+				average_unit_cost =
+					inventory_balance->
+						inventory_purchase->
+						capitalized_unit_cost;
+
+			inventory_balance->total_cost_balance =
+				(double)inventory_balance->
+						quantity_on_hand *
+				inventory_balance->
+						average_unit_cost;
+
+			total_missing_quantity =
+				inventory_balance->
+					inventory_purchase->
+					missing_quantity;
+
+			prior_inventory_balance = inventory_balance;
+			first_time = 0;
+			continue;
+		}
+
+		if ( inventory_balance->inventory_purchase )
+		{
+			quantity_minus_returned =
+				inventory_purchase_get_quantity_minus_returned(
+					inventory_balance->
+					       inventory_purchase->
+					       ordered_quantity,
+					inventory_balance->
+					       inventory_purchase->
+					       inventory_purchase_return_list );
+
+			inventory_balance->quantity_on_hand =
+				prior_inventory_balance->
+					quantity_on_hand +
+					quantity_minus_returned;
+
+			purchase_total_cost =
+				(double)quantity_minus_returned *
+				inventory_balance->
+					inventory_purchase->
+					capitalized_unit_cost;
+
+			inventory_balance->
+			total_cost_balance =
+				prior_inventory_balance->
+					total_cost_balance +
+				purchase_total_cost;
+
+			if ( inventory_balance->
+				quantity_on_hand )
+			{
+				inventory_balance->
+				inventory_purchase->
+				average_unit_cost =
+					  inventory_balance->
+					    total_cost_balance /
+					    (double)inventory_balance->
+							quantity_on_hand;
+			}
+			else
+			{
+				inventory_balance->
+					inventory_purchase->
+					average_unit_cost = 0.0;
+			}
+
+			total_missing_quantity +=
+				inventory_balance->
+					inventory_purchase->
+					missing_quantity;
+
+			inventory_balance->average_unit_cost =
+				inventory_balance->
+					inventory_purchase->
+					average_unit_cost;
+		}
+		else
+		/* ----------------- */
+		/* If inventory sale */
+		/* ----------------- */
+		{
+			inventory_balance->average_unit_cost =
+				prior_inventory_balance->
+					average_unit_cost;
+
+			inventory_balance->
+			total_cost_balance =
+				prior_inventory_balance->
+					total_cost_balance -
+				( inventory_balance->average_unit_cost *
+				  (double)inventory_balance->
+					inventory_sale->
+					sold_quantity );
+
+			quantity_minus_returned =
+				inventory_sale_get_quantity_minus_returned(
+					inventory_balance->
+						inventory_sale->
+						sold_quantity,
+					inventory_balance->
+						inventory_sale->
+						inventory_sale_return_list );
+
+			inventory_balance->quantity_on_hand =
+				prior_inventory_balance->
+					quantity_on_hand -
+					quantity_minus_returned;
+		}
+
+		prior_inventory_balance = inventory_balance;
+
+	} while ( list_next( inventory_balance_list ) );
+
+	/* Set the last balance attributes. */
+	/* -------------------------------- */
+	inventory_balance->quantity_on_hand -= total_missing_quantity;
+
+	inventory_balance->total_cost_balance =
+		(double)inventory_balance->quantity_on_hand *
+		inventory_balance->average_unit_cost;
+
+	return inventory_balance_list;
+
+} /* inventory_sort_inventory_balance_list() */
 
 LIST *inventory_get_average_cost_inventory_balance_list(
 				LIST *inventory_purchase_list,
@@ -3118,6 +3414,7 @@ void inventory_purchase_parse(
 				char *input_buffer )
 {
 	char piece_buffer[ 1024 ];
+
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 	if ( *piece_buffer )
@@ -4247,9 +4544,10 @@ LIST *inventory_sale_fetch_return_list(
 /*      inventory_sale.layer_inventory_purchase_list,	*/
 /*      inventory_sale.cost_of_goods_sold.		*/
 /* ---------------------------------------------------- */
-void inventory_set_fifo_layer_inventory_purchase_list(
+void inventory_set_layer_inventory_purchase_list(
 				LIST *inventory_purchase_list,
-				LIST *inventory_sale_list )
+				LIST *inventory_sale_list,
+				boolean is_fifo )
 {
 	INVENTORY_SALE *inventory_sale;
 
@@ -4258,56 +4556,52 @@ void inventory_set_fifo_layer_inventory_purchase_list(
 	do {
 		inventory_sale = list_get( inventory_sale_list );
 
+		/* ---------------------------------------------------- */
+		/* Sets inventory_purchase.quantity_on_hand,		*/
+		/*      inventory_purchase.layer_consumed_quantity	*/
+		/* ---------------------------------------------------- */
 		inventory_sale->layer_inventory_purchase_list =
-			inventory_get_fifo_layer_inventory_purchase_list(
+			inventory_get_layer_inventory_purchase_list(
 				&inventory_sale->cost_of_goods_sold,
+				inventory_purchase_list,
 				inventory_sale->sold_quantity,
-				inventory_purchase_list );
+				is_fifo );
 
 	} while( list_next( inventory_sale_list ) );
 
-} /* inventory_set_fifo_layer_inventory_purchase_list() */
+} /* inventory_set_layer_inventory_purchase_list() */
 
 /* ---------------------------------------------------- */
 /* Sets inventory_purchase.quantity_on_hand,		*/
-/*      inventory_purchase.layer_consumed_quantity,	*/
-/*      inventory_sale.layer_inventory_purchase_list,	*/
-/*      inventory_sale.cost_of_goods_sold.		*/
+/*      inventory_purchase.layer_consumed_quantity	*/
 /* ---------------------------------------------------- */
-void inventory_set_lifo_layer_inventory_purchase_list(
+LIST *inventory_get_layer_inventory_purchase_list(
+				double *cost_of_goods_sold,
 				LIST *inventory_purchase_list,
-				LIST *inventory_sale_list )
-{
-	INVENTORY_SALE *inventory_sale;
-
-	if ( !list_rewind( inventory_sale_list ) ) return;
-
-	do {
-		inventory_sale = list_get( inventory_sale_list );
-
-		inventory_sale->layer_inventory_purchase_list =
-			inventory_get_lifo_layer_inventory_purchase_list(
-				&inventory_sale->cost_of_goods_sold,
-				inventory_sale->sold_quantity,
-				inventory_purchase_list );
-
-	} while( list_next( inventory_sale_list ) );
-
-} /* inventory_set_lifo_layer_inventory_purchase_list() */
-
-LIST *inventory_get_fifo_layer_inventory_purchase_list(
-				double *cost_of_goods_sold,
 				int sold_quantity,
-				LIST *inventory_purchase_list )
+				boolean is_fifo )
 {
 	INVENTORY_PURCHASE *inventory_purchase;
-	int total_quantity_on_hand;
+	int total_quantity_remaining;
 	LIST *layer_inventory_purchase_list;
+	boolean (*rewind_fn)();
+	boolean (*next_fn)();
 
-	if ( !list_rewind( inventory_purchase_list ) ) return (LIST *)0;
+	if ( is_fifo )
+	{
+		rewind_fn = list_rewind;
+		next_fn = list_next;
+	}
+	else
+	{
+		rewind_fn = list_go_tail;
+		next_fn = list_previous;
+	}
+
+	if ( !(*rewind_fn)( inventory_purchase_list ) ) return (LIST *)0;
 
 	*cost_of_goods_sold = 0.0;
-	total_quantity_on_hand = sold_quantity;
+	total_quantity_remaining = sold_quantity;
 	layer_inventory_purchase_list = list_new();
 
 	do {
@@ -4319,7 +4613,7 @@ LIST *inventory_get_fifo_layer_inventory_purchase_list(
 		}
 		else
 		if ( inventory_purchase->quantity_on_hand <
-		     total_quantity_on_hand )
+		     total_quantity_remaining )
 		{
 			inventory_purchase->layer_consumed_quantity =
 				inventory_purchase->quantity_on_hand;
@@ -4329,7 +4623,7 @@ LIST *inventory_get_fifo_layer_inventory_purchase_list(
 				(double)inventory_purchase->
 						layer_consumed_quantity;
 
-			total_quantity_on_hand -=
+			total_quantity_remaining -=
 				inventory_purchase->
 					layer_consumed_quantity;
 
@@ -4342,7 +4636,7 @@ LIST *inventory_get_fifo_layer_inventory_purchase_list(
 		else
 		{
 			inventory_purchase->layer_consumed_quantity =
-				total_quantity_on_hand;
+				total_quantity_remaining;
 
 			*cost_of_goods_sold +=
 				inventory_purchase->capitalized_unit_cost *
@@ -4359,79 +4653,138 @@ LIST *inventory_get_fifo_layer_inventory_purchase_list(
 			return layer_inventory_purchase_list;
 		}
 
-	} while ( list_next( inventory_purchase_list ) );
+	} while ( (*next_fn)( inventory_purchase_list ) );
 
+	/* This will happen if the inventory runs out. */
+	/* ------------------------------------------- */
 	return layer_inventory_purchase_list;
 
-} /* inventory_get_fifo_layer_inventory_purchase_list() */
+} /* inventory_get_layer_inventory_purchase_list() */
 
-LIST *inventory_get_lifo_layer_inventory_purchase_list(
-				double *cost_of_goods_sold,
-				int sold_quantity,
-				LIST *inventory_purchase_list )
+/* Use this for fifo and lifo */
+/* -------------------------- */
+void inventory_balance_list_table_display(
+				FILE *output_pipe,
+				LIST *inventory_balance_list )
 {
-	INVENTORY_PURCHASE *inventory_purchase;
-	int total_quantity_on_hand;
+	INVENTORY_BALANCE *inventory_balance;
+	INVENTORY_PURCHASE *layer_inventory_purchase;
 	LIST *layer_inventory_purchase_list;
 
-	if ( !list_go_tail( inventory_purchase_list ) ) return (LIST *)0;
-
-	*cost_of_goods_sold = 0.0;
-	total_quantity_on_hand = sold_quantity;
-	layer_inventory_purchase_list = list_new();
+	if ( !list_rewind( inventory_balance_list ) ) return;
 
 	do {
-		inventory_purchase = list_get( inventory_purchase_list );
+		inventory_balance = list_get( inventory_balance_list );
 
-		if ( !inventory_purchase->quantity_on_hand )
+		if ( inventory_balance->inventory_purchase )
 		{
-			continue;
+			if ( !inventory_balance->
+					inventory_purchase->
+					arrived_date_time )
+			{
+				fprintf( stderr,
+			"Error in %s/%s()/%d: empty arrived_date_time.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
+			fprintf(output_pipe,
+"\nPurchase: Arrived=%s, Vendor=%s, Net Ordered=%d, Capitalized Unit Cost=%.4lf\n",
+				inventory_balance->
+					inventory_purchase->
+					arrived_date_time,
+				inventory_balance->
+					inventory_purchase->
+					full_name,
+				inventory_purchase_get_quantity_minus_returned(
+					inventory_balance->
+						inventory_purchase->
+						ordered_quantity,
+					inventory_balance->
+						inventory_purchase->
+						inventory_purchase_return_list),
+				inventory_balance->
+					inventory_purchase->
+					capitalized_unit_cost );
 		}
 		else
-		if ( inventory_purchase->quantity_on_hand <
-		     total_quantity_on_hand )
+		if ( inventory_balance->inventory_sale )
 		{
-			inventory_purchase->layer_consumed_quantity =
-				inventory_purchase->quantity_on_hand;
+			if ( !inventory_balance->
+					inventory_sale->
+					completed_date_time )
+			{
+				fprintf( stderr,
+			"Error in %s/%s()/%d: empty completed_date_time.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
 
-			*cost_of_goods_sold +=
-				inventory_purchase->capitalized_unit_cost *
-				(double)inventory_purchase->
-						layer_consumed_quantity;
+			fprintf(output_pipe,
+"\nSale: Completed=%s, Customer=%s, Sold=%d, Cost of Goods Sold=%.2lf\n",
+				inventory_balance->
+					inventory_sale->
+					completed_date_time,
+				inventory_balance->
+					inventory_sale->
+					full_name,
+				inventory_balance->
+					inventory_sale->
+					sold_quantity,
+				inventory_balance->
+					inventory_sale->
+					cost_of_goods_sold );
 
-			total_quantity_on_hand -= 
-				inventory_purchase->
-					layer_consumed_quantity;
+			layer_inventory_purchase_list =
+				inventory_balance->
+					inventory_sale->
+					layer_inventory_purchase_list;
 
-			inventory_purchase->quantity_on_hand = 0;
+			if ( !list_rewind( layer_inventory_purchase_list ) )
+			{
+				fprintf( stderr,
+"Error in %s/%s()/%d: empty layer_inventory_purchase_list.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
 
-			list_append_pointer(
-				layer_inventory_purchase_list,
-				inventory_purchase );
+			do {
+				layer_inventory_purchase =
+					list_get(
+						layer_inventory_purchase_list );
+
+				fprintf( output_pipe,
+"\tPurchase arrived_date_time = %s, layer_consumed_quantity = %d, capitalized_unit_cost = %.4lf, layer_extension = %.2lf\n",
+				layer_inventory_purchase->
+					arrived_date_time,
+				layer_inventory_purchase->
+					layer_consumed_quantity,
+				layer_inventory_purchase->
+					capitalized_unit_cost,
+				(double)layer_inventory_purchase->
+					layer_consumed_quantity *
+				layer_inventory_purchase->
+					capitalized_unit_cost );
+
+			} while( list_next( layer_inventory_purchase_list ) );
 		}
 		else
 		{
-			inventory_purchase->layer_consumed_quantity =
-				total_quantity_on_hand;
-
-			*cost_of_goods_sold +=
-				inventory_purchase->capitalized_unit_cost *
-				(double)inventory_purchase->
-						layer_consumed_quantity;
-
-			inventory_purchase->quantity_on_hand -=
-				inventory_purchase->layer_consumed_quantity;
-
-			list_append_pointer(
-				layer_inventory_purchase_list,
-				inventory_purchase );
-
-			return layer_inventory_purchase_list;
+			fprintf( output_pipe,
+	"ERROR both inventory_purchase and inventory_sale are missing.\n" );
 		}
 
-	} while ( list_previous( inventory_purchase_list ) );
+		fprintf(output_pipe,
+"\tQuantity on Hand=%d\n",
+			inventory_balance->quantity_on_hand );
 
-	return layer_inventory_purchase_list;
+	} while ( list_next( inventory_balance_list ) );
 
-} /* inventory_get_lifo_layer_inventory_purchase_list() */
+} /* inventory_balance_list_table_display() */
 

@@ -27,7 +27,9 @@
 
 /* Constants */
 /* --------- */
-#define STDOUT_PROCESS		"delimiter2padded_columns.e '^'"
+/* #define STDOUT_PROCESS		"delimiter2padded_columns.e '^'" */
+#define STDOUT_PROCESS		"cat"
+
 #define TABLE_PROCESS		"html_table.e '' '%s' '^' '%s'"
 #define HEADING			"Arrived/Completed^Operation^FullName^Quantity^CostPer^CGS^OnHand^Avg. Cost^Balance"
 #define FOLDER_TABLE_HEADING	"OnHand^Avg^Balance"
@@ -43,7 +45,10 @@ void inventory_balance_average_stdout(	char *application_name,
 					INVENTORY *inventory );
 
 void inventory_balance_fifo_stdout(	char *application_name,
-					INVENTORY *inventory );
+					char *inventory_name );
+
+void inventory_balance_lifo_stdout(	char *application_name,
+					char *inventory_name );
 
 void inventory_balance_average_table(	char *application_name,
 					INVENTORY *inventory,
@@ -71,17 +76,17 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 5 )
+	if ( argc != 4 )
 	{
 		fprintf( stderr,
-		 "Usage: %s ignored process inventory_name output_medium\n",
+		 "Usage: %s process inventory_name output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	inventory_name = argv[ 3 ];
-	output_medium = argv[ 4 ];
+	process_name = argv[ 1 ];
+	inventory_name = argv[ 2 ];
+	output_medium = argv[ 3 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -104,11 +109,6 @@ int main( int argc, char **argv )
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
-
-	entity_self =
-		entity_self_inventory_load(
-			application_name,
-			inventory_name );
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
@@ -135,8 +135,17 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "stdout" ) == 0 )
 	{
+		entity_self =
+			entity_self_load(
+				application_name );
+
 		if ( entity_self->inventory_cost_method == inventory_average )
 		{
+			entity_self =
+				entity_self_inventory_load(
+					application_name,
+					inventory_name );
+
 			inventory_balance_average_stdout(
 				application_name,
 				entity_self->sale_inventory
@@ -147,13 +156,24 @@ int main( int argc, char **argv )
 		{
 			inventory_balance_fifo_stdout(
 				application_name,
-				entity_self->sale_inventory
-					/* inventory */ );
+				inventory_name );
+		}
+		else
+		if ( entity_self->inventory_cost_method == inventory_lifo )
+		{
+			inventory_balance_lifo_stdout(
+				application_name,
+				inventory_name );
 		}
 	}
 	else
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
+		entity_self =
+			entity_self_inventory_load(
+				application_name,
+				inventory_name );
+
 		inventory_balance_average_table(
 			application_name,
 			entity_self->sale_inventory
@@ -163,6 +183,11 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( output_medium, "PDF" ) == 0 )
 	{
+		entity_self =
+			entity_self_inventory_load(
+				application_name,
+				inventory_name );
+
 		inventory_balance_average_PDF(
 			application_name,
 			entity_self->sale_inventory
@@ -177,51 +202,6 @@ int main( int argc, char **argv )
 	return 0;
 
 } /* main() */
-
-void inventory_balance_fifo_stdout(	char *application_name,
-					INVENTORY *inventory )
-{
-	FILE *output_pipe;
-
-	output_pipe = popen( STDOUT_PROCESS, "w" );
-
-	/* ---------------------------------------------------- */
-	/* Sets inventory_purchase.quantity_on_hand,		*/
-	/*      inventory_purchase.layer_consumed_quantity,	*/
-	/*      inventory_sale.layer_inventory_purchase_list,	*/
-	/*      inventory_sale.cost_of_goods_sold.		*/
-	/* ---------------------------------------------------- */
-	inventory_set_fifo_layer_inventory_purchase_list(
-			inventory->inventory_purchase_list,
-			inventory->inventory_sale_list );
-
-	printf( "\nInventory FIFO Balance List:\n" );
-
-	fprintf( output_pipe,
-		 "%s\n",
-		 HEADING );
-
-/*
-	inventory_balance_list_fifo_table_display(
-		output_pipe,
-		inventory->inventory_purchase_list );
-*/
-
-	pclose( output_pipe );
-
-	output_pipe = popen( STDOUT_PROCESS, "w" );
-
-	printf( "\nINVENTORY:\n" );
-	
-	inventory_folder_table_display(
-		output_pipe,
-		application_name,
-		inventory->inventory_name,
-		FOLDER_TABLE_HEADING );
-
-	pclose( output_pipe );
-
-} /* inventory_balance_fifo_stdout() */
 
 void inventory_balance_average_stdout(	char *application_name,
 					INVENTORY *inventory )
@@ -649,4 +629,166 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 	return row_list;
 
 } /* get_average_PDF_row_list() */
+
+void inventory_balance_fifo_stdout(	char *application_name,
+					char *inventory_name )
+{
+	FILE *output_pipe;
+	INVENTORY *inventory;
+
+	printf( "Inventory FIFO Balance List:\n" );
+	fflush( stdout );
+
+	inventory =
+		inventory_load_new(
+			application_name,
+			inventory_name );
+
+	inventory->inventory_purchase_list =
+		inventory_purchase_arrived_date_get_list(
+			application_name,
+			inventory->inventory_name,
+			(char *)0 /* earliest_arrived_date_time */,
+			(char *)0 /* latest_arrived_date_time */ );
+
+	inventory->inventory_sale_list =
+		inventory_sale_completed_date_get_list(
+			application_name,
+			inventory->inventory_name,
+			(char *)0 /* earliest_completed_date_time */,
+			(char *)0 /* latest_completed_date_time */ );
+
+	/* ---------------------------------------------------- */
+	/* Sets inventory_purchase.quantity_on_hand		*/
+	/* ---------------------------------------------------- */
+	inventory_purchase_list_reset_quantity_on_hand(
+			inventory->inventory_purchase_list );
+
+	/* ---------------------------------------------------- */
+	/* Sets inventory_purchase.quantity_on_hand,		*/
+	/*      inventory_purchase.layer_consumed_quantity,	*/
+	/*      inventory_sale.layer_inventory_purchase_list,	*/
+	/*      inventory_sale.cost_of_goods_sold.		*/
+	/* ---------------------------------------------------- */
+	inventory_set_layer_inventory_purchase_list(
+			inventory->inventory_purchase_list,
+			inventory->inventory_sale_list,
+			1 /* is_fifo */ );
+
+	inventory->inventory_balance_list =
+		inventory_sort_inventory_balance_list(
+			inventory->inventory_purchase_list,
+			inventory->inventory_sale_list );
+
+	output_pipe = popen( STDOUT_PROCESS, "w" );
+
+/*
+	fprintf( output_pipe,
+		 "%s\n",
+		 HEADING );
+*/
+
+	/* Use this for fifo and lifo */
+	/* -------------------------- */
+	inventory_balance_list_table_display(
+		output_pipe,
+		inventory->inventory_balance_list );
+
+	pclose( output_pipe );
+
+	printf( "\nINVENTORY:\n" );
+	fflush( stdout );
+	
+	output_pipe = popen( STDOUT_PROCESS, "w" );
+
+	inventory_folder_table_display(
+		output_pipe,
+		application_name,
+		inventory->inventory_name,
+		FOLDER_TABLE_HEADING );
+
+	pclose( output_pipe );
+
+} /* inventory_balance_fifo_stdout() */
+
+void inventory_balance_lifo_stdout(	char *application_name,
+					char *inventory_name )
+{
+	FILE *output_pipe;
+	INVENTORY *inventory;
+
+	printf( "Inventory LIFO Balance List:\n" );
+	fflush( stdout );
+
+	inventory =
+		inventory_load_new(
+			application_name,
+			inventory_name );
+
+	inventory->inventory_purchase_list =
+		inventory_purchase_arrived_date_get_list(
+			application_name,
+			inventory->inventory_name,
+			(char *)0 /* earliest_arrived_date_time */,
+			(char *)0 /* latest_arrived_date_time */ );
+
+	inventory->inventory_sale_list =
+		inventory_sale_completed_date_get_list(
+			application_name,
+			inventory->inventory_name,
+			(char *)0 /* earliest_completed_date_time */,
+			(char *)0 /* latest_completed_date_time */ );
+
+	/* ---------------------------------------------------- */
+	/* Sets inventory_purchase.quantity_on_hand		*/
+	/* ---------------------------------------------------- */
+	inventory_purchase_list_reset_quantity_on_hand(
+			inventory->inventory_purchase_list );
+
+	/* ---------------------------------------------------- */
+	/* Sets inventory_purchase.quantity_on_hand,		*/
+	/*      inventory_purchase.layer_consumed_quantity,	*/
+	/*      inventory_sale.layer_inventory_purchase_list,	*/
+	/*      inventory_sale.cost_of_goods_sold.		*/
+	/* ---------------------------------------------------- */
+	inventory_set_layer_inventory_purchase_list(
+			inventory->inventory_purchase_list,
+			inventory->inventory_sale_list,
+			0 /* not is_fifo */ );
+
+	inventory->inventory_balance_list =
+		inventory_sort_inventory_balance_list(
+			inventory->inventory_purchase_list,
+			inventory->inventory_sale_list );
+
+	output_pipe = popen( STDOUT_PROCESS, "w" );
+
+/*
+	fprintf( output_pipe,
+		 "%s\n",
+		 HEADING );
+*/
+
+	/* Use this for fifo and lifo */
+	/* -------------------------- */
+	inventory_balance_list_table_display(
+		output_pipe,
+		inventory->inventory_balance_list );
+
+	pclose( output_pipe );
+
+	printf( "\nINVENTORY:\n" );
+	fflush( stdout );
+	
+	output_pipe = popen( STDOUT_PROCESS, "w" );
+
+	inventory_folder_table_display(
+		output_pipe,
+		application_name,
+		inventory->inventory_name,
+		FOLDER_TABLE_HEADING );
+
+	pclose( output_pipe );
+
+} /* inventory_balance_lifo_stdout() */
 

@@ -33,6 +33,8 @@ typedef struct
 	TRANSACTION *transaction;
 } INVENTORY_SALE_RETURN;
 
+/* Gotta write this. */
+/* ----------------- */
 LIST *inventory_sale_fetch_return_list(
 				char *application_name,
 				char *full_name,
@@ -178,6 +180,12 @@ LIST *inventory_purchase_arrived_date_get_list(
 					char *earliest_arrived_date_time,
 					char *latest_arrived_date_time );
 
+LIST *inventory_sale_completed_date_get_list(
+					char *application_name,
+					char *inventory_name,
+					char *earliest_completed_date_time,
+					char *latest_completed_date_time );
+
 void inventory_purchase_reset_quantity_on_hand(
 					LIST *purchase_list );
 
@@ -255,6 +263,10 @@ void inventory_update_quantity_on_hand_CGS_last_inventory_balance(
 				char *application_name,
 				char *inventory_name,
 				enum inventory_cost_method );
+
+LIST *inventory_sort_inventory_balance_list(
+				LIST *inventory_purchase_list,
+				LIST *inventory_sale_list );
 
 LIST *inventory_get_average_cost_inventory_balance_list(
 				LIST *inventory_purchase_list,
@@ -672,6 +684,12 @@ void inventory_balance_list_average_table_display(
 				FILE *output_pipe,
 				LIST *inventory_balance_list );
 
+/* Use this for fifo and lifo */
+/* -------------------------- */
+void inventory_balance_list_table_display(
+				FILE *output_pipe,
+				LIST *inventory_balance_list );
+
 LIST *inventory_get_latest_inventory_purchase_list(
 				char *application_name,
 				char *inventory_name );
@@ -719,25 +737,26 @@ void inventory_set_fifo_layer_inventory_purchase_list(
 				LIST *inventory_purchase_list,
 				LIST *inventory_sale_list );
 
-LIST *inventory_get_fifo_layer_inventory_purchase_list(
-				double *cost_of_goods_sold,
-				int sold_quantity,
-				LIST *inventory_purchase_list );
-
 /* ---------------------------------------------------- */
 /* Sets inventory_purchase.quantity_on_hand,		*/
 /*      inventory_purchase.layer_consumed_quantity,	*/
 /*      inventory_sale.layer_inventory_purchase_list,	*/
 /*      inventory_sale.cost_of_goods_sold.		*/
 /* ---------------------------------------------------- */
-void inventory_set_lifo_layer_inventory_purchase_list(
+void inventory_set_layer_inventory_purchase_list(
 				LIST *inventory_purchase_list,
-				LIST *inventory_sale_list );
+				LIST *inventory_sale_list,
+				boolean is_fifo );
 
-LIST *inventory_get_lifo_layer_inventory_purchase_list(
+/* ---------------------------------------------------- */
+/* Sets inventory_purchase.quantity_on_hand,		*/
+/*      inventory_purchase.layer_consumed_quantity	*/
+/* ---------------------------------------------------- */
+LIST *inventory_get_layer_inventory_purchase_list(
 				double *cost_of_goods_sold,
+				LIST *inventory_purchase_list,
 				int sold_quantity,
-				LIST *inventory_purchase_list );
+				boolean is_fifo );
 
 #endif
 

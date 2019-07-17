@@ -11,8 +11,10 @@
 #include "date.h"
 #include "date_convert.h"
 #include "piece.h"
+#include "session.h"
 #include "appaserver_library.h"
 #include "html_table.h"
+#include "basename.h"
 #include "bank_upload.h"
 
 BANK_UPLOAD *bank_upload_calloc( void )
@@ -453,6 +455,11 @@ void bank_upload_event_insert(		char *application_name,
 	char *insert_upload_event;
 	boolean exists_fund;
 	char *table_name;
+	char *insert_bank_upload_filename;
+
+	insert_bank_upload_filename =
+		bank_upload_get_insert_bank_upload_filename(
+			bank_upload_filename );
 
 	exists_fund = ledger_fund_attribute_exists( application_name );
 
@@ -493,7 +500,9 @@ void bank_upload_event_insert(		char *application_name,
 	 		"%s^%s^%s^%s^%s^%s\n",
 	 		bank_upload_date_time,
 	 		(login_name) ? login_name : "",
-			(bank_upload_filename) ? bank_upload_filename : "",
+			(insert_bank_upload_filename)
+				? insert_bank_upload_filename
+				: "",
 			(file_sha256sum) ? file_sha256sum : "",
 			(feeder_account) ? feeder_account : "",
 			(fund_name) ? fund_name : "" );
@@ -504,7 +513,9 @@ void bank_upload_event_insert(		char *application_name,
 	 		"%s^%s^%s^%s^%s\n",
 	 		bank_upload_date_time,
 	 		(login_name) ? login_name : "",
-			(bank_upload_filename) ? bank_upload_filename : "",
+			(insert_bank_upload_filename)
+				? insert_bank_upload_filename
+				: "",
 			(file_sha256sum) ? file_sha256sum : "",
 			(feeder_account) ? feeder_account : "" );
 	}
@@ -535,7 +546,9 @@ void bank_upload_archive_insert(	char *application_name,
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s del='%c' 		  |"
-		 "sql.e							  |"
+		 "sql.e 2>&1						  |"
+		 "grep -vi duplicate					  |"
+		 "html_paragraph_wrapper.e				  |"
 		 "cat							   ",
 		 	table_name,
 		 	INSERT_BANK_UPLOAD_ARCHIVE,
@@ -637,6 +650,7 @@ int bank_upload_insert(			char *application_name,
 	sprintf( sys_string,
 	 	 "insert_statement table=%s field=%s del='%c' 		  |"
 	 	 "sql.e 2>&1						  |"
+		 "grep -vi duplicate					  |"
 	 	 "cat > %s						   ",
 	 	table_name,
 	 	INSERT_BANK_UPLOAD,
@@ -2612,3 +2626,36 @@ void bank_upload_journal_ledger_text_display(
 		 journal_ledger->account_name );
 
 } /* bank_upload_journal_ledger_text_display() */
+
+char *bank_upload_get_insert_bank_upload_filename(
+				char *bank_upload_filename )
+{
+	char tmp[ 1024 ];
+	int session_characters_to_trim;
+	char *start_trimming_here;
+
+	static char insert_bank_upload_filename[
+			BANK_UPLOAD_FILENAME_SIZE + 1 ] = {0};
+
+	timlib_strcpy(
+		tmp,
+		basename_get_filename( bank_upload_filename ),
+		1024 );
+
+	/* Trim off _$SESSION */
+	/* ------------------ */
+	session_characters_to_trim = SESSION_MAX_SESSION_SIZE + 1;
+
+	start_trimming_here =
+		tmp + strlen( tmp ) - session_characters_to_trim;
+
+	*start_trimming_here = '\0';
+
+	strncpy(	insert_bank_upload_filename,
+			tmp,
+			BANK_UPLOAD_FILENAME_SIZE );
+
+	return insert_bank_upload_filename;
+
+} /* bank_upload_get_insert_bank_upload_filename() */
+

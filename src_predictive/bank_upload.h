@@ -214,6 +214,13 @@ BANK_UPLOAD *bank_upload_dictionary_extract(
 					char *application_name,
 					DICTIONARY *dictionary );
 
+/* Sets:
+		bank_upload->bank_date
+		bank_upload->bank_description
+		bank_upload->sequence_number
+		bank_upload->bank_amount
+		bank_upload->bank_running_balance
+*/
 LIST *bank_upload_fetch_file_list(
 					LIST *error_line_list,
 					char **file_sha256sum,
@@ -382,6 +389,10 @@ void bank_upload_cleared_journal_text_display(
 
 char *bank_upload_get_insert_bank_upload_filename(
 				char *bank_upload_filename );
+
+void bank_upload_set_non_purchase_order_check_transaction(
+				LIST *bank_upload_list,
+				LIST *existing_cash_journal_ledger_list );
 
 #endif
 

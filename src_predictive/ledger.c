@@ -2975,6 +2975,116 @@ LIST *ledger_get_journal_ledger_list(
 
 } /* ledger_get_journal_ledger_list() */
 
+LIST *ledger_get_check_number_journal_ledger_list(
+				char *application_name,
+				char *minimum_transaction_date_time,
+				char *account_name )
+{
+	char sys_string[ 1024 ];
+	LIST *journal_ledger_list;
+	char where[ 512 ];
+	char *join_where;
+	char *select;
+	char check_number_select[ 512 ];
+	FILE *input_pipe;
+	char input_buffer[ 1024 ];
+	char local_full_name[ 128 ];
+	char local_street_address[ 128 ];
+	char local_transaction_date_time[ 128 ];
+	char local_account_name[ 128 ];
+	char buffer[ 128 ];
+	char *folder_list_string;
+	JOURNAL_LEDGER *ledger;
+	char check_number[ 16 ];
+
+/*
+"full_name,street_address,transaction_date_time,account,transaction_count,previous_balance,debit_amount,credit_amount,balance,check_number";
+*/
+	select = ledger_journal_ledger_get_select();
+	sprintf( check_number_select, "%s,check_number", select );
+
+	folder_list_string = "journal_ledger,transaction";
+
+	join_where = ledger_get_journal_ledger_transaction_join_where();
+
+	sprintf(where,
+	 	"transaction_date_time >= '%s' and account = '%s' and %s",
+	 	minimum_transaction_date_time,
+	 	timlib_escape_single_quotes(
+			buffer,
+			account_name ),
+		join_where );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		"
+		 "			order=\"%s\"		",
+		 application_name,
+		 select,
+		 folder_list_string,
+		 where,
+		 "transaction_date_time" );
+
+	input_pipe = popen( sys_string, "r" );
+	journal_ledger_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece(	local_full_name,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		piece(	local_street_address,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		piece(	local_transaction_date_time,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		piece(	local_account_name,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			3 );
+
+		piece(	check_number,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			9 );
+
+		ledger = journal_ledger_new(
+				strdup( local_full_name ),
+				strdup( local_street_address ),
+				strdup( local_transaction_date_time ),
+				account_name );
+
+		ledger_journal_ledger_partial_parse(
+			&ledger->transaction_count,
+			&ledger->database_transaction_count,
+			&ledger->previous_balance,
+			&ledger->database_previous_balance,
+			&ledger->debit_amount,
+			&ledger->credit_amount,
+			&ledger->balance,
+			&ledger->database_balance,
+			input_buffer );
+
+		ledger->check_number = atoi( check_number );
+
+		list_append_pointer( journal_ledger_list, ledger );
+	}
+
+	pclose( input_pipe );
+
+	return journal_ledger_list;
+
+} /* ledger_get_check_number_journal_ledger_list() */
+
 void ledger_journal_ledger_partial_parse(
 			int *transaction_count,
 			int *database_transaction_count,
@@ -5280,7 +5390,22 @@ char *ledger_get_journal_ledger_customer_sale_join_where( void )
 
 	return join_where;
 
-} /* ledger_get_journal_ledger_purchase_order_join_where() */
+} /* ledger_get_journal_ledger_customer_sale_join_where() */
+
+char *ledger_get_journal_ledger_transaction_join_where( void )
+{
+	char *join_where;
+
+	join_where =	"journal_ledger.full_name =			"
+			"	transaction.full_name and		"
+			"journal_ledger.street_address =		"
+			"	transaction.street_address and		"
+			"journal_ledger.transaction_date_time =		"
+			"	transaction.transaction_date_time	";
+
+	return join_where;
+
+} /* ledger_get_journal_ledger_transaction_order_join_where() */
 
 void ledger_journal_ledger_parse(
 				char **full_name,
@@ -7296,7 +7421,7 @@ TRANSACTION *ledger_specific_inventory_build_transaction(
 					transaction->street_address,
 					transaction_date_time,
 					purchase_specific_inventory->
-						credit_account_name );
+						inventory_account_name );
 
 			journal_ledger->debit_amount =
 				purchase_specific_inventory->

@@ -109,6 +109,13 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 
 	p->file.error_line_list = list_new();
 
+/* Sets:
+		bank_upload->bank_date
+		bank_upload->bank_description
+		bank_upload->sequence_number
+		bank_upload->bank_amount
+		bank_upload->bank_running_balance
+*/
 	p->file.bank_upload_file_list =
 		bank_upload_fetch_file_list(
 			p->file.error_line_list,
@@ -207,6 +214,13 @@ BANK_UPLOAD *bank_upload_new(	char *bank_date,
 
 } /* bank_upload_new() */
 
+/* Sets:
+		bank_upload->bank_date
+		bank_upload->bank_description
+		bank_upload->sequence_number
+		bank_upload->bank_amount
+		bank_upload->bank_running_balance
+*/
 LIST *bank_upload_fetch_file_list(
 				LIST *error_line_list,
 				char **file_sha256sum,
@@ -1025,11 +1039,20 @@ LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
+#ifdef NOT_DEFINED
 	existing_cash_journal_ledger_list =
 		ledger_get_journal_ledger_list(
 				application_name,
 				(char *)0 /* full_name */,
 				(char *)0 /* street_address */,
+				minimum_transaction_date
+					/* minimum_transaction_date_time */,
+				cash_account_name );
+#endif
+
+	existing_cash_journal_ledger_list =
+		ledger_get_check_number_journal_ledger_list(
+				application_name,
 				minimum_transaction_date
 					/* minimum_transaction_date_time */,
 				cash_account_name );
@@ -1058,6 +1081,10 @@ void bank_upload_set_transaction(
 		application_name,
 		fund_name,
 		uncleared_checks_transaction_list );
+
+	bank_upload_set_non_purchase_order_check_transaction(
+		bank_upload_list,
+		existing_cash_journal_ledger_list );
 
 } /* bank_upload_set_transaction() */
 
@@ -1135,6 +1162,12 @@ void bank_upload_set_check_transaction(
 	} while( list_next( bank_upload_list ) );
 
 } /* bank_upload_set_check_transaction() */
+
+void bank_upload_set_non_purchase_order_check_transaction(
+				LIST *bank_upload_list,
+				LIST *existing_cash_journal_ledger_list )
+{
+} /* bank_upload_set_non_purchase_order_check_transaction() */
 
 /* Sets bank_upload->transaction and bank_upload->bank_upload_status */
 /* ----------------------------------------------------------------- */

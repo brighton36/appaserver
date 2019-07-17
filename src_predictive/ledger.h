@@ -90,6 +90,7 @@ typedef struct
 	double database_balance;
 	char *memo;
 	char *property_street_address;
+	int check_number;
 } JOURNAL_LEDGER;
 
 typedef struct
@@ -552,6 +553,9 @@ char *ledger_get_transaction_purchase_order_join_where(
 					void );
 
 char *ledger_get_transaction_customer_sale_join_where(
+					void );
+
+char *ledger_get_journal_ledger_transaction_join_where(
 					void );
 
 char *ledger_get_journal_ledger_purchase_order_join_where(
@@ -1196,5 +1200,10 @@ LIST *ledger_get_credit_journal_ledger_list(
 				LIST *specific_inventory_sale_list,
 				LIST *fixed_service_sale_list,
 				LIST *hourly_service_sale_list );
+
+LIST *ledger_get_check_number_journal_ledger_list(
+				char *application_name,
+				char *minimum_transaction_date_time,
+				char *account_name );
 
 #endif

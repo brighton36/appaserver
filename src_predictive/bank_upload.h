@@ -27,6 +27,7 @@ enum bank_upload_exception {	bank_upload_exception_none,
 /* Constants */
 /* --------- */
 #define BANK_UPLOAD_DESCRIPTION_SIZE	140
+#define BANK_UPLOAD_FILENAME_SIZE	80
 
 /* Need to run bank_upload_transaction_insert within a month. */
 /* ---------------------------------------------------------- */
@@ -378,6 +379,9 @@ void bank_upload_cleared_checks_update(
 
 void bank_upload_cleared_journal_text_display(
 				JOURNAL_LEDGER *cleared_journal_ledger );
+
+char *bank_upload_get_insert_bank_upload_filename(
+				char *bank_upload_filename );
 
 #endif
 

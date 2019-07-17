@@ -59,10 +59,12 @@ int list_add_head( LIST *list, void *this_item );
 void list_append_string_list( LIST *list, LIST *string_list );
 void list_append( LIST *list, void *this_item, int num_bytes );
 char *append( LIST *list, char *this_item, int num_bytes );
+
 char *list_append_unique(	LIST *list, 
 				char *this_item,
 				int num_bytes,
 				int (*match_fn)() );
+
 int delete_item();
 int num_items();
 int list_count( LIST *list );

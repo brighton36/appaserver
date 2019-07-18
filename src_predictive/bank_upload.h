@@ -14,9 +14,10 @@
 /* Enumerated types */
 /* ---------------- */
 enum bank_upload_status{	bank_upload_status_unknown,
-				existing_transaction,
-				feeder_phrase_match,
-				cleared_check };
+				bank_upload_existing_transaction,
+				bank_upload_feeder_phrase_match,
+				bank_upload_cleared_check,
+				bank_upload_check_number_match };
 
 enum bank_upload_exception {	bank_upload_exception_none,
 				duplicated_spreadsheet_file,
@@ -59,6 +60,7 @@ typedef struct
 	double bank_amount;
 	double bank_running_balance;
 	char *fund_name;
+	int check_number;
 	TRANSACTION *transaction;
 	LIST *reconciled_transaction_list;
 	JOURNAL_LEDGER *cleared_journal_ledger;
@@ -191,6 +193,7 @@ void bank_upload_fetch_parse(		char **bank_date,
 					int *sequence_number,
 					double *bank_amount,
 					double *bank_running_balance,
+					int *check_number,
 					char *input_buffer );
 
 void bank_upload_transaction_table_display(
@@ -365,11 +368,15 @@ LIST *bank_upload_fetch_uncleared_checks_list(
 					char *minimum_transaction_date,
 					char *uncleared_checks_account );
 
-void bank_upload_set_check_transaction(
+void bank_upload_set_purchase_order_check(
 				LIST *bank_upload_list,
 				char *application_name,
 				char *fund_name,
 				LIST *uncleared_checks_transaction_list );
+
+void bank_upload_set_non_purchase_order_check(
+				LIST *bank_upload_list,
+				LIST *existing_cash_journal_ledger_list );
 
 void bank_upload_set_reoccurring_transaction(
 				LIST *bank_upload_list,
@@ -389,10 +396,6 @@ void bank_upload_cleared_journal_text_display(
 
 char *bank_upload_get_insert_bank_upload_filename(
 				char *bank_upload_filename );
-
-void bank_upload_set_non_purchase_order_check_transaction(
-				LIST *bank_upload_list,
-				LIST *existing_cash_journal_ledger_list );
 
 #endif
 

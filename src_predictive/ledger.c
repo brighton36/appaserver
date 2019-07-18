@@ -2844,7 +2844,7 @@ LIST *ledger_get_journal_ledger_list(
 	&&   account_name )
 	{
 		sprintf(where,
-			"account = '%s'",
+			"account = '%s'			",
 			timlib_escape_single_quotes(
 				buffer, account_name ) );
 	}
@@ -2855,7 +2855,8 @@ LIST *ledger_get_journal_ledger_list(
 	&&   account_name )
 	{
 		sprintf(where,
-		 	"transaction_date_time >= '%s' and account = '%s'",
+		 	"transaction_date_time >= '%s' and		"
+			"account = '%s'					",
 		 	minimum_transaction_date_time,
 		 	timlib_escape_single_quotes(
 				buffer,
@@ -3008,7 +3009,9 @@ LIST *ledger_get_check_number_journal_ledger_list(
 	join_where = ledger_get_journal_ledger_transaction_join_where();
 
 	sprintf(where,
-	 	"transaction_date_time >= '%s' and account = '%s' and %s",
+	 	"transaction.transaction_date_time >= '%s' and	"
+		"credit_amount is not null and			"
+		"account = '%s' and %s				",
 	 	minimum_transaction_date_time,
 	 	timlib_escape_single_quotes(
 			buffer,
@@ -3022,7 +3025,7 @@ LIST *ledger_get_check_number_journal_ledger_list(
 		 "			where=\"%s\"		"
 		 "			order=\"%s\"		",
 		 application_name,
-		 select,
+		 check_number_select,
 		 folder_list_string,
 		 where,
 		 "transaction_date_time" );
@@ -4883,6 +4886,29 @@ double ledger_get_account_credit_amount(LIST *journal_ledger_list,
 	}
 
 } /* ledger_get_account_credit_amount() */
+
+JOURNAL_LEDGER *ledger_check_number_seek_journal_ledger(
+				LIST *cash_journal_ledger_list,
+				int check_number )
+{
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( cash_journal_ledger_list ) )
+		return (JOURNAL_LEDGER *)0;
+
+	do {
+		journal_ledger = list_get_pointer( cash_journal_ledger_list );
+
+		if ( journal_ledger->check_number == check_number )
+		{
+			return journal_ledger;
+		}
+
+	} while( list_next( cash_journal_ledger_list ) );
+
+	return (JOURNAL_LEDGER *)0;
+
+} /* ledger_check_number_seek_journal_ledger() */
 
 JOURNAL_LEDGER *ledger_journal_ledger_seek(
 					LIST *journal_ledger_list,

@@ -1206,4 +1206,8 @@ LIST *ledger_get_check_number_journal_ledger_list(
 				char *minimum_transaction_date_time,
 				char *account_name );
 
+JOURNAL_LEDGER *ledger_check_number_seek_journal_ledger(
+				LIST *cash_journal_ledger_list,
+				int check_number );
+
 #endif

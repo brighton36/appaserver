@@ -3483,7 +3483,9 @@ boolean timlib_is_valid_time( char *time_string )
 			return 0;
 		time_string++;
 	}
+
 	return 1;
+
 } /* timlib_is_valid_time() */
 
 char *timlib_get_now_date_time( void )

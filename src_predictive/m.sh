@@ -1,6 +1,6 @@
 :
 
-make inventory_balance_detail
+make load_bank_spreadsheet
 
 #if [ "$?" -eq 0 ]
 #then

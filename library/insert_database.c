@@ -715,13 +715,15 @@ void build_insert_data_string( 	DICTIONARY *row_dictionary,
 
 		timlib_strcpy( data, data_ptr, 65535 );
 
+		if ( strcmp( data, FORBIDDEN_NULL ) == 0 )
+		{
+			strcpy( data, NULL_STRING );
+		}
+		else
 		if ( *data )
 		{
-			if ( strcmp( data, "null" ) != 0 )
-			{
-				search_replace_special_characters( data );
-				escape_special_characters( data );
-			}
+			search_replace_special_characters( data );
+			escape_special_characters( data );
 		}
 		else
 		{
@@ -735,7 +737,7 @@ void build_insert_data_string( 	DICTIONARY *row_dictionary,
 		&&   list_exists_string( primary_attribute_name_list,
 					 attribute_name ) )
 		{
-			strcpy( data, "null" );
+			strcpy( data, NULL_STRING );
 		}
 
 		attribute =
@@ -750,7 +752,7 @@ void build_insert_data_string( 	DICTIONARY *row_dictionary,
 		||   timlib_strcmp(	attribute->datatype,
 					"integer" ) == 0 ) )
 		{
-			if ( strcmp( data, "null" ) != 0 )
+			if ( strcmp( data, NULL_STRING ) != 0 )
 			{
 				strcpy(	data,
 					timlib_trim_money_characters(
@@ -1118,7 +1120,7 @@ LIST *insert_database_set_ignore_primary_key_to_null(
 					dictionary_set_pointer(
 						row_dictionary,
 						strdup( key ),
-						"null" );
+						NULL_STRING );
 				}
 				else
 				{
@@ -1152,7 +1154,7 @@ LIST *insert_database_set_ignore_primary_key_to_null(
 				dictionary_set_pointer(
 					row_dictionary,
 					strdup( key ),
-					"null" );
+					NULL_STRING );
 			}
 			else
 			{

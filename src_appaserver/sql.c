@@ -119,34 +119,17 @@ int main( int argc, char **argv )
 	}
 
 /*
-	sprintf( null_string_filter,
-		 "sed 's/^NULL%c/%c/'				|"
-		 "search_replace_string.e '%cNULL%c' '%c%c'	|"
-		 "sed 's/%cNULL$/%c/'				|"
-		 "cat					 	",
-		 delimiter,
-		 delimiter,
-		 delimiter,
-		 delimiter,
-		 delimiter,
-		 delimiter,
-		 delimiter,
-		 delimiter );
 strcpy( null_string_filter, "sed 's/NULL//g'" );
 */
 
-/* sprintf( null_string_filter, "mysql_remove_null.e '%c'", delimiter ); */
-
-strcpy( null_string_filter, "sed 's/NULL//g'" );
+sprintf( null_string_filter, "mysql_remove_null.e '%c'", delimiter );
 
 	if ( h->mysql_password_syntax )
 	{
 		sprintf( sys_string,
-"tee -a /var/log/appaserver/appaserver_eves.err |"
 "mysql --defaults-extra-file=%s %s -u%s %s %s		|"
 "tr '\011' '%c'						|"
 "%s							|"
-"tee -a /var/log/appaserver/appaserver_eves.err |"
 "cat							 ",
 	 	h->parameter_file_full_path,
 	 	h->flags,
@@ -175,16 +158,6 @@ strcpy( null_string_filter, "sed 's/NULL//g'" );
 	 	delimiter,
 		null_string_filter );
 	}
-
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: sys_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-m2( "eves", msg );
-}
 
 	if ( system( sys_string ) ) {};
 

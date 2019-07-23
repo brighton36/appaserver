@@ -156,37 +156,6 @@ WHERE_ATTRIBUTE *update_database_where_attribute_new(
 
 } /* update_database_where_attribute_new() */
 
-#ifdef NOT_DEFINED
-CHANGED_ATTRIBUTE *update_database_get_folder_foreign(
-			char *folder_name,
-			char *attribute_name,
-			char *datatype,
-			char *old_data,
-			char *new_data,
-			LIST *folder_foreign_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary )
-{
-	char *folder_foreign_attribute_name;
-
-	if ( ( folder_foreign_attribute_name =
-		appaserver_library_get_folder_foreign_translation(
-			attribute_name,
-			folder_foreign_attribute_name_list,
-			foreign_attribute_dictionary ) ) )
-	{
-		return update_database_changed_attribute_new(
-				folder_name,
-				folder_foreign_attribute_name,
-				datatype,
-				old_data,
-				new_data );
-	}
-
-	return (CHANGED_ATTRIBUTE *)0;
-
-} /* update_database_get_folder_foreign() */
-#endif
-
 CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
 			char *folder_name,
 			char *attribute_name,
@@ -210,7 +179,10 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
 			timlib_trim_money_characters( new_data ) );
 	}
 
-	changed_attribute->new_data = new_data;
+	if ( strcmp( new_data, FORBIDDEN_NULL ) == 0 )
+		changed_attribute->new_data = NULL_STRING;
+	else
+		changed_attribute->new_data = new_data;
 
 	return changed_attribute;
 

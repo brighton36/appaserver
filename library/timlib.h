@@ -20,6 +20,7 @@
 /* #define NUMBER_BINARY_DIGITS	16 */
 #define NUMBER_BINARY_DIGITS	32
 #define NULL_STRING		"null"
+#define FORBIDDEN_NULL		"NULL"
 #define DATABASE_NULL		"is_null"
 #define DATE_MINIMUM		"Date Minimum"
 #define DATE_MAXIMUM		"Date Maximum"
@@ -130,7 +131,14 @@ int get_line( char *destination, FILE *infile );
 boolean timlib_get_line( char *destination, FILE *infile, int buffer_size );
 void skip_line( FILE *infile );
 
-int instr( char *substr, char *string, int occurrence );
+int instr(			char *substr,
+				char *string,
+				int occurrence );
+
+int timlib_strict_case_instr(
+				char *substr,
+				char *string,
+				int occurrence );
 
 int instr_character( char delimiter, char *string );
 char *delete_str( char *string, int start, int num_chars );
@@ -156,6 +164,7 @@ char *search_replace_string(
 
 char *search_replace_strict_case_once(
 			char *source_destination,
+			boolean *made_replace,
 			char *search_str, 
 			char *replace_str );
 

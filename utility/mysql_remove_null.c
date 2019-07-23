@@ -24,8 +24,14 @@ int main( int argc, char **argv )
 
 	delimiter = *argv[ 1 ];
 
-	while( get_line( buffer, stdin ) )
+	while( timlib_get_line( buffer, stdin, 65536 ) )
 	{
+		if ( !*buffer )
+		{
+			printf( "\n" );
+			continue;
+		}
+
 		/* If NULL */
 		/* ------- */
 		if ( strcmp( buffer, "NULL" ) == 0 )
@@ -39,12 +45,16 @@ int main( int argc, char **argv )
 			 "NULL%c",
 			 delimiter );
 
-		if ( instr( search_string, buffer, 1 ) == 0 )
+		if ( timlib_strict_case_instr(
+			search_string,
+			buffer,
+			1 ) == 0 )
 		{
 			sprintf( replace_string, "%c", delimiter );
 
 			search_replace_strict_case_once(
 				buffer,
+				(boolean *)0 /* made_replace */,
 				search_string,
 				replace_string );
 		}
@@ -71,7 +81,8 @@ int main( int argc, char **argv )
 
 		str_len = strlen( search_string );
 
-		if ( strcmp(	timlib_right_string(
+		if ( timlib_strcmp(
+				timlib_right_string(
 					buffer,
 					str_len ),
 				search_string ) == 0 )

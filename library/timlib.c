@@ -1309,6 +1309,32 @@ int instr_character( char delimiter, char *string )
 	return -1;
 } /* instr_character() */
 
+int timlib_strict_case_instr(	char *substr,
+				char *string,
+				int occurrence )
+{
+        int x,found;
+        int str_len_str;
+        int str_len_sub;
+
+	if ( !substr || !*substr ) return -1;
+	if ( !string || !*string ) return -1;
+
+        str_len_str = strlen( string );
+        str_len_sub = strlen( substr );
+
+        for(	x = 0,found = 0;
+		x < str_len_str;
+		x++ )
+	{
+                if ( strncmp( &string[x], substr, str_len_sub ) == 0 )
+                        if ( ++found == occurrence )
+                                return x;
+	}
+        return -1;
+
+} /* timlib_strict_case_instr() */
+
 int instr( char *substr, char *string, int occurrence )
 {
         int x,found;
@@ -1460,9 +1486,9 @@ char *search_replace_once(
 			char *search_string,
 			char *replace_string )
 {
-        int here,len_search = strlen(search_string);
+        int here,len_search = strlen( search_string );
 
-        if ((here = instr(search_string, source_destination, 1)) == -1)
+        if ( ( here = instr( search_string, source_destination, 1 ) ) == -1 )
 	{
                 return source_destination;
 	}
@@ -1475,18 +1501,28 @@ char *search_replace_once(
 
 char *search_replace_strict_case_once(
 			char *source_destination,
+			boolean *made_replace,
 			char *search_string,
 			char *replace_string )
 {
-        int here,len_search = strlen(search_string);
+        int here;
+	int len_search = strlen( search_string );
 
-        if ((here = instr(search_string, source_destination, 1)) == -1)
+	if ( made_replace ) *made_replace = 0;
+
+        if ( ( here = timlib_strict_case_instr(
+			search_string, 
+			source_destination,
+			1 ) ) == -1 )
 	{
                 return source_destination;
 	}
 
         delete_str( source_destination, here, len_search );
         insert_str( replace_string, source_destination, here );
+
+	if ( made_replace ) *made_replace = 1;
+
         return source_destination;
 
 } /* search_replace_strict_case_once() */
@@ -1546,21 +1582,20 @@ char *search_replace( 	char *search_str,
 
 } /* search_replace() */
 
-/* Doesn't work with ",NULL$" */
-/* -------------------------- */
 char *search_replace_strict_case_string( 
 			char *source_destination,
 			char *search_str,
 			char *replace_str )
 {
-	SED *sed;
+	boolean made_replace = 1;
 
-	sed = new_sed( search_str, (char *)0 );
-
-	if ( sed_will_replace( source_destination, sed ) )
+	while ( made_replace )
 	{
-		sed->replace = replace_str;
-		sed_search_replace( source_destination, sed );
+		search_replace_strict_case_once(
+			source_destination,
+			&made_replace,
+			search_str,
+			replace_str);
 	}
 
 	return source_destination;
@@ -1857,14 +1892,12 @@ char *timlib_right_string( char *string, int width )
 	char *source_ptr;
 
 	if ( width > timlib_strlen( string ) ) return (char *)0;
+	if ( strlen( string ) > 1023 ) return (char *)0;
 
 	return_ptr = return_string;
 	source_ptr = string + strlen( string ) - width;
 
-	while( *source_ptr )
-	{
-		*return_ptr++ = *source_ptr++;
-	}
+	while( *source_ptr ) *return_ptr++ = *source_ptr++;
 
 	*return_ptr = '\0';
 	return return_string;

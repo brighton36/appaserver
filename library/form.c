@@ -1891,7 +1891,7 @@ void form_output_html_help_file_anchor(
 	if ( !*source_directory )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot find help filename = (%s) in any of (%s)\n",
+"ERROR in %s/%s()/%d: cannot html_help_file_anchor = [%s] in any of (%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,

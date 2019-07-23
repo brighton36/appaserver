@@ -18,7 +18,7 @@
 #include "piece.h"
 #include "date.h"
 #include "array.h"
-#include "sed.h"
+/* #include "sed.h" */
 
 int timlib_strlen( char *s )
 {

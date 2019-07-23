@@ -659,13 +659,11 @@ date_convert.e: date_convert.c ${LIBRARY}/piece.o
 		-o date_convert.e
 
 date_convert_anywhere.e: date_convert_anywhere.c			\
-	${LIBRARY}/date_convert.o					\
-	${LIBRARY}/sed.o
+	${LIBRARY}/date_convert.o
 	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		date_convert_anywhere.c 				\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/sed.o					\
 		-o date_convert_anywhere.e
 
 piece_set_character.e: piece_set_character.c ${LIBRARY}/piece.o
@@ -1445,14 +1443,13 @@ date_grandfather_father_son.e: date_grandfather_father_son.c
 		${APPASERVER_LIBRARY}					\
 		-o date_grandfather_father_son.e
 
-findgrep.e: findgrep.c ${LIBRARY}/sed.o					\
+findgrep.e: findgrep.c							\
 	${LIBRARY}/name_arg.o
 	$(CC)	${CFLAGS} -I${LIBRARY} findgrep.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		${LIBRARY}/name_arg.o					\
 		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/sed.o 					\
 		-o findgrep.e
 	touch findgrep
 	rm findgrep

@@ -6,9 +6,11 @@
 # Freely available software: see Appaserver.org
 # -------------------------------------------------------------------
 
+spreadsheet_delay_minutes=30
+update_delay_minutes=180
+
 # First, purge $document_root/appaserver/*/data/
 # ----------------------------------------------
-delay_minutes=30
 document_root=`get_document_root.e`
 appaserver_directory=${document_root}/appaserver
 
@@ -20,19 +22,18 @@ do
 	find	$directory					\
 		-type f						\
 		-name '*_[1-9][0-9][0-9]*'			\
-		-mmin +$delay_minutes				\
+		-mmin +$spreadsheet_delay_minutes		\
 		-exec rm -f {} \; 2>/dev/null
 done
 
 # Second, purge appaserver data temporary files
 # ---------------------------------------------
 appaserver_data_directory=`get_appaserver_data_directory.e`
-delay_minutes=180
 
 find	$appaserver_data_directory				\
 	-type f							\
 	-name '*_[1-9][0-9][0-9]*'				\
-	-mmin +$delay_minutes					\
+	-mmin +$update_delay_minutes				\
 	-exec rm -f {} \; 2>/dev/null
 
 exit 0

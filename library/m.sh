@@ -4,5 +4,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../utility
-	make mysqldump_fork.e
+	touch mysql_remove_null.c
+	make mysql_remove_null.e
 fi

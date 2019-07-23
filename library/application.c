@@ -58,9 +58,11 @@ APPLICATION *application_new_application( char *application_string )
 				input_string ) != 16 )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s(): bad input from application_record.sh: (%s)\n",
+"ERROR in %s/%s()/%d: not 16 delimiter=[%c] from application_record.sh: [%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
+			 __LINE__,
+			 APPLICATION_RECORD_DELIMITER,
 			input_string );
 		exit( 1 );
 	}

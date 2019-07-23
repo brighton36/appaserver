@@ -54,6 +54,7 @@ APPASERVER_LIBRARY=						\
 		application.o					\
 		appaserver_user.o				\
 		element.o					\
+		sed.o						\
 		form.o						\
 		query.o 					\
 		stack.o 					\

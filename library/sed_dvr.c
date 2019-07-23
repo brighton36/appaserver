@@ -41,7 +41,7 @@ void test2( void )
 	SED *sed;
 
 	strcpy( buffer,
-		"a this is a test (1999-06-01) for this string" );
+		"this is a test (1999-06-01) for this string" );
 
 	sed = new_sed( regular_expression, (char *)0 );
 	if ( sed_will_replace( buffer, sed ) )

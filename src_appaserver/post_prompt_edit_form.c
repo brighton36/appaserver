@@ -404,7 +404,7 @@ int main( int argc, char **argv )
 		insert_update_key,
 		target_frame );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	exit( 0 );
 
@@ -876,7 +876,7 @@ boolean execute_radio_button_process_maybe(
 
 	if ( *sys_string )
 	{
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 		exit( 0 );
 	}
 

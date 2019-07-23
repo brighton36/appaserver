@@ -121,6 +121,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/html_table.o 					\
 		${LIB}/prompt_recursive.o				\
 		${LIB}/dictionary.o 					\
+		${LIB}/sed.o 						\
 		${LIB}/decode_html_post.o				\
 		${LIB}/appaserver_parameter_file.o			\
 		${LIB}/appaserver_library.o				\
@@ -298,13 +299,11 @@ post_change_sort_order: post_change_sort_order.c			\
 	${CGI_HOME}
 
 post_login: post_login.c ${EXTERNAL_LIBS}				\
-		${LIB}/post_login_library.o				\
-		${LIB}/sed.o
+		${LIB}/post_login_library.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/post_login_library.o				\
-		${LIB}/sed.o				 		\
 		post_login.c						\
 		-o post_login
 	touch ${CGI_HOME}/post_login
@@ -315,13 +314,11 @@ post_login: post_login.c ${EXTERNAL_LIBS}				\
 
 post_login_cloudacus: post_login_cloudacus.c				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/post_login_library.o				\
-		${LIB}/sed.o
+		${LIB}/post_login_library.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/post_login_library.o				\
-		${LIB}/sed.o				 		\
 		post_login_cloudacus.c					\
 		-o post_login_cloudacus
 	touch ${CGI_HOME}/post_login_cloudacus

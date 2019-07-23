@@ -1212,7 +1212,7 @@ char *update_database_execute_for_folder(
 	char update_clause[ 8192 ];
 	char where_clause[ 8192 ];
 	char *error_message_string = {0};
-	char *sql_executable;
+	char sql_executable[ 1024 ];
 
 	table_name = get_table_name( application_name, folder_name );
 
@@ -1228,9 +1228,12 @@ char *update_database_execute_for_folder(
 		where_attribute_list );
 
 #ifdef UPDATE_DATABASE_DEBUG_MODE
-	sql_executable = "cat 1>&2";
+	sprintf( sql_executable,
+		 "cat >> %s",
+		 appaserver_error_get_filename(
+			application_name ) );
 #else
-	sql_executable = "sql.e 2>&1";
+	strcpy( sql_executable, "sql.e 2>&1" );
 #endif
 
 	sprintf( sys_string,

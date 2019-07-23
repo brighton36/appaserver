@@ -11,6 +11,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/date.o 					\
 		${LIBRARY}/julian.o 					\
 		${LIBRARY}/dictionary.o 				\
+		${LIBRARY}/sed.o 					\
 		${LIBRARY}/list.o 					\
 		${LIBRARY}/list_usage.o 				\
 		${LIBRARY}/timlib.o 					\

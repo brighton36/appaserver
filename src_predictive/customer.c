@@ -3858,7 +3858,7 @@ char *customer_sale_inventory_list_display(
 				"cost_of_goods_sold = %.2lf;"
 				"completed_date_time = %s\n",
 				inventory_sale->inventory_name,
-				inventory_sale->quantity,
+				inventory_sale->sold_quantity,
 				inventory_sale->retail_price,
 				inventory_sale->extension,
 				inventory_sale->cost_of_goods_sold,

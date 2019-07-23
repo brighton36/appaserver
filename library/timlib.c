@@ -18,6 +18,7 @@
 #include "piece.h"
 #include "date.h"
 #include "array.h"
+#include "sed.h"
 
 int timlib_strlen( char *s )
 {
@@ -110,7 +111,7 @@ void mail_tim( char *message )
 		 "echo \"%s\" 				|"
 		 "mail timriley@appahost.com		",
 		 message );
-	system( buffer );
+	if ( system( buffer ) ) {};
 } /* mail_tim() */
 
 /* Sample: attribute_name = "station_1" */
@@ -1472,6 +1473,24 @@ char *search_replace_once(
 
 } /* search_replace_once() */
 
+char *search_replace_strict_case_once(
+			char *source_destination,
+			char *search_string,
+			char *replace_string )
+{
+        int here,len_search = strlen(search_string);
+
+        if ((here = instr(search_string, source_destination, 1)) == -1)
+	{
+                return source_destination;
+	}
+
+        delete_str( source_destination, here, len_search );
+        insert_str( replace_string, source_destination, here );
+        return source_destination;
+
+} /* search_replace_strict_case_once() */
+
 char *timlib_remove_character( char *source_destination, char character )
 {
 	return remove_character( source_destination, character );
@@ -1504,7 +1523,8 @@ char *search_replace( 	char *search_str,
 {
         int here,len_search = strlen(search_str);
 	char *return_pointer;
-	int str_len = strlen( replace_str );
+
+	/* int str_len = strlen( replace_str ); */
 
 	return_pointer = source_destination;
 	if ( strcmp( search_str, replace_str ) == 0 )
@@ -1519,10 +1539,33 @@ char *search_replace( 	char *search_str,
 
                 delete_str( source_destination, here, len_search );
                 insert_str( replace_str, source_destination, here );
-		source_destination += (here + str_len );
+
+		/* source_destination += (here + str_len ); */
+		source_destination += here;
         }
 
-} /* search_replace */
+} /* search_replace() */
+
+/* Doesn't work with ",NULL$" */
+/* -------------------------- */
+char *search_replace_strict_case_string( 
+			char *source_destination,
+			char *search_str,
+			char *replace_str )
+{
+	SED *sed;
+
+	sed = new_sed( search_str, (char *)0 );
+
+	if ( sed_will_replace( source_destination, sed ) )
+	{
+		sed->replace = replace_str;
+		sed_search_replace( source_destination, sed );
+	}
+
+	return source_destination;
+
+} /* search_replace_strict_case_string() */
 
 char *skip_words( char *source, int number_words )
 {
@@ -1816,7 +1859,7 @@ char *timlib_right_string( char *string, int width )
 	if ( width > timlib_strlen( string ) ) return (char *)0;
 
 	return_ptr = return_string;
-	source_ptr = string + width;
+	source_ptr = string + strlen( string ) - width;
 
 	while( *source_ptr )
 	{
@@ -3461,7 +3504,7 @@ void timlib_display_error_file( char *error_filename )
 "cat %s | queue_top_bottom_lines.e 50 | html_table.e 'Load Errors' '' ''",
 			 error_filename );
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 } /* timlib_display_error_file() */
 
@@ -3790,7 +3833,7 @@ void timlib_cp(		char *destination_filename,
 		 source_filename,
 		 destination_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 } /* timlib_cp() */
 

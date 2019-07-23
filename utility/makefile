@@ -13,6 +13,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/julian.o 					\
 		${LIBRARY}/dictionary.o 				\
 		${LIBRARY}/list.o 					\
+		${LIBRARY}/sed.o					\
 		${LIBRARY}/list_usage.o 				\
 		${LIBRARY}/timlib.o 					\
 		${LIBRARY}/piece.o 					\
@@ -178,6 +179,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	or_sequence.e							\
 	search_replace_character_limited.e				\
 	search_replace_string.e						\
+	mysql_remove_null.e						\
 	filename_date_older.e						\
 	in_clause.e							\
 	where.e								\
@@ -1074,6 +1076,13 @@ search_replace_string.e: search_replace_string.c
 		search_replace_string.c		 			\
 		${STANDARD_LIBRARY}					\
 		-o search_replace_string.e
+
+mysql_remove_null.e: mysql_remove_null.c
+	$(CC) 	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		mysql_remove_null.c		 			\
+		${STANDARD_LIBRARY}					\
+		-o mysql_remove_null.e
 
 count.e: count.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} count.c 				\

@@ -154,6 +154,11 @@ char *search_replace_string(
 			char *search_str, 
 			char *replace_str );
 
+char *search_replace_strict_case_once(
+			char *source_destination,
+			char *search_str, 
+			char *replace_str );
+
 char *search_replace_once(
 			char *source_destination,
 			char *search_str, 
@@ -566,5 +571,10 @@ char *timlib_get_first_line(	char *destination,
 
 char *timlib_dollar_round_string(
 				double amount );
+
+char *search_replace_strict_case_string( 
+				char *search_str, 
+				char *replace_str, 
+				char *source_destination );
 
 #endif

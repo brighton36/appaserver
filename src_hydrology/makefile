@@ -15,6 +15,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/julian.o 					\
 		${LIBRARY}/dictionary.o 				\
 		${LIBRARY}/list.o 					\
+		${LIBRARY}/sed.o 					\
 		${LIBRARY}/list_usage.o 				\
 		${LIBRARY}/timlib.o 					\
 		${LIBRARY}/piece.o 					\
@@ -1264,15 +1265,13 @@ sl3_upload: sl3_upload.c shef_datatype_code.o
 		-o sl3_upload
 
 conductivity2salinity: conductivity2salinity.c 				\
-	${SOURCE_LIBS}							\
-	${LIBRARY}/sed.o
+	${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-I${SOURCE_EVERGLADES}					\
 		${EXTERNAL_LIBS}					\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/sed.o					\
 		conductivity2salinity.c					\
 		-lm -o conductivity2salinity
 

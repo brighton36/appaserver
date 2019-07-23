@@ -15,6 +15,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/dictionary.o 				\
 		${LIBRARY}/list.o 					\
 		${LIBRARY}/list_usage.o 				\
+		${LIBRARY}/sed.o 					\
 		${LIBRARY}/timlib.o 					\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\

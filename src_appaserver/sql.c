@@ -23,6 +23,9 @@
 #include "environ.h"
 #include "basename.h"
 
+/* Constants */
+/* --------- */
+
 int main( int argc, char **argv )
 {
 	APPASERVER_PARAMETER_FILE *h;
@@ -32,6 +35,7 @@ int main( int argc, char **argv )
 	char *quick_flag;
 	char *override_database = {0};
 	char *database_connection = {0};
+	char null_string_filter[ 512 ];
 
 	/* --------------------------------------------	*/
 	/* Usage: sql.e delimiter [database]		*/
@@ -114,19 +118,43 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+/*
+	sprintf( null_string_filter,
+		 "sed 's/^NULL%c/%c/'				|"
+		 "search_replace_string.e '%cNULL%c' '%c%c'	|"
+		 "sed 's/%cNULL$/%c/'				|"
+		 "cat					 	",
+		 delimiter,
+		 delimiter,
+		 delimiter,
+		 delimiter,
+		 delimiter,
+		 delimiter,
+		 delimiter,
+		 delimiter );
+strcpy( null_string_filter, "sed 's/NULL//g'" );
+*/
+
+/* sprintf( null_string_filter, "mysql_remove_null.e '%c'", delimiter ); */
+
+strcpy( null_string_filter, "sed 's/NULL//g'" );
+
 	if ( h->mysql_password_syntax )
 	{
 		sprintf( sys_string,
-"mysql --defaults-extra-file=%s %s -u%s %s %s				|"
-"tr '\011' '%c'								|"
-"sed 's/NULL//g'							|"
-"cat									 ",
+"tee -a /var/log/appaserver/appaserver_eves.err |"
+"mysql --defaults-extra-file=%s %s -u%s %s %s		|"
+"tr '\011' '%c'						|"
+"%s							|"
+"tee -a /var/log/appaserver/appaserver_eves.err |"
+"cat							 ",
 	 	h->parameter_file_full_path,
 	 	h->flags,
 	 	h->user,
 	 	quick_flag,
 	 	database_connection,
-	 	delimiter );
+	 	delimiter,
+		null_string_filter );
 	}
 	else
 	{
@@ -137,17 +165,28 @@ int main( int argc, char **argv )
 ") 							|"
 "mysql %s -p%s -u%s %s					|"
 "tr '\011' '%c'						|"
-"sed 's/NULL//g'					|"
+"%s							|"
 "cat							 ",
 	 	database_connection,
 	 	h->flags,
 	 	h->password,
 	 	h->user,
 	 	quick_flag,
-	 	delimiter );
+	 	delimiter,
+		null_string_filter );
 	}
 
-	system( sys_string );
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+m2( "eves", msg );
+}
+
+	if ( system( sys_string ) ) {};
 
 	return 0;
 

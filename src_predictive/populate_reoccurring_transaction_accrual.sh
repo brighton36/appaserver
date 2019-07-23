@@ -14,8 +14,6 @@ then
 	exit 1
 fi
 
-echo "$0 $*" 1>&2
-
 table="reoccurring_transaction"
 
 select="full_name,street_address,transaction_description"

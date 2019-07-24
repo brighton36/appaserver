@@ -720,7 +720,7 @@ m2( application_name, msg );
 				folder->
 				primary_attribute_name_list ) /* select */ );
 
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 
 	document_output_close_head( stdout );
@@ -750,7 +750,7 @@ m2( application_name, msg );
 					application_name ) );
 
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 		fflush( stdout );
 		printf( "</ul>\n" );
 	}

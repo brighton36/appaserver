@@ -1426,8 +1426,10 @@ char *search_replace_single_quoted_string(
 			char *replace_string )
 {
 	char buffer[ 1024 ];
+
 	sprintf( buffer, "'%s'", replace_string );
 	strcpy( replace_string, buffer );
+
 	return search_replace_string(
 			source_destination,
 			search_string,
@@ -1559,8 +1561,7 @@ char *search_replace( 	char *search_str,
 {
         int here,len_search = strlen(search_str);
 	char *return_pointer;
-
-	/* int str_len = strlen( replace_str ); */
+	int str_len = strlen( replace_str );
 
 	return_pointer = source_destination;
 	if ( strcmp( search_str, replace_str ) == 0 )
@@ -1576,8 +1577,7 @@ char *search_replace( 	char *search_str,
                 delete_str( source_destination, here, len_search );
                 insert_str( replace_str, source_destination, here );
 
-		/* source_destination += (here + str_len ); */
-		source_destination += here;
+		source_destination += (here + str_len );
         }
 
 } /* search_replace() */

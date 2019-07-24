@@ -54,8 +54,7 @@ do
 		fi
 	fi
 
-	fix_orphans	$application		\
-			fix_orphans		\
+	fix_orphans	fix_orphans		\
 			$folder_name		\
 			y			\
 			$delete_really_yn	\

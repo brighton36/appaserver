@@ -541,10 +541,21 @@ void output_prompt_edit_form(
 	related_folder_set_ignore_output_for_duplicate(
 				mto1_related_folder_list );
 
+	if ( appaserver_library_get_sort_attribute_name(
+			appaserver->folder->attribute_list ) )
+	{
+		sort_order_button = 1;
+	}
+	else
+	{
+		sort_order_button = 0;
+	}
+/*
 	sort_order_button =
 		(boolean)
 		appaserver_library_get_sort_attribute_name(
 			appaserver->folder->attribute_list );
+*/
 
 	form->regular_element_list =
 		get_element_list(
@@ -2085,11 +2096,24 @@ boolean get_omit_delete_button(
 	}
 	else
 	{
+		if ( row_security_role_update_fetch(
+				row_security->role_update_list,
+				select_folder_name ) )
+		{
+			return_value = 1;
+		}
+		else
+		{
+			return_value = 0;
+		}
+
+/*
 		return_value =
 			(boolean)
 			row_security_role_update_fetch(
 				row_security->role_update_list,
 				select_folder_name );
+*/
 	}
 
 	return return_value;

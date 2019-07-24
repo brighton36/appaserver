@@ -397,6 +397,10 @@ LIST *process_parameter_get_folder_element_list(
 	POPULATE_HELPER_PROCESS *
 		populate_helper_process = {0};
 
+/* Stub */
+/* ---- */
+database_string = (char *)0;
+
 	element_list = list_new_list();
 
 	/* Set the line break */
@@ -533,7 +537,7 @@ LIST *process_parameter_get_folder_element_list(
 				application_name,
 				getpid() ) );
 
-		system( executable );
+		if ( system( executable ) ) {};
 
 		element = element_new( anchor, populate_helper_process->key );
 		element->anchor->prompt = populate_helper_process->key;

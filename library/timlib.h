@@ -456,6 +456,8 @@ int timlib_strncmp(		char *s1, char *s2 );
 
 int timlib_strcmp(		char *s1, char *s2 );
 
+int timlib_strict_case_strcmp(	char *s1, char *s2 );
+
 char *timlib_strncpy(		char *s1, char *s2, int count );
 
 boolean timlib_pad_time_four(	char *time_string );

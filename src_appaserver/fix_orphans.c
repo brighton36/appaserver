@@ -97,22 +97,22 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 6 )
+	if ( argc < 5 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored process_name folder_name delete_yn really_yn [stdout]\n",
+"Usage: %s process_name folder_name delete_yn really_yn [stdout]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	folder_name = argv[ 3 ];
-	delete_yn = *argv[ 4 ];
-	really_yn = *argv[ 5 ];
+	process_name = argv[ 1 ];
+	folder_name = argv[ 2 ];
+	delete_yn = *argv[ 3 ];
+	really_yn = *argv[ 4 ];
 
-	if ( argc == 7 )
+	if ( argc == 6 )
 	{
-		output_medium_stdout = ( strcmp( argv[ 6 ], "stdout" ) == 0 );
+		output_medium_stdout = ( strcmp( argv[ 5 ], "stdout" ) == 0 );
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();

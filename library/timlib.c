@@ -36,6 +36,16 @@ boolean timlib_strcmp( char *s1, char *s2 )
 
 } /* timlib_strcmp() */
 
+boolean timlib_strict_case_strcmp( char *s1, char *s2 )
+{
+	if ( !s1 && !s2 ) return 0;
+	if ( !s2 ) return -1;
+	if ( !s1 ) return 1;
+
+	return strcmp( s1, s2 );
+
+} /* timlib_strict_case_strcmp() */
+
 boolean timlib_strcpy( char *d, char *s, int buffer_size )
 {
 	int str_len;

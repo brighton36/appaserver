@@ -30,7 +30,8 @@ fi
 fishing_purpose=$5
 if [ "$fishing_purpose" = "" -o "$fishing_purpose" = "fishing_purpose" ]
 then
-	fishing_purpose="sport"		# Defaults to sport
+	# fishing_purpose="sport"		# Defaults to sport
+	fishing_purpose=""
 fi
 
 caught_more_than=$6
@@ -70,6 +71,7 @@ prompt_file="/appaserver/$application/data/${process_name}_$$.csv"
 # ---------
 fishing_trips=`get_table_name $application fishing_trips`
 species_table=`get_table_name $application species`
+
 process_title=$(echo $fishing_purpose species_most_frequently_preferred From $begin_year_month To $end_year_month | format_initial_capital.e)
 
 # Preprocess
@@ -143,19 +145,35 @@ fi
 # ----------------------
 if [ "$by_area_yn" = "y" ]
 then
+	# Where numerator
+	# ---------------
+	if [ "$fishing_purpose" != "$fishing_purpose" ]
+	then
+		where="fishing_purpose = '$fishing_purpose'
+	  	and $fishing_trips.family = $species_table.family
+	  	and $fishing_trips.genus = $species_table.genus
+	  	and $fishing_trips.species_preferred = $species_table.species
+	  	and species_preferred is not null
+	  	and $fishing_trips.census_date between
+			'${begin_year_month}-01' and '${end_year_month}-31'
+	  	and fishing_area is not null
+	  	and $species_where"
+	else
+		where="$fishing_trips.family = $species_table.family
+	  	and $fishing_trips.genus = $species_table.genus
+	  	and $fishing_trips.species_preferred = $species_table.species
+	  	and species_preferred is not null
+	  	and $fishing_trips.census_date between
+			'${begin_year_month}-01' and '${end_year_month}-31'
+	  	and fishing_area is not null
+	  	and $species_where"
+	fi
+
 	# Select numerator
 	# ----------------
 	echo "select $first_select, florida_state_code,common_name,$fishing_trips.family, $fishing_trips.genus, $fishing_trips.species_preferred, count(*)
 	from $fishing_trips, $species_table
-	where fishing_purpose = '$fishing_purpose'
-	  and $fishing_trips.family = $species_table.family
-	  and $fishing_trips.genus = $species_table.genus
-	  and $fishing_trips.species_preferred = $species_table.species
-	  and species_preferred is not null
-	  and $fishing_trips.census_date between
-			'${begin_year_month}-01' and '${end_year_month}-31'
-	  and fishing_area is not null
-	  and $species_where
+	where $where
 	group by	$first_select,
 			$fishing_trips.family,
 			$fishing_trips.genus,
@@ -166,15 +184,29 @@ then
 	sed 's/,/|/1'						|
 	cat > $row_file
 
+	# Where denominator
+	# -----------------
+	if [ "$fishing_purpose" != "" ]
+	then
+		where="fishing_purpose = '$fishing_purpose'
+	  		and species_preferred is not null
+	  		and $fishing_trips.census_date between
+				'${begin_year_month}-01' and
+				'${end_year_month}-31'
+	  		and fishing_area is not null"
+	else
+		where="species_preferred is not null
+	  		and $fishing_trips.census_date between
+				'${begin_year_month}-01' and
+				'${end_year_month}-31'
+	  		and fishing_area is not null"
+	fi
+
 	# Select denominator
 	# ------------------
 	echo "select $first_select, count(*)
 	from $fishing_trips
-	where fishing_purpose = '$fishing_purpose'
-	  and species_preferred is not null
-	  and $fishing_trips.census_date between
-			'${begin_year_month}-01' and '${end_year_month}-31'
-	  and fishing_area is not null
+	where $where
 	group by $first_select
 	having count(*) >= $caught_more_than;"			|
 	sql.e ','						|
@@ -214,18 +246,37 @@ then
 	}'
 	) | cat > $output_file
 else
+	# Where numerator
+	# ---------------
+	if [ "$fishing_purpose" != "" ]
+	then
+		where="fishing_purpose = '$fishing_purpose'
+	  		and $fishing_trips.family = $species_table.family
+	  		and $fishing_trips.genus = $species_table.genus
+	  		and $fishing_trips.species_preferred =
+				$species_table.species
+	  		and species_preferred is not null
+	  		and $fishing_trips.census_date between
+				'${begin_year_month}-01' and
+				'${end_year_month}-31'
+	  		and $species_where"
+	else
+		where="$fishing_trips.family = $species_table.family
+	  		and $fishing_trips.genus = $species_table.genus
+	  		and $fishing_trips.species_preferred =
+				$species_table.species
+	  		and species_preferred is not null
+	  		and $fishing_trips.census_date between
+				'${begin_year_month}-01' and
+				'${end_year_month}-31'
+	  		and $species_where"
+	fi
+
 	# Select numerator
 	# ----------------
 	echo "select $first_select, florida_state_code,common_name,$fishing_trips.family, $fishing_trips.genus, $fishing_trips.species_preferred, count(*)
 	from $fishing_trips, $species_table
-	where fishing_purpose = '$fishing_purpose'
-	  and $fishing_trips.family = $species_table.family
-	  and $fishing_trips.genus = $species_table.genus
-	  and $fishing_trips.species_preferred = $species_table.species
-	  and species_preferred is not null
-	  and $fishing_trips.census_date between
-			'${begin_year_month}-01' and '${end_year_month}-31'
-	  and $species_where
+	where $where
 	group by	$first_select,
 			$fishing_trips.family,
 			$fishing_trips.genus,
@@ -234,14 +285,27 @@ else
 	order by $first_select, count(*) desc;"			|
 	sql.e ',' > $row_file
 	
+	# Where denominator
+	# -----------------
+	if [ "$fishing_purpose" != "" ]
+	then
+		where="fishing_purpose = '$fishing_purpose'
+	  		and species_preferred is not null
+	  		and $fishing_trips.census_date between
+					'${begin_year_month}-01' and
+					'${end_year_month}-31'"
+	else
+		where="species_preferred is not null
+	  		and $fishing_trips.census_date between
+					'${begin_year_month}-01' and
+					'${end_year_month}-31'"
+	fi
+
 	# Select denominator
 	# ------------------
 	echo "select $first_select, count(*)
 	from $fishing_trips
-	where fishing_purpose = '$fishing_purpose'
-	  and species_preferred is not null
-	  and $fishing_trips.census_date between
-			'${begin_year_month}-01' and '${end_year_month}-31'
+	where $where
 	group by $first_select
 	having count(*) >= $caught_more_than;"			|
 	sql.e ',' > $denominator_file
@@ -304,8 +368,8 @@ then
 	echo "</body></html>"
 fi
 
-#rm -f $row_file
-#rm -f $denominator_file
+rm -f $row_file
+rm -f $denominator_file
 
 exit 0
 

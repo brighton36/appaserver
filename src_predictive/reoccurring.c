@@ -324,9 +324,13 @@ LIST *reoccurring_fetch_reoccurring_transaction_list(
 					accrued_monthly_amount,
 				input_buffer );
 
-		list_append_pointer(
-			reoccurring_transaction_list,
-			reoccurring_transaction );
+		if ( reoccurring_transaction->debit_account
+		&&   reoccurring_transaction->credit_account )
+		{
+			list_append_pointer(
+				reoccurring_transaction_list,
+				reoccurring_transaction );
+		}
 	}
 
 	pclose( input_pipe );

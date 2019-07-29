@@ -82,7 +82,7 @@ void ledger_debit_credit_audit( char *application_name,
 	{
 		sprintf( where_clause,
 			 "%s.transaction_date_time >= '%s'",
-			 LEDGER_FOLDER_NAME,
+			 TRANSACTION_FOLDER_NAME,
 			 begin_date );
 	}
 	else

@@ -2,17 +2,31 @@
 # src_benthic/species_most_frequently_caught.sh
 # ---------------------------------------------
 
-# Input
-# -----
-if [ "$#" -ne 5 ]
+if [ "$APPASERVER_DATABASE" != "" ]
 then
-	echo "Usage: $0 application process_name caught_more_than group_time output_medium" 1>&2
+	application=$APPASERVER_DATABASE
+elif [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
+fi
+
+if [ "$application" = "" ]
+then
+	echo "Error in `basename.e $0 n`: you must first:" 1>&2
+	echo "\$ . set_database" 1>&2
 	exit 1
 fi
 
 echo $0 $* 1>&2
 
-application=$(echo $1 | piece.e ':' 0)	# May have appended database
+# Input
+# -----
+if [ "$#" -ne 5 ]
+then
+	echo "Usage: $0 ignored process_name caught_more_than group_time output_medium" 1>&2
+	exit 1
+fi
+
 process_name=$2                       	# Assumed letters_and_underbars
 
 caught_more_than=$3

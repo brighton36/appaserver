@@ -393,7 +393,7 @@ void post_reoccurring_transaction_display(
 					transaction_amount ) ) )
 	{
 		printf(
-		"<h3>Warning: no reoccurring transaction found.</h3>\n" );
+		"<h3>Warning: no valid reoccurring transaction found.</h3>\n" );
 		return;
 	}
 

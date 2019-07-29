@@ -180,8 +180,24 @@ boolean reoccurring_transaction_load(
 				accrued_monthly_amount,
 			results );
 
-	*debit_account = reoccurring_transaction->debit_account;
-	*credit_account = reoccurring_transaction->credit_account;
+	if ( reoccurring_transaction->debit_account )
+	{
+		*debit_account = reoccurring_transaction->debit_account;
+	}
+	else
+	{
+		return 0;
+	}
+
+	if ( reoccurring_transaction->credit_account )
+	{
+		*credit_account = reoccurring_transaction->credit_account;
+	}
+	else
+	{
+		return 0;
+	}
+
 	*transaction_amount = reoccurring_transaction->transaction_amount;
 	*accrued_daily_amount = reoccurring_transaction->accrued_daily_amount;
 

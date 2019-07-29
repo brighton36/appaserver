@@ -42,7 +42,7 @@ echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$applicati
 echo "<body><h1>$process_title</h1>"
 
 ledger_debit_credit_audit "$begin_date"		|
-html_table.e "" "$heading" "," "$justification"	|
+html_table.e "" "$heading" "^" "$justification"	|
 cat
 
 echo "</body></html>"

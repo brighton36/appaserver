@@ -38,6 +38,9 @@ process_title=`echo "$process_name" | format_initial_capital.e`
 
 content_type_cgi.sh
 
+echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$application/style.css></head>"
+echo "<body><h1>$process_title</h1>"
+
 ledger_debit_credit_audit "$begin_date"		|
 html_table.e "" "$heading" "," "$justification"	|
 cat

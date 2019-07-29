@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_predictive/update_sale_completed.c				*/
+/* $APPASERVER_HOME/src_predictive/update_sale_completed.c		*/
 /* Linked to update_sale_not_completed					*/
 /* ---------------------------------------------------------------	*/
 /* 									*/

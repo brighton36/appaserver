@@ -1,9 +1,21 @@
-/* -----------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/ledger_debit_credit_audit.c		*/
-/* -----------------------------------------------------------------	*/
-/* 									*/
-/* Freely available software: see Appaserver.org			*/
-/* -----------------------------------------------------------------	*/
+/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/ledger_debit_credit_audit.c	*/
+/* -----------------------------------------------------------	*/
+/* 								*/
+/* This process outputs:					*/
+/* 	full_name^						*/
+/*	street_address^						*/
+/*	transaction_date_time^					*/
+/*	transaction_difference^					*/
+/*	difference_type						*/
+/* 								*/
+/* Note: difference_type = {	no_journal_ledger,		*/
+/*				debit_credit_difference,	*/
+/*				balance_difference }		*/
+/*								*/
+/* 							 	*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------ */
 
 #include <stdio.h>
 #include <string.h>
@@ -23,7 +35,8 @@
 
 /* Prototypes */
 /* ---------- */
-void ledger_debit_credit_audit(		char *application_name );
+void ledger_debit_credit_audit(		char *application_name,
+					char *begin_date );
 
 double ledger_debit_credit_difference(	double *balance_difference,
 					char *application_name,
@@ -40,35 +53,59 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	ledger_debit_credit_audit( application_name );
+	if ( argc != 2 )
+	{
+		fprintf( stderr,
+			 "Usage: %s begin_date\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
+
+	ledger_debit_credit_audit( application_name, argv[ 1 ] );
 
 	return 0;
+
 } /* main() */
 
-void ledger_debit_credit_audit( char *application_name )
+void ledger_debit_credit_audit( char *application_name,
+				char *begin_date )
 {
 	LIST *transaction_list;
 	TRANSACTION *transaction;
 	double difference;
 	double balance_difference;
+	char where_clause[ 128 ];
+	char *difference_type;
+	double report_difference;
+
+	if ( *begin_date && strcmp( begin_date, "begin_date" ) != 0 )
+	{
+		sprintf( where_clause,
+			 "%s.transaction_date_time >= '%s'",
+			 LEDGER_FOLDER_NAME,
+			 begin_date );
+	}
+	else
+	{
+		strcpy( where_clause, "1 = 1" );
+	}
 
 	transaction_list =
 		ledger_fetch_transaction_list(
 			application_name,
-			(char *)0 /* where_clause */ );
+			where_clause );
 
 	if ( !list_rewind( transaction_list ) ) return;
 
 	do {
 		transaction = list_get( transaction_list );
 
+		difference_type = (char *)0;
+
 		if ( !list_length( transaction->journal_ledger_list ) )
 		{
-			printf( "Empty transaction: (%s/%s/%s)\n",
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time );
-			continue;
+			difference_type = "no_journal_ledger";
+			report_difference = 0.0;
 		}
 
 		balance_difference = 0.0;
@@ -79,26 +116,33 @@ void ledger_debit_credit_audit( char *application_name )
 				application_name,
 				transaction->journal_ledger_list );
 
-		if ( !timlib_double_virtually_same(
+		if ( !difference_type
+		&&   !timlib_double_virtually_same(
 			difference, 0.0 ) )
 		{
-			printf( "Transaction difference: (%s/%s/%s) = %.2lf\n",
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				difference );
+			difference_type = "debit_credit_difference";
+			report_difference = difference;
 		}
 
-		if ( !double_virtually_same( balance_difference, 0.0 ) )
+		if ( !difference_type
+		&&   !double_virtually_same(
+			balance_difference, 0.0 ) )
 		{
-			printf( "Balance difference: (%s/%s/%s) = %.2lf\n",
+			difference_type = "balance_difference";
+			report_difference = balance_difference;
+		}
+
+		if ( difference_type )
+		{
+			printf( "%s^%s^%s^%.2lf^%s\n",
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				balance_difference );
+				report_difference,
+				difference_type );
 		}
 
-	} while( list_next( transaction_list ) );
+	} while ( list_next( transaction_list ) );
 
 } /* ledger_debit_credit_audit() */
 

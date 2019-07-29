@@ -47,6 +47,7 @@
 #define ACCOUNT_FOLDER_NAME		"account"
 #define SUBCLASSIFICATION_FOLDER_NAME	"subclassification"
 #define ELEMENT_FOLDER_NAME		"element"
+
 #define LEDGER_ASSET_ELEMENT		"asset"
 #define LEDGER_LIABILITY_ELEMENT	"liability"
 #define LEDGER_EQUITY_ELEMENT		"equity"

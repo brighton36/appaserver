@@ -266,8 +266,8 @@ int main( int argc, char **argv )
 
 			sprintf( sys_string,
 	"automatic_transaction_assign.sh all process_name '%s' 1>&2",
-				 (fund_name) 	: fund_name
-						? "" );
+				 (fund_name) 	? fund_name
+						: "" );
 
 			if ( system( sys_string ) ) {};
 		}

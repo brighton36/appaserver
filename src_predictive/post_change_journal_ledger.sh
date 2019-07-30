@@ -1,8 +1,8 @@
 :
-# src_predictive/post_change_journal_ledger.sh
-# ---------------------------------------------
+# $APPASERVER_HOME/src_predictive/post_change_journal_ledger.sh
+# -------------------------------------------------------------
 # Freely available software. See appaserver.org
-# ---------------------------------------------
+# -------------------------------------------------------------
 
 echo "$0 $*" 1>&2
 
@@ -23,16 +23,27 @@ fi
 
 if [ "$#" -ne 7 ]
 then
-	echo "Usage: $0 ignored full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account" 1>&2
+	echo "Usage: $0 state full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account" 1>&2
 	exit 1
 fi
 
+state=$1
 full_name=$2
 street_address=$3
 transaction_date_time=$4
 account_name=$5
 preupdate_transaction_date_time=$6
 preupdate_account_name=$7
+
+if [ "$state" = "insert" ]
+then
+	hard_coded_account_key=`hard_coded_account_key.sh "$account_name"`
+
+	if [ "$hard_coded_account_key" = "cash_key" ]
+	then
+		automatic_transaction_assign.sh all process_name fund
+	fi
+fi
 
 if [ "$transaction_date_time" = ""				\
 -o   "$transaction_date_time" = "transaction_date_time" ]

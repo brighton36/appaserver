@@ -38,6 +38,7 @@ fi
 if [ "$usage_message" -eq 1 ]
 then
 	echo "Usage: $0 all|one process_name fund" 1>&2
+	echo "Note: leave process_name blank for output-free execution." 1>&2
 	exit 1
 fi
 
@@ -47,15 +48,27 @@ fund=$3
 
 if [ "$process_name" != "" -a "$process_name" != "process_name" ]
 then
+	any_output=1
+else
+	any_output=0
+fi
+
+if [ "$any_output" -eq 1 ]
+then
 	echo "<html>"
 	echo "<body>"
 	echo "<h1>`echo $process_name | format_initial_capital.e`</h1>"
 fi
 
+first_bank_date=""
+
 populate_bank_upload_pending.sh 			|
 while read record
 do
-	echo $record | html_paragraph_wrapper.e
+	if [ "$any_output" -eq 1 ]
+	then
+		echo $record | html_paragraph_wrapper.e
+	fi
 
 	sub_record=`echo $record | piece.e '[' 0`
 	bank_date=`echo $sub_record | piece.e '^' 0`
@@ -88,7 +101,7 @@ then
 	bank_upload_sequence_propagate.sh "$first_bank_date" | sql.e
 fi
 
-if [ "$process_name" != "" -a "$process_name" != "process_name" ]
+if [ "$any_output" -eq 1 ]
 then
 	echo "</body>"
 	echo "</html>"

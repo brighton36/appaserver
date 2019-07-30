@@ -264,17 +264,10 @@ int main( int argc, char **argv )
 		{
 			char sys_string[ 128 ];
 
-			if ( fund_name && *fund_name )
-			{
-				sprintf( sys_string,
-	"automatic_transaction_assign.sh all process_name '%s' >/dev/null",
-				fund_name );
-			}
-			else
-			{
-				strcpy( sys_string,
-	"automatic_transaction_assign.sh all process_name fund >/dev/null" );
-			}
+			sprintf( sys_string,
+	"automatic_transaction_assign.sh all process_name '%s' 1>&2",
+				 (fund_name) 	: fund_name
+						? "" );
 
 			if ( system( sys_string ) ) {};
 		}

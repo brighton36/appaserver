@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/inventory_purchase_return.c		*/
+/* $APPASERVER_HOME/src_predictive/inventory_sale_return.c		*/
 /* -------------------------------------------------------------------- */
-/* This is the PredictiveBooks inventory_purchase_return ADT.		*/
+/* This is the PredictiveBooks inventory_sale_return ADT.		*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -14,20 +14,19 @@
 #include "date.h"
 #include "piece.h"
 #include "appaserver_library.h"
-#include "inventory_purchase_return.h"
-#include "purchase.h"
+#include "inventory_sale_return.h"
 #include "customer.h"
 #include "ledger.h"
 #include "entity.h"
 
-INVENTORY_PURCHASE_RETURN *inventory_purchase_return_new( void )
+INVENTORY_SALE_RETURN *inventory_sale_return_new( void )
 {
-	INVENTORY_PURCHASE_RETURN *h;
+	INVENTORY_SALE_RETURN *h;
 
-	h = (INVENTORY_PURCHASE_RETURN *)
+	h = (INVENTORY_SALE_RETURN *)
 		calloc(
 			1,
-			sizeof( INVENTORY_PURCHASE_RETURN ) );
+			sizeof( INVENTORY_SALE_RETURN ) );
 
 	if ( !h )
 	{
@@ -41,61 +40,61 @@ INVENTORY_PURCHASE_RETURN *inventory_purchase_return_new( void )
 
 	return h;
 
-} /* inventory_purchase_return_new() */
+} /* inventory_sale_return_new() */
 
-INVENTORY_PURCHASE_RETURN *inventory_purchase_return_list_seek(
-				LIST *inventory_purchase_return_list,
+INVENTORY_SALE_RETURN *inventory_sale_return_list_seek(
+				LIST *inventory_sale_return_list,
 				char *return_date_time )
 {
-	INVENTORY_PURCHASE_RETURN *i;
+	INVENTORY_SALE_RETURN *i;
 
-	if ( !list_rewind( inventory_purchase_return_list ) )
-		return (INVENTORY_PURCHASE_RETURN *)0;
+	if ( !list_rewind( inventory_sale_return_list ) )
+		return (INVENTORY_SALE_RETURN *)0;
 
 	do {
-		i = list_get( inventory_purchase_return_list );
+		i = list_get( inventory_sale_return_list );
 
 		if ( strcmp( i->return_date_time, return_date_time ) == 0 )
 		{
 			return i;
 		}
 
-	} while( list_next( inventory_purchase_return_list ) );
+	} while( list_next( inventory_sale_return_list ) );
 
-	return (INVENTORY_PURCHASE_RETURN *)0;
+	return (INVENTORY_SALE_RETURN *)0;
 
-} /* inventory_purchase_list_return_seek() */
+} /* inventory_sale_list_return_seek() */
 
-char *inventory_purchase_return_get_select( void )
+char *inventory_sale_return_get_select( void )
 {
 	char *select;
 
 	select =
-	"return_date_time,returned_quantity,sales_tax,transaction_date_time";
+	"return_date_time,returned_quantity,transaction_date_time";
 
 	return select;
 }
 
-LIST *inventory_purchase_return_fetch_list(
+LIST *inventory_sale_return_fetch_list(
 					char *application_name,
 					char *full_name,
 					char *street_address,
-					char *purchase_date_time,
+					char *sale_date_time,
 					char *inventory_name )
 {
-	return inventory_purchase_fetch_return_list(
+	return inventory_sale_fetch_return_list(
 					application_name,
 					full_name,
 					street_address,
-					purchase_date_time,
+					sale_date_time,
 					inventory_name );
 }
 
-LIST *inventory_purchase_fetch_return_list(
+LIST *inventory_sale_fetch_return_list(
 					char *application_name,
 					char *full_name,
 					char *street_address,
-					char *purchase_date_time,
+					char *sale_date_time,
 					char *inventory_name )
 {
 	char *select;
@@ -106,19 +105,19 @@ LIST *inventory_purchase_fetch_return_list(
 	char *inventory_where;
 	char input_buffer[ 2048 ];
 	FILE *input_pipe;
-	INVENTORY_PURCHASE_RETURN *inventory_purchase_return;
+	INVENTORY_SALE_RETURN *inventory_sale_return;
 	LIST *return_list;
 
-	select = inventory_purchase_return_get_select();
+	select = inventory_sale_return_get_select();
 
-	folder = "inventory_purchase_return";
+	folder = "inventory_sale_return";
 
 	ledger_where = ledger_get_transaction_where(
 					full_name,
 					street_address,
-					purchase_date_time,
+					sale_date_time,
 					(char *)0 /* folder_name */,
-					"purchase_date_time" );
+					"sale_date_time" );
 
 	inventory_where = inventory_get_where( inventory_name );
 
@@ -139,33 +138,33 @@ LIST *inventory_purchase_fetch_return_list(
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		inventory_purchase_return =
-			inventory_purchase_return_parse(
+		inventory_sale_return =
+			inventory_sale_return_parse(
 				application_name,
 				full_name,
 				street_address,
 				input_buffer );
 
 		list_append_pointer(	return_list,
-					inventory_purchase_return );
+					inventory_sale_return );
 	}
 
 	pclose( input_pipe );
 
 	return return_list;
 
-} /* inventory_purchase_fetch_return_list() */
+} /* inventory_sale_fetch_return_list() */
 
-INVENTORY_PURCHASE_RETURN *inventory_purchase_return_parse(
+INVENTORY_SALE_RETURN *inventory_sale_return_parse(
 				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *input_buffer )
 {
-	INVENTORY_PURCHASE_RETURN *p;
+	INVENTORY_SALE_RETURN *p;
 	char piece_buffer[ 256 ];
 
-	p = inventory_purchase_return_new();
+	p = inventory_sale_return_new();
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 	p->return_date_time = strdup( piece_buffer );
@@ -174,9 +173,6 @@ INVENTORY_PURCHASE_RETURN *inventory_purchase_return_parse(
 	p->returned_quantity = atoi( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
-	p->sales_tax = atof( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 	if ( *piece_buffer )
 	{
 		p->transaction_date_time =
@@ -193,25 +189,15 @@ INVENTORY_PURCHASE_RETURN *inventory_purchase_return_parse(
 
 	return p;
 
-} /* inventory_purchase_return_parse() */
+} /* inventory_sale_return_parse() */
 
-void inventory_fetch_inventory_purchase_return_account_names(
-				char **account_payable_account,
+void inventory_fetch_inventory_sale_return_account_names(
 				char **account_receivable_account,
-				char **sales_tax_expense_account,
+				char **account_payable_account,
 				char *application_name,
 				char *fund_name )
 {
 	char *key;
-
-	key = LEDGER_ACCOUNT_PAYABLE_KEY;
-	*account_payable_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */,
-			__FUNCTION__ );
 
 	key = LEDGER_ACCOUNT_RECEIVABLE_KEY;
 	*account_receivable_account =
@@ -222,8 +208,8 @@ void inventory_fetch_inventory_purchase_return_account_names(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
-	key = LEDGER_SALES_TAX_EXPENSE_KEY;
-	*sales_tax_expense_account =
+	key = LEDGER_ACCOUNT_PAYABLE_KEY;
+	*account_payable_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
@@ -231,25 +217,25 @@ void inventory_fetch_inventory_purchase_return_account_names(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
-} /* inventory_fetch_inventory_purchase_return_account_names() */
+} /* inventory_fetch_inventory_sale_return_account_names() */
 
-TRANSACTION *inventory_purchase_return_build_transaction(
+TRANSACTION *inventory_sale_return_build_transaction(
 					char **transaction_date_time,
 					char *application_name,
 					char *fund_name,
 					char *full_name,
 					char *street_address,
-					double unit_cost,
+					double retail_price,
+					double discount_amount,
 					char *inventory_account_name,
 					char *return_date_time,
 					int returned_quantity,
-					double sales_tax,
-					double sum_vendor_payment_amount )
+					int sold_quantity,
+					double sum_customer_payment_amount )
 {
 	TRANSACTION *transaction;
-	char *account_payable_account = {0};
 	char *account_receivable_account = {0};
-	char *sales_tax_expense_account = {0};
+	char *account_payable_account = {0};
 
 	if ( !full_name )
 	{
@@ -263,10 +249,9 @@ TRANSACTION *inventory_purchase_return_build_transaction(
 
 	/* Exits if any ACCOUNT.hard_coded_account_key is missing. */
 	/* ------------------------------------------------------- */
-	inventory_fetch_inventory_purchase_return_account_names(
-			&account_payable_account,
+	inventory_fetch_inventory_sale_return_account_names(
 			&account_receivable_account,
-			&sales_tax_expense_account,
+			&account_payable_account,
 			application_name,
 			fund_name );
 
@@ -280,42 +265,43 @@ TRANSACTION *inventory_purchase_return_build_transaction(
 	*transaction_date_time = transaction->transaction_date_time;
 
 	transaction->journal_ledger_list =
-		inventory_purchase_return_get_journal_ledger_list(
+		inventory_sale_return_get_journal_ledger_list(
 			&transaction->transaction_amount,
 			full_name,
 			street_address,
 			transaction->transaction_date_time,
-			unit_cost,
+			retail_price,
+			discount_amount,
 			inventory_account_name,
-			account_payable_account,
 			account_receivable_account,
-			sales_tax_expense_account,
+			account_payable_account,
 			returned_quantity,
-			sales_tax,
-			sum_vendor_payment_amount );
+			sold_quantity,
+			sum_customer_payment_amount );
 
 	return transaction;
 
-} /* inventory_purchase_return_build_transaction() */
+} /* inventory_sale_return_build_transaction() */
 
-LIST *inventory_purchase_return_get_journal_ledger_list(
+LIST *inventory_sale_return_get_journal_ledger_list(
 				double *transaction_amount,
 				char *full_name,
 				char *street_address,
 				char *transaction_date_time,
-				double unit_cost,
+				double retail_price,
+				double discount_amount,
 				char *inventory_account_name,
-				char *account_payable_account,
 				char *account_receivable_account,
-				char *sales_tax_expense_account,
+				char *account_payable_account,
 				int returned_quantity,
-				double sales_tax,
-				double sum_vendor_payment_amount )
+				int sold_quantity,
+				double sum_customer_payment_amount )
 {
 	JOURNAL_LEDGER *journal_ledger;
 	LIST *journal_ledger_list;
-	char *debit_account_name;
 	double inventory_amount;
+	char *credit_account_name;
+	double discount_amount_per_item;
 
 	if ( !full_name )
 	{
@@ -329,65 +315,56 @@ LIST *inventory_purchase_return_get_journal_ledger_list(
 
 	journal_ledger_list = list_new();
 
-	inventory_amount = unit_cost * (double)returned_quantity;
+	discount_amount_per_item =
+		discount_amount / (double)sold_quantity;
 
-	*transaction_amount = inventory_amount + sales_tax;
-		
-	/* Debit account */
-	/* ------------- */
+	inventory_amount =	( retail_price - discount_amount_per_item ) *
+				(double)returned_quantity;
+
+	*transaction_amount = inventory_amount;
+
+	/* Credit account */
+	/* -------------- */
 	if ( !timlib_dollar_virtually_same(
-			sum_vendor_payment_amount,
+			sum_customer_payment_amount,
 			0.0 ) )
 	{
-		debit_account_name = account_payable_account;
+		credit_account_name = account_receivable_account;
 	}
 	else
 	{
-		debit_account_name = account_receivable_account;
+		credit_account_name = account_payable_account;
 	}
 
 	journal_ledger = journal_ledger_new(
 				full_name,
 				street_address,
 				transaction_date_time,
-				debit_account_name );
+				credit_account_name );
 
-	journal_ledger->debit_amount = *transaction_amount;
+	journal_ledger->credit_amount = *transaction_amount;
 
 	list_append_pointer( journal_ledger_list, journal_ledger );
 
-	/* Credit accounts */
-	/* --------------- */
+	/* Debit account */
+	/* ------------- */
 	journal_ledger = journal_ledger_new(
 				full_name,
 				street_address,
 				transaction_date_time,
 				inventory_account_name );
 
-	journal_ledger->credit_amount = inventory_amount;
+	journal_ledger->debit_amount = inventory_amount;
 
 	list_append_pointer( journal_ledger_list, journal_ledger );
 
-	if ( !timlib_dollar_virtually_same( sales_tax, 0.0 ) )
-	{
-		journal_ledger = journal_ledger_new(
-					full_name,
-					street_address,
-					transaction_date_time,
-					sales_tax_expense_account );
-
-		journal_ledger->credit_amount = sales_tax;
-
-		list_append_pointer( journal_ledger_list, journal_ledger );
-	}
-
 	return journal_ledger_list;
 
-} /* inventory_purchase_return_get_journal_ledger_list() */
+} /* inventory_sale_return_get_journal_ledger_list() */
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
-char *inventory_purchase_return_journal_ledger_refresh(
+char *inventory_sale_return_journal_ledger_refresh(
 					char *application_name,
 					char *full_name,
 					char *street_address,
@@ -421,9 +398,9 @@ char *inventory_purchase_return_journal_ledger_refresh(
 
 	return transaction_date_time;
 
-} /* inventory_purchase_return_journal_ledger_refresh() */
+} /* inventory_sale_return_journal_ledger_refresh() */
 
-FILE *inventory_purchase_return_get_update_pipe(
+FILE *inventory_sale_return_get_update_pipe(
 				char *application_name )
 {
 	FILE *update_pipe;
@@ -434,10 +411,10 @@ FILE *inventory_purchase_return_get_update_pipe(
 	table_name =
 		get_table_name(
 			application_name,
-			"inventory_purchase_return" );
+			"inventory_sale_return" );
 
 	key_column_list =
-"full_name,street_address,purchase_date_time,inventory_name,return_date_time";
+"full_name,street_address,sale_date_time,inventory_name,return_date_time";
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y		|"
@@ -449,13 +426,13 @@ FILE *inventory_purchase_return_get_update_pipe(
 
 	return update_pipe;
 
-} /* inventory_return_purchase_get_update_pipe() */
+} /* inventory_return_sale_get_update_pipe() */
 
-void inventory_purchase_return_update(
+void inventory_sale_return_update(
 				char *application_name,
 				char *full_name,
 				char *street_address,
-				char *purchase_date_time,
+				char *sale_date_time,
 				char *inventory_name,
 				char *return_date_time,
 				char *transaction_date_time,
@@ -464,14 +441,14 @@ void inventory_purchase_return_update(
 	FILE *update_pipe;
 
 	update_pipe =
-		inventory_purchase_return_get_update_pipe(
+		inventory_sale_return_get_update_pipe(
 			application_name );
 
-	inventory_purchase_return_pipe_update(
+	inventory_sale_return_pipe_update(
 			update_pipe,
 			full_name,
 			street_address,
-			purchase_date_time,
+			sale_date_time,
 			inventory_name,
 			return_date_time,
 			transaction_date_time,
@@ -479,13 +456,13 @@ void inventory_purchase_return_update(
 
 	pclose( update_pipe );
 
-} /* inventory_purchase_return_update() */
+} /* inventory_sale_return_update() */
 
-void inventory_purchase_return_pipe_update(
+void inventory_sale_return_pipe_update(
 				FILE *update_pipe,
 				char *full_name,
 				char *street_address,
-				char *purchase_date_time,
+				char *sale_date_time,
 				char *inventory_name,
 				char *return_date_time,
 				char *transaction_date_time,
@@ -498,7 +475,7 @@ void inventory_purchase_return_pipe_update(
 			"%s^%s^%s^%s^%s^transaction_date_time^%s\n",
 	 		full_name,
 	 		street_address,
-	 		purchase_date_time,
+	 		sale_date_time,
 	 		inventory_name,
 			return_date_time,
 			(transaction_date_time)
@@ -506,21 +483,21 @@ void inventory_purchase_return_pipe_update(
 				: "" );
 	}
 
-} /* inventory_purchase_return_pipe_update() */
+} /* inventory_sale_return_pipe_update() */
 
-boolean inventory_purchase_return_list_delete(
-			LIST *inventory_purchase_return_list,
+boolean inventory_sale_return_list_delete(
+			LIST *inventory_sale_return_list,
 			char *return_date_time )
 {
-	if ( !inventory_purchase_return_list_seek(
-		inventory_purchase_return_list,
+	if ( !inventory_sale_return_list_seek(
+		inventory_sale_return_list,
 		return_date_time ) )
 	{
 		return 0;
 	}
 
-	list_delete_current( inventory_purchase_return_list );
+	list_delete_current( inventory_sale_return_list );
 	return 1;
 
-} /* inventory_purchase_return_list_delete() */
+} /* inventory_sale_return_list_delete() */
 

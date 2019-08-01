@@ -1,9 +1,9 @@
-/* ----------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/post_change_inventory_purchase_return.c */
-/* ----------------------------------------------------------------------- */
-/* 									   */
-/* Freely available software: see Appaserver.org			   */
-/* ----------------------------------------------------------------------- */
+/* -------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/post_change_inventory_sale_return.c	*/
+/* -------------------------------------------------------------------	*/
+/* 									*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -14,10 +14,10 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "inventory_purchase_return.h"
+#include "inventory_sale_return.h"
 #include "entity.h"
 #include "ledger.h"
-#include "purchase.h"
+#include "sale.h"
 #include "customer.h"
 
 /* Constants */
@@ -26,28 +26,28 @@
 /* Prototypes */
 /* ---------- */
 
-void post_change_inventory_purchase_return_insert(
+void post_change_inventory_sale_return_insert(
 				char *application_name,
 				char *full_name,
 				char *street_address,
-				char *purchase_date_time,
+				char *sale_date_time,
 				char *inventory_name,
 				char *return_date_time );
 
-void post_change_inventory_purchase_return_update(
+void post_change_inventory_sale_return_update(
 				char *application_name,
 				char *full_name,
 				char *street_address,
-				char *purchase_date_time,
+				char *sale_date_time,
 				char *inventory_name,
 				char *return_date_time,
 				char *preupdate_inventory_name );
 
-void post_change_inventory_purchase_return_predelete(
+void post_change_inventory_sale_return_predelete(
 				char *application_name,
 				char *full_name,
 				char *street_address,
-				char *purchase_date_time,
+				char *sale_date_time,
 				char *inventory_name,
 				char *return_date_time );
 
@@ -56,7 +56,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *full_name;
 	char *street_address;
-	char *purchase_date_time;
+	char *sale_date_time;
 	char *inventory_name;
 	char *return_date_time;
 	char *state;
@@ -72,14 +72,14 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s full_name street_address purchase_date_time inventory_name return_date_time state preupdate_inventory_name\n",
+"Usage: %s full_name street_address sale_date_time inventory_name return_date_time state preupdate_inventory_name\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	full_name = argv[ 1 ];
 	street_address = argv[ 2 ];
-	purchase_date_time = argv[ 3 ];
+	sale_date_time = argv[ 3 ];
 	inventory_name = argv[ 4 ];
 	return_date_time = argv[ 5 ];
 	state = argv[ 6 ];
@@ -87,20 +87,20 @@ int main( int argc, char **argv )
 
 	/* If executed out of context. */
 	/* --------------------------- */
-	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
+	if ( strcmp( sale_date_time, "sale_date_time" ) == 0 )
 		exit( 0 );
 
 	/* ----------------------------------------------------------- */
-	/* INVENTORY_PURCHASE_RETURN.transaction_date_time DOES exist, */
+	/* INVENTORY_SALE_RETURN.transaction_date_time DOES exist, */
 	/* so execute predelete.				       */
 	/* ----------------------------------------------------------- */
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		post_change_inventory_purchase_return_predelete(
+		post_change_inventory_sale_return_predelete(
 			application_name,
 			full_name,
 			street_address,
-			purchase_date_time,
+			sale_date_time,
 			inventory_name,
 			return_date_time );
 	}
@@ -120,21 +120,21 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		post_change_inventory_purchase_return_insert(
+		post_change_inventory_sale_return_insert(
 			application_name,
 			full_name,
 			street_address,
-			purchase_date_time,
+			sale_date_time,
 			inventory_name,
 			return_date_time );
 	}
 	else
 	{
-		post_change_inventory_purchase_return_update(
+		post_change_inventory_sale_return_update(
 			application_name,
 			full_name,
 			street_address,
-			purchase_date_time,
+			sale_date_time,
 			inventory_name,
 			return_date_time,
 			preupdate_inventory_name );
@@ -144,44 +144,44 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_inventory_purchase_return_insert(
+void post_change_inventory_sale_return_insert(
 			char *application_name,
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time,
+			char *sale_date_time,
 			char *inventory_name,
 			char *return_date_time )
 {
-	PURCHASE_ORDER *purchase_order;
-	INVENTORY_PURCHASE *inventory_purchase;
-	INVENTORY_PURCHASE_RETURN *inventory_purchase_return;
+	CUSTOMER_SALE *customer_sale;
+	INVENTORY_SALE *inventory_sale;
+	INVENTORY_SALE_RETURN *inventory_sale_return;
 	TRANSACTION *transaction;
 	char sys_string[ 1024 ];
 
-	purchase_order =
-		purchase_order_fetch_new(
+	customer_sale =
+		customer_sale_fetch_new(
 			application_name,
 			full_name,
 			street_address,
-			purchase_date_time );
+			sale_date_time );
 
-	if ( !purchase_order )
+	if ( !customer_sale )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load purchase_order.\n",
+			 "ERROR in %s/%s()/%d: cannot load customer_sale.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( inventory_purchase =
-			inventory_purchase_list_seek(
-				purchase_order->inventory_purchase_list,
+	if ( ! ( inventory_sale =
+			inventory_sale_list_seek(
+				customer_sale->inventory_sale_list,
 				inventory_name ) ) )
 	{
 		fprintf( stderr,
-		"Error in %s/%s()/%d: cannot seek inventory_purchase = [%s]\n",
+		"Error in %s/%s()/%d: cannot seek inventory_sale = [%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -189,14 +189,14 @@ void post_change_inventory_purchase_return_insert(
 		exit( 1 );
 	}
 
-	if ( ! ( inventory_purchase_return =
-			inventory_purchase_return_list_seek(
-				inventory_purchase->
-					inventory_purchase_return_list,
+	if ( ! ( inventory_sale_return =
+			inventory_sale_return_list_seek(
+				inventory_sale->
+					inventory_sale_return_list,
 				return_date_time ) ) )
 	{
 		fprintf( stderr,
-"Error in %s/%s()/%d: cannot seek inventory_purchase_return = [%s/%s]\n",
+"Error in %s/%s()/%d: cannot seek inventory_sale_return = [%s/%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -205,7 +205,7 @@ void post_change_inventory_purchase_return_insert(
 		exit( 1 );
 	}
 
-	if ( inventory_purchase_return->transaction )
+	if ( inventory_sale_return->transaction )
 	{
 		fprintf( stderr,
 		"Warning in %s/%s()/%d: transaction exists for [%s/%s]\n",
@@ -217,23 +217,23 @@ void post_change_inventory_purchase_return_insert(
 	}
 
 	transaction =
-	inventory_purchase_return->transaction =
-		inventory_purchase_return_build_transaction(
-			&inventory_purchase_return->transaction_date_time,
+	inventory_sale_return->transaction =
+		inventory_sale_return_build_transaction(
+			&inventory_sale_return->transaction_date_time,
 			application_name,
 			(char *)0 /* fund_name */,
-			inventory_purchase->full_name,
-			inventory_purchase->street_address,
-			inventory_purchase->unit_cost,
-			inventory_purchase->inventory_account_name,
-			inventory_purchase_return->return_date_time,
-			inventory_purchase_return->returned_quantity,
-			inventory_purchase_return->sales_tax,
-			purchase_get_sum_vendor_payment_amount(
-				purchase_order->vendor_payment_list ) );
+			inventory_sale->full_name,
+			inventory_sale->street_address,
+			inventory_sale->unit_cost,
+			inventory_sale->inventory_account_name,
+			inventory_sale_return->return_date_time,
+			inventory_sale_return->returned_quantity,
+			inventory_sale_return->sales_tax,
+			sale_get_sum_vendor_payment_amount(
+				customer_sale->vendor_payment_list ) );
 
-	inventory_purchase_return->transaction_date_time =
-		inventory_purchase_return_journal_ledger_refresh(
+	inventory_sale_return->transaction_date_time =
+		inventory_sale_return_journal_ledger_refresh(
 					application_name,
 					transaction->full_name,
 					transaction->street_address,
@@ -241,54 +241,54 @@ void post_change_inventory_purchase_return_insert(
 					transaction->transaction_amount,
 					transaction->journal_ledger_list );
 
-	/* Update INVENTORY_PURCHASE_RETURN.transaction_date_time */
+	/* Update INVENTORY_SALE_RETURN.transaction_date_time */
 	/* ------------------------------------------------------ */
-	inventory_purchase_return_update(
+	inventory_sale_return_update(
 		application_name,
-		inventory_purchase->full_name,
-		inventory_purchase->street_address,
-		purchase_date_time,
+		inventory_sale->full_name,
+		inventory_sale->street_address,
+		sale_date_time,
 		inventory_name,
 		return_date_time,
 		transaction->transaction_date_time,
 		(char *)0 /* database_transaction_date_time */ );
 
-	/* Update INVENTORY_PURCHASE.quantity_on_hand */
+	/* Update INVENTORY_SALE.quantity_on_hand */
 	/* ------------------------------------------ */
-	inventory_purchase->quantity_on_hand =
-		inventory_purchase_get_quantity_minus_returned(
-			inventory_purchase->arrived_quantity,
-			inventory_purchase->inventory_purchase_return_list ) -
-		inventory_purchase->missing_quantity,
+	inventory_sale->quantity_on_hand =
+		inventory_sale_get_quantity_minus_returned(
+			inventory_sale->arrived_quantity,
+			inventory_sale->inventory_sale_return_list ) -
+		inventory_sale->missing_quantity,
 
-	inventory_purchase_list_update(
+	inventory_sale_list_update(
 		application_name,
-		purchase_order->inventory_purchase_list );
+		customer_sale->inventory_sale_list );
 
 	sprintf( sys_string,
 "propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
 	 		application_name,
 	 		inventory_name,
-			(purchase_order->transaction_date_time)
-				? purchase_order->transaction_date_time
+			(customer_sale->transaction_date_time)
+				? customer_sale->transaction_date_time
 				: "" );
 
 	if ( system( sys_string ) ) {};
 
-} /* post_change_inventory_purchase_return_insert() */
+} /* post_change_inventory_sale_return_insert() */
 
-void post_change_inventory_purchase_return_update(
+void post_change_inventory_sale_return_update(
 			char *application_name,
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time,
+			char *sale_date_time,
 			char *inventory_name,
 			char *return_date_time,
 			char *preupdate_inventory_name )
 {
-	PURCHASE_ORDER *purchase_order;
-	INVENTORY_PURCHASE *inventory_purchase;
-	INVENTORY_PURCHASE_RETURN *inventory_purchase_return;
+	CUSTOMER_SALE *customer_sale;
+	INVENTORY_SALE *inventory_sale;
+	INVENTORY_SALE_RETURN *inventory_sale_return;
 	TRANSACTION *transaction;
 	char sys_string[ 1024 ];
 	enum preupdate_change_state inventory_name_change_state;
@@ -300,30 +300,30 @@ void post_change_inventory_purchase_return_update(
 			"preupdate_inventory_name" );
 
 
-	purchase_order =
-		purchase_order_fetch_new(
+	customer_sale =
+		customer_sale_fetch_new(
 			application_name,
 			full_name,
 			street_address,
-			purchase_date_time );
+			sale_date_time );
 
-	if ( !purchase_order )
+	if ( !customer_sale )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load purchase_order.\n",
+			 "ERROR in %s/%s()/%d: cannot load customer_sale.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( inventory_purchase =
-			inventory_purchase_list_seek(
-				purchase_order->inventory_purchase_list,
+	if ( ! ( inventory_sale =
+			inventory_sale_list_seek(
+				customer_sale->inventory_sale_list,
 				inventory_name ) ) )
 	{
 		fprintf( stderr,
-		"Error in %s/%s()/%d: cannot seek inventory_purchase = [%s]\n",
+		"Error in %s/%s()/%d: cannot seek inventory_sale = [%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -331,14 +331,14 @@ void post_change_inventory_purchase_return_update(
 		exit( 1 );
 	}
 
-	if ( ! ( inventory_purchase_return =
-			inventory_purchase_return_list_seek(
-				inventory_purchase->
-					inventory_purchase_return_list,
+	if ( ! ( inventory_sale_return =
+			inventory_sale_return_list_seek(
+				inventory_sale->
+					inventory_sale_return_list,
 				return_date_time ) ) )
 	{
 		fprintf( stderr,
-"Error in %s/%s()/%d: cannot seek inventory_purchase_return = [%s/%s]\n",
+"Error in %s/%s()/%d: cannot seek inventory_sale_return = [%s/%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -347,7 +347,7 @@ void post_change_inventory_purchase_return_update(
 		exit( 1 );
 	}
 
-	if ( !inventory_purchase_return->transaction )
+	if ( !inventory_sale_return->transaction )
 	{
 		fprintf( stderr,
 		"Warning in %s/%s()/%d: NO transaction exists for [%s/%s]\n",
@@ -359,23 +359,23 @@ void post_change_inventory_purchase_return_update(
 	}
 
 	transaction =
-	inventory_purchase_return->transaction =
-		inventory_purchase_return_build_transaction(
-			&inventory_purchase_return->transaction_date_time,
+	inventory_sale_return->transaction =
+		inventory_sale_return_build_transaction(
+			&inventory_sale_return->transaction_date_time,
 			application_name,
 			(char *)0 /* fund_name */,
-			inventory_purchase->full_name,
-			inventory_purchase->street_address,
-			inventory_purchase->unit_cost,
-			inventory_purchase->inventory_account_name,
-			inventory_purchase_return->return_date_time,
-			inventory_purchase_return->returned_quantity,
-			inventory_purchase_return->sales_tax,
-			purchase_get_sum_vendor_payment_amount(
-				purchase_order->vendor_payment_list ) );
+			inventory_sale->full_name,
+			inventory_sale->street_address,
+			inventory_sale->unit_cost,
+			inventory_sale->inventory_account_name,
+			inventory_sale_return->return_date_time,
+			inventory_sale_return->returned_quantity,
+			inventory_sale_return->sales_tax,
+			sale_get_sum_vendor_payment_amount(
+				customer_sale->vendor_payment_list ) );
 
-	inventory_purchase_return->transaction_date_time =
-		inventory_purchase_return_journal_ledger_refresh(
+	inventory_sale_return->transaction_date_time =
+		inventory_sale_return_journal_ledger_refresh(
 					application_name,
 					transaction->full_name,
 					transaction->street_address,
@@ -383,34 +383,34 @@ void post_change_inventory_purchase_return_update(
 					transaction->transaction_amount,
 					transaction->journal_ledger_list );
 
-	inventory_purchase_return_update(
+	inventory_sale_return_update(
 		application_name,
-		inventory_purchase->full_name,
-		inventory_purchase->street_address,
-		purchase_date_time,
+		inventory_sale->full_name,
+		inventory_sale->street_address,
+		sale_date_time,
 		inventory_name,
 		return_date_time,
 		transaction->transaction_date_time,
 		(char *)0 /* database_transaction_date_time */ );
 
-	/* Update INVENTORY_PURCHASE.quantity_on_hand */
+	/* Update INVENTORY_SALE.quantity_on_hand */
 	/* ------------------------------------------ */
-	inventory_purchase->quantity_on_hand =
-		inventory_purchase_get_quantity_minus_returned(
-			inventory_purchase->arrived_quantity,
-			inventory_purchase->inventory_purchase_return_list ) -
-		inventory_purchase->missing_quantity,
+	inventory_sale->quantity_on_hand =
+		inventory_sale_get_quantity_minus_returned(
+			inventory_sale->arrived_quantity,
+			inventory_sale->inventory_sale_return_list ) -
+		inventory_sale->missing_quantity,
 
-	inventory_purchase_list_update(
+	inventory_sale_list_update(
 		application_name,
-		purchase_order->inventory_purchase_list );
+		customer_sale->inventory_sale_list );
 
 	sprintf( sys_string,
 "propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
 	 		application_name,
 	 		inventory_name,
-			(purchase_order->transaction_date_time)
-				? purchase_order->transaction_date_time
+			(customer_sale->transaction_date_time)
+				? customer_sale->transaction_date_time
 				: "" );
 
 	if ( system( sys_string ) ) {};
@@ -421,51 +421,51 @@ void post_change_inventory_purchase_return_update(
 "propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
 	 		application_name,
 	 		preupdate_inventory_name,
-			(purchase_order->transaction_date_time)
-				? purchase_order->transaction_date_time
+			(customer_sale->transaction_date_time)
+				? customer_sale->transaction_date_time
 				: "" );
 
 		if ( system( sys_string ) ) {};
 	}
 
-} /* post_change_inventory_purchase_return_update() */
+} /* post_change_inventory_sale_return_update() */
 
-void post_change_inventory_purchase_return_predelete(
+void post_change_inventory_sale_return_predelete(
 			char *application_name,
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time,
+			char *sale_date_time,
 			char *inventory_name,
 			char *return_date_time )
 {
-	PURCHASE_ORDER *purchase_order;
-	INVENTORY_PURCHASE *inventory_purchase;
-	INVENTORY_PURCHASE_RETURN *inventory_purchase_return;
+	CUSTOMER_SALE *customer_sale;
+	INVENTORY_SALE *inventory_sale;
+	INVENTORY_SALE_RETURN *inventory_sale_return;
 
-	purchase_order =
-		purchase_order_fetch_new(
+	customer_sale =
+		customer_sale_fetch_new(
 			application_name,
 			full_name,
 			street_address,
-			purchase_date_time );
+			sale_date_time );
 
-	if ( !purchase_order )
+	if ( !customer_sale )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load purchase_order.\n",
+			 "ERROR in %s/%s()/%d: cannot load customer_sale.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( inventory_purchase =
-			inventory_purchase_list_seek(
-				purchase_order->inventory_purchase_list,
+	if ( ! ( inventory_sale =
+			inventory_sale_list_seek(
+				customer_sale->inventory_sale_list,
 				inventory_name ) ) )
 	{
 		fprintf( stderr,
-		"Error in %s/%s()/%d: cannot seek inventory_purchase = [%s]\n",
+		"Error in %s/%s()/%d: cannot seek inventory_sale = [%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -473,14 +473,14 @@ void post_change_inventory_purchase_return_predelete(
 		exit( 1 );
 	}
 
-	if ( ! ( inventory_purchase_return =
-			inventory_purchase_return_list_seek(
-				inventory_purchase->
-					inventory_purchase_return_list,
+	if ( ! ( inventory_sale_return =
+			inventory_sale_return_list_seek(
+				inventory_sale->
+					inventory_sale_return_list,
 				return_date_time ) ) )
 	{
 		fprintf( stderr,
-"Error in %s/%s()/%d: cannot seek inventory_purchase_return = [%s/%s]\n",
+"Error in %s/%s()/%d: cannot seek inventory_sale_return = [%s/%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -489,7 +489,7 @@ void post_change_inventory_purchase_return_predelete(
 		exit( 1 );
 	}
 
-	if ( !inventory_purchase_return->transaction )
+	if ( !inventory_sale_return->transaction )
 	{
 		fprintf( stderr,
 		"Error in %s/%s()/%d: no transaction for [%s/%s]\n",
@@ -505,7 +505,7 @@ void post_change_inventory_purchase_return_predelete(
 			TRANSACTION_FOLDER_NAME,
 			full_name,
 			street_address,
-			inventory_purchase_return->
+			inventory_sale_return->
 				transaction->
 				transaction_date_time );
 
@@ -513,20 +513,20 @@ void post_change_inventory_purchase_return_predelete(
 			LEDGER_FOLDER_NAME,
 			full_name,
 			street_address,
-			inventory_purchase_return->
+			inventory_sale_return->
 				transaction->
 				transaction_date_time );
 
 	ledger_journal_ledger_list_propagate( 
-		inventory_purchase_return->
+		inventory_sale_return->
 			transaction->
 			journal_ledger_list,
 		application_name );
 
-	if ( !inventory_purchase_return_list_delete(
-		inventory_purchase->
-			inventory_purchase_return_list,
-		inventory_purchase_return->return_date_time ) )
+	if ( !inventory_sale_return_list_delete(
+		inventory_sale->
+			inventory_sale_return_list,
+		inventory_sale_return->return_date_time ) )
 	{
 		fprintf( stderr,
 "Error in %s/%s()/%d: cannot delete return_date_time = [%s]\n",
@@ -539,15 +539,15 @@ void post_change_inventory_purchase_return_predelete(
 
 	/* Update INVENTORY_PURCHASE.quantity_on_hand */
 	/* ------------------------------------------ */
-	inventory_purchase->quantity_on_hand =
-		inventory_purchase_get_quantity_minus_returned(
-			inventory_purchase->arrived_quantity,
-			inventory_purchase->inventory_purchase_return_list ) -
-		inventory_purchase->missing_quantity;
+	inventory_sale->quantity_on_hand =
+		inventory_sale_get_quantity_minus_returned(
+			inventory_sale->arrived_quantity,
+			inventory_sale->inventory_sale_return_list ) -
+		inventory_sale->missing_quantity;
 
-	inventory_purchase_list_update(
+	inventory_sale_list_update(
 		application_name,
-		purchase_order->inventory_purchase_list );
+		customer_sale->inventory_sale_list );
 
-} /* post_change_inventory_purchase_predelete() */
+} /* post_change_inventory_sale_predelete() */
 

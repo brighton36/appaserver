@@ -16,6 +16,7 @@
 #include "appaserver_library.h"
 #include "inventory.h"
 #include "inventory_purchase_return.h"
+#include "inventory_sale_return.h"
 #include "purchase.h"
 #include "customer.h"
 #include "ledger.h"
@@ -4527,16 +4528,6 @@ int inventory_sale_get_returned_quantity(
 	return returned_quantity;
 
 } /* inventory_sale_get_returned_quantity() */
-
-LIST *inventory_sale_fetch_return_list(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *inventory_name )
-{
-	return (LIST *)0;
-}
 
 /* ---------------------------------------------------- */
 /* Sets inventory_purchase.quantity_on_hand,		*/

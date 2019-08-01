@@ -144,6 +144,17 @@ LIST *customer_sale_fetch_commission_list(
 
 } /* customer_sale_fetch_commission_list() */
 
+CUSTOMER_SALE *customer_sale_fetch_new(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time )
+{
+	return customer_sale_new(	application_name,
+					full_name,
+					street_address,
+					sale_date_time );
+}
+
 CUSTOMER_SALE *customer_sale_new(	char *application_name,
 					char *full_name,
 					char *street_address,

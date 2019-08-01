@@ -680,5 +680,11 @@ char *customer_sale_inventory_list_display(
 
 char *customer_sale_display(	CUSTOMER_SALE *customer_sale );
 
+CUSTOMER_SALE *customer_sale_fetch_new(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time );
+
 #endif
 

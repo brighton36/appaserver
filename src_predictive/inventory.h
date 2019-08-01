@@ -20,28 +20,6 @@
 /* Constants */
 /* --------- */
 
-/* Stubs */
-/* ----- */
-typedef struct
-{
-	char *return_date_time;
-	int returned_quantity;
-	double sales_tax;
-	double database_sales_tax;
-	char *transaction_date_time;
-	char *database_transaction_date_time;
-	TRANSACTION *transaction;
-} INVENTORY_SALE_RETURN;
-
-/* Gotta write this. */
-/* ----------------- */
-LIST *inventory_sale_fetch_return_list(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *inventory_name );
-
 /* Structures */
 /* ---------- */
 typedef struct

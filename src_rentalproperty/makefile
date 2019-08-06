@@ -78,6 +78,7 @@ SOURCE_LIBRARY_OBJECT= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/customer.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/inventory.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/inventory_purchase_return.o	\
+		${PREDICTIVEBOOKS_LIBRARY}/inventory_sale_return.o	\
 		${PREDICTIVEBOOKS_LIBRARY}/depreciation.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/fixed_asset.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/entity.o

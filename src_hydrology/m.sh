@@ -1,6 +1,6 @@
 :
 
-make sl2_shef_to_comma_delimited
+make load_turkey_point
 
 #if [ "$?" -eq 0 ]
 #then

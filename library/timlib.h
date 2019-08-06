@@ -578,7 +578,8 @@ char *timlib_pad_zero(		int number,
 				int length );
 
 char *timlib_get_first_line(	char *destination,
-				char *input_filename );
+				char *input_filename,
+				int buffer_size );
 
 char *timlib_dollar_round_string(
 				double amount );

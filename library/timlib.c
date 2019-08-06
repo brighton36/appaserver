@@ -3958,7 +3958,8 @@ char *timlib_pad_zero(		int number,
 }  /* timlib_pad_zero() */
 
 char *timlib_get_first_line(	char *destination,
-				char *input_filename )
+				char *input_filename,
+				int buffer_size )
 {
 	FILE *input_file;
 
@@ -3976,7 +3977,7 @@ char *timlib_get_first_line(	char *destination,
 		return (char *)0;
 	}
 
-	if ( !get_line( destination, input_file ) )
+	if ( !timlib_get_line( destination, input_file, buffer_size ) )
 	{
 		fprintf(stderr,
 			"Warning in %s/%s()/%d: empty file: %s.\n",

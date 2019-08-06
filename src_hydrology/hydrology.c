@@ -211,13 +211,14 @@ LIST *hydrology_get_header_column_datatype_list(
 {
 	DATATYPE *datatype;
 	LIST *return_list;
-	char header_row[ 1024 ];
+	char header_row[ 65536 ];
 	char column_heading[ 256 ];
 	int column_piece;
 
 	if ( !timlib_get_first_line(
 			header_row,
-			input_filename ) )
+			input_filename,
+			65536 ) )
 	{
 		fprintf( stderr,
 	"Warning in %s/%s()/%d: cannot get header_row in input_filename=%s\n",

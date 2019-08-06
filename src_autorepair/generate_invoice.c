@@ -254,7 +254,7 @@ int main( int argc, char **argv )
 
 /* fprintf( stderr, "%s\n", sys_string ); */
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	appaserver_link_file->extension = "pdf";
 
@@ -309,7 +309,7 @@ void output_invoice_window(
 	printf( "<h1>%s<br>",
 		format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	if ( system( "date '+%x %H:%M'" ) ) {};
 	printf( "</h1>\n" );
 	printf( "<a href='%s' target=%s>Press to view document.</a>\n",
 		ftp_output_filename,

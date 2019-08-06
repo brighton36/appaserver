@@ -686,5 +686,8 @@ CUSTOMER_SALE *customer_sale_fetch_new(
 				char *street_address,
 				char *sale_date_time );
 
+double customer_get_sum_payment_amount(
+				LIST *payment_list );
+
 #endif
 

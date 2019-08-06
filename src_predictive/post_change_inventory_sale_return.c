@@ -17,7 +17,6 @@
 #include "inventory_sale_return.h"
 #include "entity.h"
 #include "ledger.h"
-#include "sale.h"
 #include "customer.h"
 
 /* Constants */
@@ -224,13 +223,14 @@ void post_change_inventory_sale_return_insert(
 			(char *)0 /* fund_name */,
 			inventory_sale->full_name,
 			inventory_sale->street_address,
-			inventory_sale->unit_cost,
+			inventory_sale->retail_price,
+			inventory_sale->discount_amount,
 			inventory_sale->inventory_account_name,
 			inventory_sale_return->return_date_time,
 			inventory_sale_return->returned_quantity,
-			inventory_sale_return->sales_tax,
-			sale_get_sum_vendor_payment_amount(
-				customer_sale->vendor_payment_list ) );
+			inventory_sale->sold_quantity,
+			customer_get_sum_payment_amount(
+				customer_sale->payment_list ) );
 
 	inventory_sale_return->transaction_date_time =
 		inventory_sale_return_journal_ledger_refresh(
@@ -253,17 +253,19 @@ void post_change_inventory_sale_return_insert(
 		transaction->transaction_date_time,
 		(char *)0 /* database_transaction_date_time */ );
 
-	/* Update INVENTORY_SALE.quantity_on_hand */
-	/* ------------------------------------------ */
+	/* Update INVENTORY_SALE.cost_of_goods_sold */
+	/* ---------------------------------------- */
+/*
 	inventory_sale->quantity_on_hand =
 		inventory_sale_get_quantity_minus_returned(
 			inventory_sale->arrived_quantity,
 			inventory_sale->inventory_sale_return_list ) -
 		inventory_sale->missing_quantity,
+*/
 
 	inventory_sale_list_update(
-		application_name,
-		customer_sale->inventory_sale_list );
+		customer_sale->inventory_sale_list,
+		application_name );
 
 	sprintf( sys_string,
 "propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
@@ -366,13 +368,14 @@ void post_change_inventory_sale_return_update(
 			(char *)0 /* fund_name */,
 			inventory_sale->full_name,
 			inventory_sale->street_address,
-			inventory_sale->unit_cost,
+			inventory_sale->retail_price,
+			inventory_sale->discount_amount,
 			inventory_sale->inventory_account_name,
 			inventory_sale_return->return_date_time,
 			inventory_sale_return->returned_quantity,
-			inventory_sale_return->sales_tax,
-			sale_get_sum_vendor_payment_amount(
-				customer_sale->vendor_payment_list ) );
+			inventory_sale->sold_quantity,
+			customer_get_sum_payment_amount(
+				customer_sale->payment_list ) );
 
 	inventory_sale_return->transaction_date_time =
 		inventory_sale_return_journal_ledger_refresh(
@@ -395,15 +398,17 @@ void post_change_inventory_sale_return_update(
 
 	/* Update INVENTORY_SALE.quantity_on_hand */
 	/* ------------------------------------------ */
+/*
 	inventory_sale->quantity_on_hand =
 		inventory_sale_get_quantity_minus_returned(
 			inventory_sale->arrived_quantity,
 			inventory_sale->inventory_sale_return_list ) -
 		inventory_sale->missing_quantity,
+*/
 
 	inventory_sale_list_update(
-		application_name,
-		customer_sale->inventory_sale_list );
+		customer_sale->inventory_sale_list,
+		application_name );
 
 	sprintf( sys_string,
 "propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
@@ -539,15 +544,17 @@ void post_change_inventory_sale_return_predelete(
 
 	/* Update INVENTORY_PURCHASE.quantity_on_hand */
 	/* ------------------------------------------ */
+/*
 	inventory_sale->quantity_on_hand =
 		inventory_sale_get_quantity_minus_returned(
 			inventory_sale->arrived_quantity,
 			inventory_sale->inventory_sale_return_list ) -
 		inventory_sale->missing_quantity;
+*/
 
 	inventory_sale_list_update(
-		application_name,
-		customer_sale->inventory_sale_list );
+		customer_sale->inventory_sale_list,
+		application_name );
 
 } /* post_change_inventory_sale_predelete() */
 

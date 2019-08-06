@@ -3936,3 +3936,24 @@ char *customer_sale_display( CUSTOMER_SALE *c )
 
 } /* customer_sale_display() */
 
+double customer_get_sum_payment_amount(
+				LIST *payment_list )
+{
+	CUSTOMER_PAYMENT *customer_payment;
+	double sum_payment_amount;
+
+	if ( !list_rewind( payment_list ) ) return 0.0;
+
+	sum_payment_amount = 0.0;
+
+	do {
+		customer_payment = list_get( payment_list );
+
+		sum_payment_amount += customer_payment->payment_amount;
+
+	} while ( list_next( payment_list ) );
+
+	return sum_payment_amount;
+
+} /* customer_get_sum_payment_amount() */
+

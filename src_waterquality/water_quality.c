@@ -960,7 +960,7 @@ LIST *water_fetch_turkey_point_column_list(
 		exit( 1 );
 	}
 
-	if ( !get_line( heading_string, input_file ) )
+	if ( !timlib_get_line( heading_string, input_file, 65536 ) )
 	{
 		strcpy( error_message, "empty input file." );
 		fclose( input_file );

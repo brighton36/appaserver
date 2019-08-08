@@ -1546,6 +1546,17 @@ LIST *water_get_results_exception_list(	char *exception_string,
 		column( exception_column, c, exception_string );
 		c++ )
 	{
+		/* Ignore leading + or - */
+		/* --------------------- */
+		if ( *exception_column == '+'
+		||   *exception_column == '-' )
+		{
+			char tmp[ 128 ];
+
+			strcpy( tmp, exception_column + 1 );
+			strcpy( exception_column, tmp );
+		}
+
 		list_rewind( exception_list );
 
 		do {

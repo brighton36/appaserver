@@ -277,7 +277,6 @@ int load_concentration_file(
 		 sys_string,
 		 "count.e %d 'WQ Load count'				  |"
 		 "insert_statement table=%s field=%s del='|' compress=n   |"
-"tee /var/tmp/load_turkey_point_results.sql |"
 		 "sql.e 2>&1						  |"
 		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e				   ",

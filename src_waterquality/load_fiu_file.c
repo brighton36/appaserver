@@ -101,7 +101,7 @@ int main( int argc, char **argv )
 
 	printf( "<h2>%s\n", format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	if ( system( "date '+%x %H:%M'" ) ) {};
 	printf( "</h2>\n" );
 	fflush( stdout );
 
@@ -462,7 +462,7 @@ int load_concentration_file(
 		sprintf( sys_string,
 "cat %s | queue_top_bottom_lines.e 300 | html_table.e 'Water Quality Errors' '' '|'",
 			 error_filename );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 
 	sprintf( sys_string, "rm %s", error_filename );

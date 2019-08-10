@@ -276,7 +276,7 @@ int load_concentration_file(
 		sprintf(
 		 sys_string,
 		 "count.e %d 'WQ Load count'				  |"
-		 "insert_statement table=%s field=%s del='|' compress=y   |"
+		 "insert_statement table=%s field=%s del='|' compress=n   |"
 		 "sql.e 2>&1						  |"
 		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e				   ",

@@ -29,6 +29,10 @@ int main( void )
 	char *document_root;
 	char output_process[ 128 ];
 
+	/* Place IP address in Apache's log. */
+	/* --------------------------------- */
+	if ( system( "env | grep REMOTE_ADDR= 1>&2" ) ) {};
+
 	dictionary = post2dictionary(
 				stdin,
 				(char *)0 /* appaserver_data_directory */,
@@ -66,7 +70,7 @@ int main( void )
 		document_root = APPAHOST_DOCUMENT_ROOT;
 
 	sprintf( output_process, "cat %s/message_sent.html", document_root );
-	system( output_process );
+	if ( system( output_process ) ) {};
 
 	exit( 0 );
 

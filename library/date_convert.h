@@ -31,6 +31,9 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+DATE_CONVERT *date_convert_calloc(
+				void );
+
 DATE_CONVERT *date_convert_new_date_convert(
 				enum date_convert_format destination_format,
 				char *date_string );

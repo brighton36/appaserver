@@ -108,11 +108,27 @@ DATE_CONVERT *date_convert_new_user_format_date_convert(
 				date_string );
 } /* date_convert_new_user_format_date_convert() */
 
+DATE_CONVERT *date_convert_calloc( void )
+{
+	DATE_CONVERT *d;
+
+	if ( ! ( d = (DATE_CONVERT *)calloc( 1, sizeof( DATE_CONVERT ) ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+	return d;
+}
+
 DATE_CONVERT *date_convert_new_date_convert(
 				enum date_convert_format destination_format,
 				char *date_string )
 {
-	DATE_CONVERT *d = (DATE_CONVERT *)calloc( 1, sizeof( DATE_CONVERT ) );
+	DATE_CONVERT *d = date_convert_calloc();
 
 	if ( !d )
 	{
@@ -124,7 +140,9 @@ DATE_CONVERT *date_convert_new_date_convert(
 	}
 
 	if ( strcasecmp( date_string, "today" ) == 0 )
-		date_string = date_get_today_yyyy_mm_dd( date_get_utc_offset() );
+		date_string =
+			date_get_today_yyyy_mm_dd(
+				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "yesterday" ) == 0 )
 		date_string =
@@ -190,6 +208,7 @@ DATE_CONVERT *date_convert_new_date_convert(
 				date_string );
 
 	return d;
+
 } /* date_convert_new_date_convert() */
 
 DATE_CONVERT *date_convert_new_database_format_date_convert(
@@ -333,7 +352,6 @@ boolean date_convert_date_time_source_unknown(
 	enum date_convert_format source_format;
 	char date_string[ 128 ];
 	char time_string[ 128 ];
-	char *return_date;
 	char buffer[ 128 ];
 
 	if ( !return_date_time )

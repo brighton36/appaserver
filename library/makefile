@@ -105,7 +105,6 @@ all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
 		semaphore_dvr.e						\
 		dollar_dvr.e						\
 		fork_control_dvr.e					\
-		piece_dvr.e						\
 		queue_dvr.e						\
 		hashdvr.e						\
 		julian_dvr.e						\

@@ -67,15 +67,6 @@ boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 					JULIAN **file_end_date,
 					char *input_filespecification );
 
-/*
-void delete_existing_measurements(
-					char *application_name,
-					char *station,
-					JULIAN *input_begin_date,
-					JULIAN *input_end_date,
-					LIST *datatype_list );
-*/
-
 LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *station_name,
 					char *first_line,
@@ -114,7 +105,6 @@ int main( int argc, char **argv )
 	int measurement_count = 0;
 	char *process_name;
 	int process_id = getpid();
-	char *database_string = {0};
 	char format_buffer[ 128 ];
 	char *begin_date_string;
 	char *begin_time_string;
@@ -128,15 +118,24 @@ int main( int argc, char **argv )
 	char *error_message = {0};
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 12 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process filename station begin_date begin_time end_date end_time ignored is_exo_yn really_yn\n",
+"Usage: %s ignored process filename station begin_date begin_time end_date end_time ignored is_exo_yn really_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	process_name = argv[ 2 ];
 	input_filespecification = argv[ 3 ];
 	station = argv[ 4 ];
@@ -148,31 +147,7 @@ int main( int argc, char **argv )
 	is_exo_yn = *argv[ 10 ];
 	really_yn = *argv[ 11 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -332,21 +307,8 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-/*
-	char change_existing_data_yn;
-	if ( really_yn == 'y'
-	&&   change_existing_data_yn == 'y' )
-	{
-		delete_existing_measurements(
-				application_name,
-				station,
-				input_begin_date,
-				input_end_date,
-				datatype_list );
-	}
-*/
-
-	line_count = load_ysi_filespecification(
+	line_count =
+		load_ysi_filespecification(
 			&measurement_count,
 			error_filespecification,
 			application_name,

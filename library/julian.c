@@ -216,13 +216,13 @@ __FUNCTION__,
 current,
 yyyy_mm_dd );
 */
-
 	hhmm = julian_display_hhmm( current );
 
 	sprintf( buffer, "%s:%s", yyyy_mm_dd, hhmm );
 	free( yyyy_mm_dd );
 	free( hhmm );
 	return strdup( buffer );
+
 } /* julian_display_yyyy_mm_dd_hhmm() */
 
 char *julian_display_hhmm( double current )
@@ -387,7 +387,16 @@ char *julian_to_yyyy_mm_dd( double julian )
 				&seconds );
 		sprintf( buffer, "%d-%.2d-%.2d", year, month, day );
 	}
+
+/*
+fprintf( stderr, "%s(): for julian = %.5lf, returning yyyy_mm_dd = (%s)\n",
+__FUNCTION__,
+julian,
+buffer );
+*/
+
 	return strdup( buffer );
+
 } /* julian_to_yyyy_mm_dd() */
 
 int julian_get_year_number( double current )

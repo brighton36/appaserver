@@ -507,4 +507,11 @@ boolean date_parse_american_date_time(
 				char **error_message,
 				char *american_date_time );
 
+boolean date_set_yyyy_mm_dd_hh_mm_ss_colon(
+				DATE *date,
+				/* ------------------- */
+				/* 2017-12-01 11:00:00 */
+				/* ------------------- */
+				char *date_time_string );
+
 #endif

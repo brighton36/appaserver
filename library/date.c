@@ -2377,3 +2377,54 @@ boolean date_parse_american_date_time(
 	return 1;
 
 } /* date_parse_american_date_time() */
+
+boolean date_set_yyyy_mm_dd_hh_mm_ss_colon(
+				DATE *date,
+				/* ------------------- */
+				/* 2017-12-01 11:00:00 */
+				/* ------------------- */
+				char *date_time_string )
+{
+	char year_string[ 16 ];
+	char month_string[ 16 ];
+	char day_string[ 16 ];
+	char hour_string[ 16 ];
+	char minute_string[ 16 ];
+	char second_string[ 16 ];
+	char date_half[ 32 ];
+	char time_half[ 32 ];
+
+	if ( count_character( '-', date_time_string ) != 2 )
+		return 0;
+
+	if ( count_character( ' ', date_time_string ) != 1 )
+		return 0;
+
+	if ( count_character( ':', date_time_string ) != 2 )
+		return 0;
+
+	column( date_half, 0, date_time_string );
+	column( time_half, 1, date_time_string );
+
+	piece( year_string, '-', date_half, 0 );
+	piece( month_string, '-', date_half, 1 );
+	piece( day_string, '-', date_half, 2 );
+
+	piece( hour_string, ':', time_half, 0 );
+	piece( minute_string, ':', time_half, 1 );
+	piece( second_string, ':', time_half, 2 );
+
+	date_set_date_integers(	date,
+				atoi( year_string ),
+				atoi( month_string ),
+				atoi( day_string ) );
+
+	date_set_time_integers(	date,
+				atoi( hour_string ),
+				atoi( minute_string ),
+				atoi( second_string ) );
+
+	return 1;
+
+} /* date_set_yyyy_mm_dd_hh_mm_ss_colon() */
+

@@ -37,6 +37,7 @@ typedef struct
 	char *exo_load_heading;
 	int column_piece;
 	LIST *datatype_alias_list;
+	int measurement_count;
 } DATATYPE;
 
 /* Prototypes */
@@ -95,6 +96,13 @@ LIST *datatype_with_station_name_list_get_datatype_bar_graph_list(
 
 boolean datatype_bar_chart(
 			char *application_name,
+			char *datatype_name );
+
+DATATYPE *datatype_set_or_get_datatype(
+			LIST *datatype_list,
+			/* ------------------- */
+			/* Assume stack memory */
+			/* ------------------- */
 			char *datatype_name );
 
 DATATYPE *datatype_list_seek(

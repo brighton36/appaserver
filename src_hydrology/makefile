@@ -91,6 +91,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		load_sfwmd_breakpoint_data				\
 		load_biscayne_ysi_data					\
 		load_ysi_data						\
+		load_cr300_data						\
 		parse_alias_data					\
 		get_aggregation_sum_yn					\
 		apply_position_translation_to_record			\
@@ -385,6 +386,16 @@ parse_alias_data: parse_alias_data.c					\
 		parse_alias_data.c					\
 		${SOURCE_LIBS}						\
 		-o parse_alias_data
+
+load_cr300_data: load_cr300_data.c					\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		load_cr300_data.c					\
+		${SOURCE_LIBS}						\
+		-o load_cr300_data
 
 load_ysi_data: load_ysi_data.c						\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}

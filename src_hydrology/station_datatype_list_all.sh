@@ -6,7 +6,9 @@
 # Freely available software: see Appaserver.org
 # ---------------------------------------------
 
-echo "Starting: $0 $*" 1>&2
+# Oops! This appears in an error file.
+# ------------------------------------
+# echo "Starting: $0 $*" 1>&2
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then

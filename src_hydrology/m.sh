@@ -1,6 +1,8 @@
 :
 
-make load_turkey_point
+cd ../library && make
+
+cd - && make parse_alias_data
 
 #if [ "$?" -eq 0 ]
 #then

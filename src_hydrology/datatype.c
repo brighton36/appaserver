@@ -137,6 +137,40 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 
 } /* datatype_unit_record2datatype() */
 
+DATATYPE *datatype_set_or_get_datatype(
+				LIST *datatype_list,
+				/* ------------------- */
+				/* Assume stack memory */
+				/* ------------------- */
+				char *datatype_name )
+{
+	DATATYPE *datatype;
+
+	if ( !datatype_list )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: empty datatype_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 0 );
+	} 
+
+	if ( ( datatype =
+			datatype_list_seek(
+				datatype_list,
+				datatype_name ) ) )
+	{
+		return datatype;
+	}
+
+	datatype = datatype_new( strdup( datatype_name ) );
+	list_append_pointer( datatype_list, datatype );
+
+	return datatype;
+
+} /* datatype_set_or_get_datatype() */
+
 DATATYPE *datatype_list_seek(	LIST *datatype_list,
 				char *datatype_name )
 {
@@ -459,8 +493,6 @@ DATATYPE *datatype_record2datatype(	char *application_name,
 	char bar_graph_yn[ 16 ];
 	char scale_graph_to_zero_yn[ 16 ];
 	char aggregation_sum_yn[ 16 ];
-	char ysi_load_heading[ 32 ];
-	char exo_load_heading[ 32 ];
 	char set_negative_values_to_zero_yn[ 16 ];
 	char calibrated_yn[ 16 ];
 
@@ -481,11 +513,11 @@ DATATYPE *datatype_record2datatype(	char *application_name,
 	piece( scale_graph_to_zero_yn, '|', record, 3 );
 	piece( aggregation_sum_yn, '|', record, 4 );
 /*
+	char ysi_load_heading[ 32 ];
+	char exo_load_heading[ 32 ];
 	piece( ysi_load_heading, '|', record, 5 );
 	piece( exo_load_heading, '|', record, 6 );
 */
-	*ysi_load_heading = '\0';
-	*exo_load_heading = '\0';
 
 	piece( set_negative_values_to_zero_yn, '|', record, 7 );
 	piece( calibrated_yn, '|', record, 8 );
@@ -614,6 +646,7 @@ boolean datatype_get_bypass_data_collection_frequency(
 
 } /* datatype_get_bypass_data_collection_frequency() */
 
+#ifdef NOT_DEFINED
 DATATYPE *datatype_list_ysi_load_heading_seek(
 			LIST *datatype_list,
 			char *two_line_datatype_heading )
@@ -661,6 +694,7 @@ DATATYPE *datatype_list_exo_load_heading_seek(
 	return (DATATYPE *)0;
 
 } /* datatype_list_exo_load_heading_seek() */
+#endif
 
 LIST *datatype_list_get_unique_unit_list(
 			LIST *datatype_list )

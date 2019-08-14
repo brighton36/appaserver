@@ -97,6 +97,7 @@ int main( int argc, char **argv )
 				date_heading_label ) ) )
 	{
 		fprintf( stderr, "Error: %s\n", error_message );
+		fflush( stderr );
 		exit( 1 );
 	}
 
@@ -158,6 +159,7 @@ void parse_alias_filespecification(
 				 "No comma in line %d: %s\n",
 				 line_number,
 				 input_buffer );
+			fflush( stderr );
 			continue;
 		}
 
@@ -177,6 +179,7 @@ void parse_alias_filespecification(
 				 "Ignoring bad date/time in line %d: %s\n",
 				 line_number,
 				 input_buffer );
+			fflush( stderr );
 			continue;
 		}
 
@@ -184,8 +187,6 @@ void parse_alias_filespecification(
 			measurement_date_time_julian,
 			date_display_yyyy_mm_dd( measurement_date_time ),
 			date_display_hhmm( measurement_date_time ) );
-
-		date_free( measurement_date_time );
 
 		measurement_date_time_julian =
 			hydrology_library_adjust_time_to_sequence(
@@ -207,6 +208,7 @@ void parse_alias_filespecification(
 				 	 datatype->datatype_name,
 				 	 line_number,
 				 	 input_buffer );
+				fflush( stderr );
 				continue;
 			}
 
@@ -222,10 +224,10 @@ void parse_alias_filespecification(
 					station,
 					datatype->datatype_name,
 					julian_display_yyyy_mm_dd(
-						measurement_date_time->
+						measurement_date_time_julian->
 							current ),
 					julian_display_hhmm(
-						measurement_date_time->
+						measurement_date_time_julian->
 							current ),
 					measurement_value );
 
@@ -256,6 +258,7 @@ LIST *parse_alias_data_get_datatype_list(
 			 __FUNCTION__,
 			 __LINE__,
 			 input_filespecification );
+		fflush( stderr );
 		exit( 1 );
 	}
 

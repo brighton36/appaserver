@@ -92,6 +92,7 @@ load_sfwmd_single_file
 load_sfwmd_breakpoint_data
 load_biscayne_ysi_data
 load_ysi_data
+load_cr300_data
 parse_alias_data
 get_aggregation_sum_yn
 apply_position_translation_to_record

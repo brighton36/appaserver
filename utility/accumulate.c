@@ -1,5 +1,7 @@
-/* $APPASERVER_HOME/utility/accumulate.c	*/
-/* ------------------------------------- 	*/
+/* $APPASERVER_HOME/utility/accumulate.c		*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>

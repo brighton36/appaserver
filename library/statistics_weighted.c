@@ -12,6 +12,11 @@
 #include "piece.h"
 #include "statistics_weighted.h"
 
+STATISTICS_WEIGHTED *statistics_weighted_new( void )
+{
+	return statistics_weighted_new_statistics_weighted();
+}
+
 STATISTICS_WEIGHTED *statistics_weighted_new_statistics_weighted( void )
 {
 	STATISTICS_WEIGHTED *statistics_weighted;

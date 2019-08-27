@@ -17,9 +17,9 @@
 #include "hashtbl.h"
 #include "date.h"
 #include "appaserver_library.h"
+#include "statistics_weighted.h"
 #include "document.h"
 #include "creel_library.h"
-#include "statistics_weighted.h"
 
 /* appaserver_link_file */
 

@@ -15,10 +15,10 @@
 #include "appaserver_library.h"
 #include "application.h"
 #include "attribute.h"
+#include "statistics_weighted.h"
 #include "query_attribute_statistics_list.h"
 #include "html_table.h"
 #include "query.h"
-#include "statistics_weighted.h"
 
 QUERY_ATTRIBUTE_STATISTICS_LIST *query_attribute_statistics_list_new(
 						char *application_name,

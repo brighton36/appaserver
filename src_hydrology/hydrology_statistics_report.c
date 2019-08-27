@@ -19,12 +19,12 @@
 #include "environ.h"
 #include "date.h"
 #include "query_attribute_statistics_list.h"
+#include "statistics_weighted.h"
 #include "validation_level.h"
 #include "process.h"
 #include "application.h"
 #include "session.h"
 #include "boolean.h"
-#include "statistics_weighted.h"
 #include "hydrology_library.h"
 #include "datatype.h"
 

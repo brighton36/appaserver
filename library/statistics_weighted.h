@@ -58,8 +58,14 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-STATISTICS_WEIGHTED *statistics_weighted_new_statistics_weighted( void );
+STATISTICS_WEIGHTED *statistics_weighted_new_statistics_weighted(
+				void );
+
+STATISTICS_WEIGHTED *statistics_weighted_new(
+				void );
+
 void statistics_weighted_free(	STATISTICS_WEIGHTED *statistics_weighted );
+
 double statistics_weighted_compute_standard_deviation(
 				double *coefficient_of_variation,
 				double *standard_error_of_mean,

@@ -90,6 +90,7 @@ APPASERVER_LIBRARY=						\
 		regression.o					\
 		pivot_table.o					\
 		generic_load.o					\
+		statistics_weighted.o				\
 		report_writer.o					\
 		semaphore.o					\
 		dollar.o					\

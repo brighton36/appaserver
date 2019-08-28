@@ -140,6 +140,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	sql_select.e unix2dos dos2unix build_date_where cal2linear.e	\
 	round2five_minutes						\
 	real_time2aggregate_value.e					\
+	exceed_standard_deviation.e					\
 	date_min_max.e commit.e round_integer.e				\
 	filter_anomaly.e						\
 	strncmp.e							\
@@ -1493,6 +1494,17 @@ real_time2aggregate_value.e: real_time2aggregate_value.c		\
 		${LIBRARY}/statistics_weighted.o 			\
 		${LIBRARY}/aggregate_level.o	 			\
 		-o real_time2aggregate_value.e -lm
+
+exceed_standard_deviation.e: exceed_standard_deviation.c		\
+		${LIBRARY}/statistics_weighted.o			\
+		${LIBRARY}/aggregate_level.o				\
+		${STANDARD_LIBRARY}
+	$(CC) ${CFLAGS}	-I${LIBRARY} exceed_standard_deviation.c	\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		${LIBRARY}/statistics_weighted.o 			\
+		${LIBRARY}/aggregate_level.o	 			\
+		-o exceed_standard_deviation.e -lm
 
 real_time2annual_period.e: real_time2annual_period.c			\
 		${LIBRARY}/statistics_weighted.o			\

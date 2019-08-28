@@ -24,7 +24,6 @@
 #include "easycharts.h"
 #include "appaserver_parameter_file.h"
 #include "environ.h"
-#include "statistics_weighted.h"
 #include "application_constants.h"
 #include "datatype.h"
 

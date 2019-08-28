@@ -4,8 +4,8 @@
 # Freely available software: see Appaserver.org
 # ------------------------------------------------
 
-standard_deviation_count=3
-days_before=180
+standard_deviation_count=3.2
+days_before=90
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then

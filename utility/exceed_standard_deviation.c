@@ -10,63 +10,103 @@
 #include "piece.h"
 #include "statistics_weighted.h"
 
+/* Constants */
+/* --------- */
 #define DEFAULT_DELIMITER	'^'
 
-void exceed_standard_deviation_stdin(
-			double number_of_standard_deviations,
-			int piece_offset,
+/* Prototypes */
+/* ---------- */
+void exceed_standard_deviation_key_value_file(
+			char *key_value_file,
 			char delimiter,
+			double minimum_value,
+			double average,
+			double maximum_value );
+
+void exceed_standard_deviation_stdin(
+			double *minimum_value,
+			double *maximum_value,
+			double *average,
+			double number_of_standard_deviations );
+
+void exceed_standard_deviation_output(
+			double minimum_value,
+			double maximum_value,
+			double average,
 			char *key_string,
-			double value );
+			double value,
+			char delimiter,
+			char *key_value_file );
+
+void exceed_standard_deviation_stdout(
+			char *key_string,
+			char delimiter,
+			double value,
+			double minimum_value,
+			double average,
+			double maximum_value );
 
 int main( int argc, char **argv )
 {
-	char *key_string;
 	char delimiter = DEFAULT_DELIMITER;
 	double number_of_standard_deviations;
-	int piece_offset = 0;
 	double value;
+	char *key_string;
+	char *key_value_file;
+	double minimum_value = 0.0;
+	double average = 0.0;
+	double maximum_value = 0.0;
 
-	if ( argc < 4 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s key_string number_of_standard_deviations value [piece] [delimiter]\n",
+"Usage: %s number_of_standard_deviations key_string value delimiter key_value_file\n",
 			argv[ 0 ] );
+
+		fprintf(stderr,
+"Note: either [key_string value] or [key_value_file]. The key_value_file\n"
+"allows for multiple checks.\n" );
+
 		exit( 1 );
 	}
 
-	key_string = argv[ 1 ];
-	number_of_standard_deviations = atof( argv[ 2 ] );
+	number_of_standard_deviations = atof( argv[ 1 ] );
+	key_string = argv[ 2 ];
 	value = atof( argv[ 3 ] );
 
-	if ( argc >= 5 )
-		piece_offset = atoi( argv[ 4 ] );
+	if ( strcmp( argv[ 4 ], "delimiter" ) != 0 )
+		delimiter = *argv[ 4 ];
 
-	if ( argc >= 6 )
-		delimiter = *argv[ 5 ];
+	key_value_file = argv[ 5 ];
 
 	exceed_standard_deviation_stdin(
-		number_of_standard_deviations,
-		piece_offset,
-		delimiter,
-		key_string,
-		value );
+		&minimum_value,
+		&maximum_value,
+		&average,
+		number_of_standard_deviations );
+
+	exceed_standard_deviation_output(
+			minimum_value,
+			maximum_value,
+			average,
+			key_string,
+			value,
+			delimiter,
+			key_value_file );
 
 	return 0;
 
 } /* main() */
 
 void exceed_standard_deviation_stdin(
-			double number_of_standard_deviations,
-			int piece_offset,
-			char delimiter,
-			char *key_string,
-			double value )
+			double *minimum_value,
+			double *maximum_value,
+			double *average,
+			double number_of_standard_deviations )
 {
 	STATISTICS_WEIGHTED *statistics_weighted;
 	char input_buffer[ 1024 ];
-	double minimum_value;
-	double maximum_value;
+	double standard_deviation_radius;
 
 	if ( ! ( statistics_weighted =
 			statistics_weighted_new() ) )
@@ -78,6 +118,10 @@ void exceed_standard_deviation_stdin(
 			 __LINE__ );
 		exit( 1 );
 	}
+
+	*minimum_value = 0.0;
+	*maximum_value = 0.0;
+	*average = 0.0;
 
 	while( timlib_get_line( input_buffer, stdin, 1024 ) )
 	{
@@ -96,10 +140,9 @@ void exceed_standard_deviation_stdin(
 			&statistics_weighted->sum,
 			&statistics_weighted->weighted_sum,
 			statistics_weighted->buffer,
-			( piece_offset ) ? piece_offset : -1
-				/* statistics_weighted->value_piece */,
+			-1 /* statistics_weighted->value_piece */,
 			-1 /* statistics_weighted->weight_piece */,
-			delimiter );
+			(char)0 /* delimiter */ );
 
 	}
 
@@ -108,8 +151,10 @@ void exceed_standard_deviation_stdin(
 				statistics_weighted->weighted_count,
 				statistics_weighted->weighted_sum );
 
+/*
 	statistics_weighted_sort_number_array(
 			&statistics_weighted->number_array );
+*/
 
 	statistics_weighted->standard_deviation =
 			statistics_weighted_compute_standard_deviation(
@@ -118,39 +163,134 @@ void exceed_standard_deviation_stdin(
 				statistics_weighted->average,
 				&statistics_weighted->number_array );
 
-	minimum_value = statistics_weighted->average -
-				( statistics_weighted->standard_deviation *
-				  number_of_standard_deviations );
+	standard_deviation_radius =
+		statistics_weighted->standard_deviation *
+		number_of_standard_deviations;
 
-	maximum_value = statistics_weighted->average +
-				( statistics_weighted->standard_deviation *
-				  number_of_standard_deviations );
+	*minimum_value =
+		statistics_weighted->average -
+		standard_deviation_radius;
 
-	if ( value < minimum_value || value > maximum_value )
-	{
-		printf( "%s^%.3lf\n",
-			key_string,
-			value );
-	}
-/*
-	statistics_weighted->percent_missing =
-			statistics_weighted_compute_percent_missing(
-				statistics_weighted->
-					number_array.number_in_array,
-				statistics_weighted->weighted_input_count,
-				statistics_weighted->count );
+	*maximum_value =
+		statistics_weighted->average +
+		standard_deviation_radius;
 
-	statistics_weighted_compute_minimum_median_maxium_range(
-				&statistics_weighted->minimum,
-				&statistics_weighted->median,
-				&statistics_weighted->maximum,
-				&statistics_weighted->range,
-				&statistics_weighted->number_array );
-
-	statistics_weighted_free( statistics_weighted );
-*/
-
-	return;
+	*average = statistics_weighted->average;
 
 } /* exceed_standard_deviation_stdin() */
+
+void exceed_standard_deviation_output(
+			double minimum_value,
+			double maximum_value,
+			double average,
+			char *key_string,
+			double value,
+			char delimiter,
+			char *key_value_file )
+{
+	if ( !*key_value_file
+	||   strcmp( key_value_file, "key_value_file" ) == 0 )
+	{
+		exceed_standard_deviation_stdout(
+			key_string,
+			delimiter,
+			value,
+			minimum_value,
+			average,
+			maximum_value );
+	}
+	else
+	{
+		exceed_standard_deviation_key_value_file(
+			key_value_file,
+			delimiter,
+			minimum_value,
+			average,
+			maximum_value );
+	}
+
+} /* exceed_standard_deviation_output() */
+
+void exceed_standard_deviation_stdout(
+			char *key_string,
+			char delimiter,
+			double value,
+			double minimum_value,
+			double average,
+			double maximum_value )
+{
+	/* All good */
+	/* -------- */
+	if ( minimum_value <= value && value <= maximum_value ) return;
+
+	if ( value < minimum_value )
+	{
+		printf( "%s%c%.3lf%ctoo_low%c",
+			key_string,
+			delimiter,
+			value,
+			delimiter,
+			delimiter );
+	}
+	else
+	if ( value > maximum_value )
+	{
+		printf( "%s%c%.3lf%ctoo_high%c",
+			key_string,
+			delimiter,
+			value,
+			delimiter,
+			delimiter );
+	}
+
+	printf( "min=%.2lf%cavg=%.2lf%cmax=%.2lf\n",
+			minimum_value,
+			delimiter,
+			average,
+			delimiter,
+			maximum_value );
+
+} /* exceed_standard_deviation_stdout() */
+
+void exceed_standard_deviation_key_value_file(
+			char *key_value_file,
+			char delimiter,
+			double minimum_value,
+			double average,
+			double maximum_value )
+{
+	FILE *input_file;
+	char input_buffer[ 1024 ];
+	char key_string[ 512 ];
+	char value[ 512 ];
+
+	if ( ! ( input_file = fopen( key_value_file, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 key_value_file );
+	}
+
+	while( timlib_get_line( input_buffer, input_file, 1024 ) )
+	{
+		piece( key_string, delimiter, input_buffer, 0 );
+
+		if ( !piece( value, delimiter, input_buffer, 1 ) )
+			continue;
+
+		exceed_standard_deviation_stdout(
+			key_string,
+			delimiter,
+			atof( value ),
+			minimum_value,
+			average,
+			maximum_value );
+	}
+
+	fclose( input_file );
+
+} /* exceed_standard_deviation_key_value_file() */
 

@@ -24,12 +24,12 @@ then
 fi
 
 table=$1
-email=$2
+email="$2"
 
 change=`table_count_change.sh $table | grep "Change:" | piece.e ':' 1`
 
 message="$table count change: $change"
 
-echo "$message" | mailx -s "$message" $email
+echo "$message" | mailx -s "$message" "$email"
 
 exit 0

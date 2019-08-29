@@ -320,7 +320,7 @@ void tax_form_detail_report_html_table(
 
 			html_table_set_data(
 				html_table->data_list,
-				strdup( timlib_dollar_round_string(
+				strdup( timlib_dollar_string(
 						account->
 						tax_form_account_total ) ) );
 
@@ -420,7 +420,7 @@ void tax_form_report_audit_detail( LIST *tax_form_line_list )
 
 			html_table_set_data(
 				html_table->data_list,
-				strdup( timlib_dollar_round_string(
+				strdup( timlib_dollar_string(
 					account->
 						tax_form_account_total ) ) );
 
@@ -809,7 +809,7 @@ LIST *tax_form_report_detail_PDF_table_list(
 			 "Line: %s, Description: %s, Total: \\$%s",
 			 tax_form_line->tax_form_line,
 			 tax_form_line->tax_form_description,
-			 timlib_dollar_round_string(
+			 timlib_dollar_string(
 			 	tax_form_line->tax_form_line_total ) );
 
 		latex_table =
@@ -866,7 +866,7 @@ LIST *build_detail_PDF_row_list( TAX_FORM_LINE *tax_form_line )
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
-			strdup( timlib_dollar_round_string(
+			strdup( timlib_dollar_string(
 					account->
 						tax_form_account_total ) ),
 			0 /* not large_bold */ );

@@ -3999,7 +3999,9 @@ char *timlib_dollar_round_string( double amount )
 {
 	static char return_string[ 64 ];
 
-	sprintf( return_string, "%.0lf", amount );
-	return return_string;
+	/* sprintf( return_string, "%.0lf", amount ); */
+	sprintf( return_string, "%.2lf", amount );
+
+	return place_commas_in_number_string( return_string );
 
 } /* timlib_dollar_round_string() */

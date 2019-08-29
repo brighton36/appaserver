@@ -24,7 +24,7 @@ then
 fi
 
 table=$1
-email=$2
+email="$2"
 
 change=`table_count_change.sh $table | grep "Change:" | piece.e ':' 1`
 

@@ -245,7 +245,6 @@ LIST *bank_upload_fetch_file_list(
 	char bank_description[ 1024 ];
 	char bank_amount[ 128 ];
 	char bank_balance[ 128 ];
-	boolean found_header = 0;
 	static char local_minimum_bank_date[ 16 ] = {0};
 	FILE *input_pipe;
 	BANK_UPLOAD *bank_upload;
@@ -261,15 +260,17 @@ LIST *bank_upload_fetch_file_list(
 	if ( reverse_order )
 	{
 		sprintf( sys_string,
-			 "cat %s | reverse_lines.e",
+			 "cat \"%s\" | reverse_lines.e",
 			 input_filename );
 	}
 	else
 	{
 		sprintf( sys_string,
-			 "cat %s",
+			 "cat \"%s\"",
 			 input_filename );
 	}
+
+/* sprintf( sys_string, "cat \"%s\"", input_filename ); */
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -301,12 +302,8 @@ LIST *bank_upload_fetch_file_list(
 			continue;
 		}
 
-		if ( !found_header )
+		if ( timlib_exists_string( bank_date, "date" ) )
 		{
-			if ( timlib_exists_string( bank_date, "date" ) )
-			{
-				found_header = 1;
-			}
 			continue;
 		}
 
@@ -765,7 +762,6 @@ int bank_upload_get_line_count(	char *input_filename,
 	char bank_date[ 128 ];
 	FILE *input_file;
 	int line_count = 0;
-	boolean found_header = 0;
 
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
@@ -791,12 +787,8 @@ int bank_upload_get_line_count(	char *input_filename,
 			continue;
 		}
 
-		if ( !found_header )
+		if ( timlib_exists_string( bank_date, "date" ) )
 		{
-			if ( strcmp( bank_date, "Date" ) == 0 )
-			{
-				found_header = 1;
-			}
 			continue;
 		}
 

@@ -236,12 +236,12 @@ int main( int argc, char **argv )
 				fund_name,
 				feeder_account,
 				input_filename,
+				reverse_order,
 				date_piece_offset,
 				description_piece_offset,
 				debit_piece_offset,
 				credit_piece_offset,
 				balance_piece_offset,
-				reverse_order,
 				execute );
 	}
 	else
@@ -258,12 +258,12 @@ int main( int argc, char **argv )
 				fund_name,
 				feeder_account,
 				input_filename,
+				reverse_order,
 				date_piece_offset,
 				description_piece_offset,
 				debit_piece_offset,
 				credit_piece_offset,
 				balance_piece_offset,
-				reverse_order,
 				execute );
 
 		if ( execute )

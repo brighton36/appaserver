@@ -84,6 +84,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	trim_length.e							\
 	trim_right.e							\
 	reverse.e							\
+	reverse_lines.e							\
 	printer_control.e days_passed.e format_stamp.e			\
 	date_subtract.e							\
 	format_stamp_undo.e menu.e select2delimiter.e			\
@@ -1708,6 +1709,15 @@ reverse.e: reverse.c							\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o reverse.e
+
+reverse_lines.e: reverse_lines.c					\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
+	$(CC)	${CFLAGS} -I${LIBRARY} reverse_lines.c			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		-o reverse_lines.e
 
 gethostbyname: gethostbyname.c
 	$(CC)	gethostbyname.c						\

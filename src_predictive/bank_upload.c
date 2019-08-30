@@ -62,6 +62,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 				char *fund_name,
 				char *feeder_account,
 				char *input_filename,
+				boolean reverse_order,
 				int date_piece_offset,
 				int description_piece_offset,
 				int debit_piece_offset,
@@ -123,6 +124,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			&p->file.minimum_bank_date,
 			application_name,
 			p->file.input_filename,
+			reverse_order,
 			p->file.date_piece_offset,
 			p->file.description_piece_offset,
 			p->file.debit_piece_offset,
@@ -227,6 +229,7 @@ LIST *bank_upload_fetch_file_list(
 				char **minimum_bank_date,
 				char *application_name,
 				char *input_filename,
+				boolean reverse_order,
 				int date_piece_offset,
 				int description_piece_offset,
 				int debit_piece_offset,
@@ -235,15 +238,15 @@ LIST *bank_upload_fetch_file_list(
 				int starting_sequence_number,
 				char *fund_name )
 {
+	char sys_string[ 1024 ];
 	char input_string[ 4096 ];
 	char bank_date[ 128 ];
 	char bank_date_international[ 128 ];
 	char bank_description[ 1024 ];
 	char bank_amount[ 128 ];
 	char bank_balance[ 128 ];
-	boolean found_header = 0;
 	static char local_minimum_bank_date[ 16 ] = {0};
-	FILE *input_file;
+	FILE *input_pipe;
 	BANK_UPLOAD *bank_upload;
 	LIST *bank_upload_list;
 	boolean exists_fund;
@@ -254,16 +257,22 @@ LIST *bank_upload_fetch_file_list(
 		*file_sha256sum = timlib_get_sha256sum( input_filename );
 	}
 
-	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
+	if ( reverse_order )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			input_filename );
-		exit( 1 );
+		sprintf( sys_string,
+			 "cat \"%s\" | reverse_lines.e",
+			 input_filename );
 	}
+	else
+	{
+		sprintf( sys_string,
+			 "cat \"%s\"",
+			 input_filename );
+	}
+
+/* sprintf( sys_string, "cat \"%s\"", input_filename ); */
+
+	input_pipe = popen( sys_string, "r" );
 
 	exists_fund = ledger_fund_attribute_exists( application_name );
 
@@ -274,7 +283,7 @@ LIST *bank_upload_fetch_file_list(
 
 	bank_upload_list = list_new();
 
-	while( timlib_get_line( input_string, input_file, 4096 ) )
+	while( timlib_get_line( input_string, input_pipe, 4096 ) )
 	{
 		line_number++;
 
@@ -293,12 +302,8 @@ LIST *bank_upload_fetch_file_list(
 			continue;
 		}
 
-		if ( !found_header )
+		if ( timlib_exists_string( bank_date, "date" ) )
 		{
-			if ( timlib_exists_string( bank_date, "date" ) )
-			{
-				found_header = 1;
-			}
 			continue;
 		}
 
@@ -457,7 +462,7 @@ LIST *bank_upload_fetch_file_list(
 		starting_sequence_number++;
 	}
 
-	fclose( input_file );
+	pclose( input_pipe );
 	return bank_upload_list;
 
 } /* bank_upload_fetch_file_list() */
@@ -757,7 +762,6 @@ int bank_upload_get_line_count(	char *input_filename,
 	char bank_date[ 128 ];
 	FILE *input_file;
 	int line_count = 0;
-	boolean found_header = 0;
 
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
@@ -783,12 +787,8 @@ int bank_upload_get_line_count(	char *input_filename,
 			continue;
 		}
 
-		if ( !found_header )
+		if ( timlib_exists_string( bank_date, "date" ) )
 		{
-			if ( strcmp( bank_date, "Date" ) == 0 )
-			{
-				found_header = 1;
-			}
 			continue;
 		}
 

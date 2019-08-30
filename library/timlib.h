@@ -584,6 +584,9 @@ char *timlib_get_first_line(	char *destination,
 char *timlib_dollar_round_string(
 				double amount );
 
+char *timlib_dollar_string(
+				double amount );
+
 char *search_replace_strict_case_string( 
 				char *search_str, 
 				char *replace_str, 

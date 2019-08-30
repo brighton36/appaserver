@@ -1,4 +1,4 @@
-/* utility/complete_arrangement.c			*/
+/* $APPASERVER_HOME/utility/complete_arrangement.c	*/
 /* ---------------------------------------------------- */
 /* This process displays integer positions for 		*/
 /* objects that need to be systematically arranged.	*/

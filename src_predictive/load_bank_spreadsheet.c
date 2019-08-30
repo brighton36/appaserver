@@ -43,6 +43,7 @@ int load_bank_spreadsheet(	int *transaction_count,
 				char *fund_name,
 				char *feeder_account,
 				char *input_filename,
+				boolean reverse_order,
 				int date_piece_offset,
 				int description_piece_offset,
 				int debit_piece_offset,
@@ -56,6 +57,7 @@ int load_bank_spreadsheet_transactions_only(
 				char *fund_name,
 				char *feeder_account,
 				char *input_filename,
+				boolean reverse_order,
 				int date_piece_offset,
 				int description_piece_offset,
 				int debit_piece_offset,
@@ -86,6 +88,7 @@ int main( int argc, char **argv )
 	int credit_piece_offset;
 	int balance_piece_offset;
 	boolean transactions_only;
+	boolean reverse_order;
 	boolean execute;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -103,10 +106,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 13 )
+	if ( argc != 14 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name fund feeder_account filename date_column description_column debit_column credit_column balance_column transactions_only_yn execute_yn\n",
+"Usage: %s process_name login_name fund feeder_account filename date_column description_column debit_column credit_column balance_column transactions_only_yn reverse_order_yn execute_yn\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -126,7 +129,8 @@ int main( int argc, char **argv )
 	credit_column_string = argv[ 9 ];
 	balance_column_string = argv[ 10 ];
 	transactions_only = (*argv[ 11 ] == 'y');
-	execute = (*argv[ 12 ] == 'y');
+	reverse_order = (*argv[ 12 ] == 'y' );
+	execute = (*argv[ 13 ] == 'y');
 
 	if ( *date_column_string
 	&&   strcmp( date_column_string, "date_column" ) != 0 )
@@ -237,6 +241,7 @@ int main( int argc, char **argv )
 				debit_piece_offset,
 				credit_piece_offset,
 				balance_piece_offset,
+				reverse_order,
 				execute );
 	}
 	else
@@ -258,6 +263,7 @@ int main( int argc, char **argv )
 				debit_piece_offset,
 				credit_piece_offset,
 				balance_piece_offset,
+				reverse_order,
 				execute );
 
 		if ( execute )
@@ -325,6 +331,7 @@ int load_bank_spreadsheet_transactions_only(
 			char *fund_name,
 			char *feeder_account,
 			char *input_filename,
+			boolean reverse_order,
 			int date_piece_offset,
 			int description_piece_offset,
 			int debit_piece_offset,
@@ -342,6 +349,7 @@ int load_bank_spreadsheet_transactions_only(
 			fund_name,
 			feeder_account,
 			input_filename,
+			reverse_order,
 			date_piece_offset,
 			description_piece_offset,
 			debit_piece_offset,
@@ -463,6 +471,7 @@ int load_bank_spreadsheet(
 			char *fund_name,
 			char *feeder_account,
 			char *input_filename,
+			boolean reverse_order,
 			int date_piece_offset,
 			int description_piece_offset,
 			int debit_piece_offset,
@@ -480,6 +489,7 @@ int load_bank_spreadsheet(
 			fund_name,
 			feeder_account,
 			input_filename,
+			reverse_order,
 			date_piece_offset,
 			description_piece_offset,
 			debit_piece_offset,

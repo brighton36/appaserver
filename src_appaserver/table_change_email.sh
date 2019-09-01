@@ -30,6 +30,20 @@ change=`table_count_change.sh $table | grep "Change:" | piece.e ':' 1`
 
 message="$table count change: $change"
 
-echo "$message" | mailx -s "$message" $email
+i=0
+
+while [ true ]
+do
+	email_single=`echo $email | column.e $i`
+
+	if [ "$email_single" = "" ]
+	then
+		break
+	fi
+
+	echo "$message" | mailx -s "$message" $email_single
+
+	i=`expr $i + 1`
+done
 
 exit 0

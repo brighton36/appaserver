@@ -4,7 +4,7 @@
 # Freely available software: see Appaserver.org
 # ------------------------------------------------
 
-standard_deviation_count=3.2
+measurement_acid_test_standard_deviation=3.2
 days_before=90
 
 if [ "$APPASERVER_DATABASE" != "" ]
@@ -38,7 +38,7 @@ then
 	exit 1
 fi
 
-if [ "$#" -eq 3 ]
+if [ "$#" -eq 3 -a "$3" != "station" -a "$3" != "" ]
 then
 	station_grep="grep ^$3\^"
 else
@@ -57,8 +57,17 @@ fi
 
 begin_date=`date_subtract_days.sh $measurement_date $days_before`
 end_date=`date_subtract_days.sh $measurement_date 1`
-today_file="/tmp/measurement_today_file.dat"
+today_file="/tmp/measurement_today_file_$$.dat"
 
+results=`application_constant.sh measurement_acid_test_standard_deviation`
+
+if [ "$results" != "" ]
+then
+	measurement_acid_test_standard_deviation=$results
+fi
+
+# Begin execution
+# ---------------
 station_datatype_aggregate_average_list.sh				|
 $station_grep								|
 while read record
@@ -80,14 +89,17 @@ do
 					$begin_date			\
 					$end_date			|
 	piece.e '^' 4							|
-	exceed_standard_deviation.e	$standard_deviation_count	\
-					key_string value		\
-					'^'				\
-					$today_file			|
+	exceed_standard_deviation.e					\
+			$measurement_acid_test_standard_deviation	\
+			key_string value				\
+			'^'						\
+			$today_file					|
 	tr '|' '^'							|
 	$output_process							|
 	cat
 done
+
+rm $today_file
 
 exit 0
 

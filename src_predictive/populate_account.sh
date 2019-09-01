@@ -30,7 +30,7 @@ one2m_folder=$2
 subclassification=$3
 
 table=$(get_table_name $application account)
-select="concat( chart_account_number, '---', account, '|', account )"
+select="concat( account, '|', chart_account_number, '---', account )"
 
 if [ "$subclassification" = "" -o "$subclassification" = "subclassification" ]
 then
@@ -77,6 +77,8 @@ then
 fi
 
 echo "select $select from $table where $where order by $select;"	|
-sql.e
+sql.e									|
+grep -v '^$'								|
+cat
 
 exit 0

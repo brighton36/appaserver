@@ -1,7 +1,6 @@
-#!/bin/bash
-# ---------------------------------------------------------
-# $APPASERVER_HOME/src_predictive/populate_account.sh
-# ---------------------------------------------------------
+:
+# src_predictive/populate_account.sh
+# ----------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then
@@ -18,65 +17,26 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 3 ]
+if [ "$#" -lt 1 ]
 then
-	echo "Usage: $0 ignored one2m_folder subclassification" 1>&2
+	echo "Usage: $0 [where]" 1>&2
 	exit 1
 fi
 
-echo $0 $* 1>&2
+if [ "$#" -eq 1 -a "$1" != "where" -a "$1" != "\$where" ]
+then
+	parameter_where=$1
+else
+	parameter_where="1=1"
+fi
 
-one2m_folder=$2
-subclassification=$3
+where="$parameter_where"
 
 table=$(get_table_name $application account)
-select="account"
+select="chart_account_number,concat( '---', account,'|', account )"
+order="chart_account_number"
 
-if [ "$subclassification" = "" -o "$subclassification" = "subclassification" ]
-then
-	where="1 = 1"
-else
-	where="subclassification = '$subclassification'"
-fi
-
-if [ "$one2m_folder" = "inventory" ]
-then
-	where="subclassification = 'inventory' or subclassification = 'cost_of_goods_sold'"
-fi
-
-if [ "$one2m_folder" = "investment_account" ]
-then
-	where="subclassification like '%investment%'"
-fi
-
-if [ "$one2m_folder" = "fixed_asset" ]
-then
-	where="subclassification = 'property_plant_equipment' or	\
-	       subclassification = 'fixed_asset'"
-fi
-
-if [	"$one2m_folder" = "fixed_service" -o	\
-	"$one2m_folder" = "hourly_service" 	]
-then
-	where="subclassification = 'revenue'"
-fi
-
-if [ "$one2m_folder" = "liability_account_entity" ]
-then
-	where="subclassification = 'current_liability'"
-fi
-
-if [ "$one2m_folder" = "supply" ]
-then
-	where="subclassification = 'supply_expense'"
-fi
-
-if [ "$one2m_folder" = "service_purchase" ]
-then
-	where="subclassification = 'service_expense'"
-fi
-
-echo "select $select from $table where $where order by $select;"	|
+echo "select $select from $table where $where order by $order;"	|
 sql.e
 
 exit 0

@@ -216,10 +216,16 @@ int main( int argc, char **argv )
 			1 /* concat_datatype */,
 			process_generic_output->accumulate );
 
+/*
 	sprintf( grace_histogram_filename,
 		 "%s/%s/grace_histogram_%d.dat",
 		 appaserver_parameter_file->appaserver_mount_point,
 		 application_name,
+		 getpid() );
+*/
+	sprintf( grace_histogram_filename,
+		 "%s/grace_histogram_%d.dat",
+		 appaserver_parameter_file_get_data_directory(),
 		 getpid() );
 
 	sprintf(	title,

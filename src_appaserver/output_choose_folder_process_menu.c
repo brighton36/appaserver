@@ -163,7 +163,7 @@ int main( int argc, char **argv )
 	folder_list =
 		folder_menu_get_choose_folder_list(
 		     application_name,
-		     appaserver_parameter_file_get_appaserver_data_directory(),
+		     appaserver_parameter_file_get_data_directory(),
 		     session,
 		     role_name,
 		     (role->folder_count_yn == 'y' ) );

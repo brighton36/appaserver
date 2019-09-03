@@ -36,7 +36,11 @@ char *appaserver_parameter_file_get_apache_cgi_directory( void )
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
 			new_appaserver_parameter_file();
-	return global_appaserver_parameter_file->apache_cgi_directory;
+
+	return timlib_trim_trailing_character(
+			global_appaserver_parameter_file->
+				apache_cgi_directory,
+			'/' );
 }
 
 char *appaserver_parameter_file_get_appaserver_error_directory( void )
@@ -44,7 +48,11 @@ char *appaserver_parameter_file_get_appaserver_error_directory( void )
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
 			new_appaserver_parameter_file();
-	return global_appaserver_parameter_file->appaserver_error_directory;
+
+	return timlib_trim_trailing_character(
+			global_appaserver_parameter_file->
+				appaserver_error_directory,
+			'/' );
 }
 
 char *appaserver_parameter_file_get_data_directory( void )
@@ -57,8 +65,13 @@ char *appaserver_parameter_file_get_appaserver_data_directory( void )
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
 			new_appaserver_parameter_file();
-	return global_appaserver_parameter_file->appaserver_data_directory;
-}
+
+	return timlib_trim_trailing_character(
+			global_appaserver_parameter_file->
+				appaserver_data_directory,
+			'/' );
+
+} /* appaserver_parameter_file_get_appaserver_data_directory() */
 
 char *appaserver_parameter_file_get_dbms( void )
 {

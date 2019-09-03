@@ -155,6 +155,19 @@ char *timlib_trim_index( char *destination, char *attribute_name )
 	return trim_index( destination, attribute_name );
 }
 
+char *timlib_trim_trailing_character(	char *source_destination,
+					char character )
+{
+	char *end_ptr;
+
+ 	end_ptr = source_destination + strlen( source_destination ) - 1;
+
+	if ( *end_ptr == character ) *end_ptr = '\0';
+
+	return source_destination;
+
+} /* timlib_trim_trailing_character() */
+
 /* Sample: attribute_name = "station_1" */
 /* ------------------------------------ */
 char *trim_index( char *destination, char *attribute_name )

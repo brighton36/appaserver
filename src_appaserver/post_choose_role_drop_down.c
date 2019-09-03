@@ -162,7 +162,7 @@ int main( int argc, char **argv )
 	folder_menu_create_spool_file(
 		application_name,
 		session,
-		appaserver_parameter_file_get_appaserver_data_directory(),
+		appaserver_parameter_file_get_data_directory(),
 		role_name,
 		(role->folder_count_yn == 'y' ) );
 

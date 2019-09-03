@@ -122,11 +122,18 @@ char *left_string(		char *destination,
 				char *source,
 				int how_many );
 
-char *center( char *string, int screen_len );
-char *center_rpad( char *string, int screen_len );
-char *trim( char * );
-char *up_string( char * );
-char *low_string( char * );
+char *center(			char *string,
+				int screen_len );
+
+char *center_rpad(		char *string,
+				int screen_len );
+
+char *trim(			char * );
+
+char *up_string(		char * );
+
+char *low_string(		char * );
+
 int get_line( char *destination, FILE *infile );
 boolean timlib_get_line( char *destination, FILE *infile, int buffer_size );
 void skip_line( FILE *infile );
@@ -377,11 +384,17 @@ long timlib_random(			long up_to );
 char *timlib_mysql_date2ddmmyyyy(	char *destination,
 					char *source );
 char *timlib_trim_double_quotes(	char *s );
+
 char *timlib_yyyymmdd_to_ora_date(	char *s );
+
 char *timlib_yyyymmdd_to_oracle_format(	char *s );
+
 char *timlib_oracle_date2mysql(		char *s );
+
 boolean timlib_exists_alpha(		char *s );
+
 boolean timlib_exists_numeric(		char *s );
+
 boolean timlib_parse_database_string(	char **database_string,
 					char *application_name );
 
@@ -591,5 +604,9 @@ char *search_replace_strict_case_string(
 				char *search_str, 
 				char *replace_str, 
 				char *source_destination );
+
+char *timlib_trim_trailing_character(
+				char *source_destination,
+				char character );
 
 #endif

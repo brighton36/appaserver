@@ -50,8 +50,6 @@ cat << all_done
 <body>
 all_done
  
-echo "<html>"
-echo "<body>"
 echo "<h1>`echo $process | format_initial_capital.e`</h1>"
 
 bank_upload_transaction_insert "${bank_date}^${bank_description}^${full_name}^${street_address}^${transaction_date_time}" "$fund"		  |

@@ -31,6 +31,7 @@ subclassification=$3
 
 table=$(get_table_name $application account)
 select="concat( account, '|', chart_account_number, '---', account )"
+order="chart_account_number,account"
 
 if [ "$subclassification" = "" -o "$subclassification" = "subclassification" ]
 then
@@ -76,7 +77,7 @@ then
 	where="subclassification = 'service_expense'"
 fi
 
-echo "select $select from $table where $where order by $select;"	|
+echo "select $select from $table where $where order by $order;"		|
 sql.e									|
 grep -v '^$'								|
 cat

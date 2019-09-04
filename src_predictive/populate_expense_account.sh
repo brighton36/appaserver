@@ -18,11 +18,21 @@ then
 	exit 1
 fi
 
-select="account"
-table="account,subclassification"
-where="account.subclassification = subclassification.subclassification and element = 'expense'"
+select="concat( account.account, '|', chart_account_number, '---', account.account )"
 
-echo "select $select from $table where $where order by $select;"	|
-sql.e
+subclassification_join="account.subclassification = subclassification.subclassification"
+
+element_join="subclassification.element = element.element"
+
+subset_where="element.element = 'expense'"
+
+where="${element_join} and ${subclassification_join} and ${subset_where}"
+
+from="element,account,subclassification"
+
+echo "select $select from $from where $where order by $select;"		|
+sql.e									|
+grep -v '^$'								|
+cat
 
 exit 0

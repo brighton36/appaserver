@@ -1,7 +1,8 @@
 :
-# now.sh
-# ---------
-# Tim Riley
+# utility/now.sh
+# ---------------------------------------------
+# Freely available software. See appaserver.org
+# ---------------------------------------------
 
 if [ "$#" -eq 0 ]
 then
@@ -32,6 +33,9 @@ then
 elif [ "$1" = "full" ]
 then
 	date_format="+%B %d, %Y"
+elif [ "$1" = "seconds" ]
+then
+	date_format="+%H:%M:%S"
 else
 	exit_usage=1
 fi

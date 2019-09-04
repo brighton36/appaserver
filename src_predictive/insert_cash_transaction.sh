@@ -44,9 +44,8 @@ cat << all_done
 <link rel=stylesheet type="text/css" href="/appaserver/$application/style.css">
 </head>
 <body>
+<h1>`echo $process | format_initial_capital.e`</h1>
 all_done
- 
-echo "<h1>`echo $process | format_initial_capital.e`</h1>"
 
 # Build where_clause
 # ------------------
@@ -108,13 +107,37 @@ table="journal_ledger"
 # ---------------------------
 field="full_name,street_address,transaction_date_time,account,debit_amount"
 
-echo "$full_name^$street_address^$transaction_date_time^$debit_account^$transaction_amount" | insert_statement.e table=$table field=$field del='^' | sql.e 2>&1 | html_paragraph_wrapper.e
+echo "$full_name^$street_address^$transaction_date_time^$debit_account^$transaction_amount"							|
+insert_statement.e table=$table field=$field del='^'		|
+sql.e 2>&1							|
+html_paragraph_wrapper.e
 
 # Insert credit journal_ledger
 # ----------------------------
 field="full_name,street_address,transaction_date_time,account,credit_amount"
 
-echo "$full_name^$street_address^$transaction_date_time^$credit_account^$transaction_amount" | insert_statement.e table=$table field=$field del='^' | sql.e 2>&1 | html_paragraph_wrapper.e
+echo "$full_name^$street_address^$transaction_date_time^$credit_account^$transaction_amount"							|
+insert_statement.e table=$table field=$field del='^'		|
+sql.e 2>&1							|
+html_paragraph_wrapper.e
+
+# Execute the post change process twice
+# -------------------------------------
+./post_change_journal_ledger.sh	insert				\
+				"$full_name"			\
+				"$street_address"		\
+				"$transaction_date_time"	\
+				"$debit_account"		\
+				preupdate_transaction_date_time	\
+				preupdate_account
+
+./post_change_journal_ledger.sh	insert				\
+				"$full_name"			\
+				"$street_address"		\
+				"$transaction_date_time"	\
+				"$credit_account"		\
+				preupdate_transaction_date_time	\
+				preupdate_account
 
 echo "<h3>Process complete</h3>"
 echo "</body>"

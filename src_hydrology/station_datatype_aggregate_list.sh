@@ -1,6 +1,6 @@
 #!/bin/sh
 # ---------------------------------------------
-# station_datatype_aggregate_average_list.sh
+# station_datatype_aggregate_list.sh
 # ---------------------------------------------
 #
 # Freely available software: see Appaserver.org
@@ -21,13 +21,21 @@ then
 	exit 1
 fi
 
+if [ "$#" -ne 1 ]
+then
+	echo "Usage: $0 aggregate_sum_yn" 1>&2
+	exit 1
+fi
+
+aggregate_sum_yn=$1
+
 enp_station=`get_table_name $application enp_station`
 station_datatype=`get_table_name $application station_datatype`
 datatype=`get_table_name $application datatype`
 
 join_where="$enp_station.station = $station_datatype.station and $station_datatype.datatype = $datatype.datatype"
 
-datatype_where="ifnull(aggregation_sum_yn,'n') = 'n'"
+datatype_where="ifnull(aggregation_sum_yn,'n') = '$aggregate_sum_yn'"
 
 echo "	select $enp_station.station, $station_datatype.datatype		\
 	from $enp_station, $station_datatype, $datatype			\

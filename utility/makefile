@@ -98,6 +98,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	statistics_weighted.e						\
 	moving_average.e						\
 	complete_arrangement.e						\
+	colapse_repeating.e						\
 	trim_character.e display_character.e piece_ora_date.e		\
 	piece_replace_date.e						\
 	date_convert.e							\
@@ -823,6 +824,14 @@ complete_arrangement.e: complete_arrangement.c				\
 		complete_arrangement.c					\
 		${STANDARD_LIBRARY}					\
 		-o complete_arrangement.e
+
+colapse_repeating.e: colapse_repeating.c				\
+		${STANDARD_LIBRARY}
+	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		colapse_repeating.c					\
+		${STANDARD_LIBRARY}					\
+		-o colapse_repeating.e
 
 hashsearch.e: hashsearch.c						\
 		${STANDARD_LIBRARY}

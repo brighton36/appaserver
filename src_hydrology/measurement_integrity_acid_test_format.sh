@@ -7,7 +7,9 @@
 sed 's/min=//'							|
 sed 's/avg=//'							|
 sed 's/max=//'							|
-delimiter2padded_columns.e '^'
+sed 's/more$/more^^^^^^/'					|
+delimiter2padded_columns.e '^' 					|
+cat
 
 exit 0
 

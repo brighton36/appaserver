@@ -96,7 +96,6 @@ do
 			'^'						\
 			$today_file					|
 	tr '|' '^'							|
-	$output_process							|
 	cat
 done
 
@@ -129,10 +128,13 @@ do
 			'^'						\
 			$today_file					|
 	tr '|' '^'							|
-	$output_process							|
 	cat
 done
-) | sort
+)									|
+sort									|
+colapse_repeating.e 2 '^'						|
+$output_process								|
+cat
 
 rm $today_file
 

@@ -45,8 +45,7 @@ echo "	select	$select							\
 	sql_quick.e '^'							|
 	real_time2aggregate_value.e					\
 		sum 2 3 4 '^' daily n $end_date 2>/dev/null		|
-	piece_inverse.e 3 '^'						|
-	piece_inverse.e 4 '^'						|
+	piece_inverse.e 5 '^'						|
 	cat
 
 exit 0

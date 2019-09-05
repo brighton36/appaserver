@@ -115,13 +115,14 @@ do
 					$measurement_date		|
 	sed 's/\^/|/1'							|
 	sed 's/\^/|/1'							|
+	sed 's/\^/|/1'							|
 	cat > $today_file
 
 	measurement_daily_sum_list.sh	$station			\
 					$datatype			\
 					$begin_date			\
 					$end_date			|
-	piece.e '^' 3							|
+	piece.e '^' 4							|
 	exceed_standard_deviation.e					\
 			$measurement_acid_test_standard_deviation	\
 			key_string value				\

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # src_hydrology/measurement_integrity_acid_test.sh
 # ------------------------------------------------
 # Freely available software: see Appaserver.org
@@ -66,9 +66,10 @@ then
 	measurement_acid_test_standard_deviation=$results
 fi
 
-# Begin execution
-# ---------------
-station_datatype_aggregate_average_list.sh				|
+(
+# Execute with flow datatypes (aggregate_sum_yn = 'n')
+# ----------------------------------------------------
+station_datatype_aggregate_list.sh n					|
 $station_grep								|
 while read record
 do
@@ -98,6 +99,39 @@ do
 	$output_process							|
 	cat
 done
+
+# Execute with quantum datatypes (aggregate_sum_yn = 'y')
+# ------------------------------------------------------------
+station_datatype_aggregate_list.sh y					|
+$station_grep								|
+while read record
+do
+	station=`echo $record | piece.e '^' 0`
+	datatype=`echo $record | piece.e '^' 1`
+
+	measurement_daily_sum_list.sh	$station			\
+					$datatype			\
+					$measurement_date		\
+					$measurement_date		|
+	sed 's/\^/|/1'							|
+	sed 's/\^/|/1'							|
+	cat > $today_file
+
+	measurement_daily_sum_list.sh	$station			\
+					$datatype			\
+					$begin_date			\
+					$end_date			|
+	piece.e '^' 3							|
+	exceed_standard_deviation.e					\
+			$measurement_acid_test_standard_deviation	\
+			key_string value				\
+			'^'						\
+			$today_file					|
+	tr '|' '^'							|
+	$output_process							|
+	cat
+done
+) | sort
 
 rm $today_file
 

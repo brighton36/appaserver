@@ -602,7 +602,7 @@ int load_bank_spreadsheet(
 		/* and  bank_upload->bank_upload_status */
 		/* ------------------------------------ */
 		bank_upload_set_transaction(
-			bank_upload_structure->table.bank_upload_table_list,
+			bank_upload_structure->file.bank_upload_file_list,
 			application_name,
 			bank_upload_structure->fund_name,
 			bank_upload_structure->
@@ -620,24 +620,24 @@ int load_bank_spreadsheet(
 		/* ------------------------------------------ */
 		bank_upload_transaction_insert(
 			application_name,
-			bank_upload_structure->table.bank_upload_table_list );
+			bank_upload_structure->file.bank_upload_file_list );
 
 		bank_upload_transaction_table_display(
-			bank_upload_structure->table.bank_upload_table_list );
+			bank_upload_structure->file.bank_upload_file_list );
 
 		*transaction_count =
 			bank_upload_transaction_count(
 				bank_upload_structure->
-					table.
-					bank_upload_table_list );
+					file.
+					bank_upload_file_list );
 
 		/* Insert into BANK_UPLOAD_TRANSACTION */
 		/* ----------------------------------- */
 		load_bank_spreadsheet_transaction_insert(
 			bank_upload_structure->fund_name,
 			bank_upload_structure->
-				table.
-				bank_upload_table_list );
+				file.
+				bank_upload_file_list );
 
 		/* Update JOURNAL_LEDGER */
 		/* --------------------- */
@@ -645,8 +645,8 @@ int load_bank_spreadsheet(
 			application_name,
 			bank_upload_structure->fund_name,
 			bank_upload_structure->
-				table.
-				bank_upload_table_list );
+				file.
+				bank_upload_file_list );
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )

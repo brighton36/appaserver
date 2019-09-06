@@ -282,6 +282,7 @@ LIST *bank_upload_fetch_file_list(
 	}
 
 	bank_upload_list = list_new();
+	*bank_balance = '\0';
 
 	while( timlib_get_line( input_string, input_pipe, 4096 ) )
 	{
@@ -422,18 +423,6 @@ LIST *bank_upload_fetch_file_list(
 			continue;
 		}
 
-		/* Note: returns static memory. */
-		/* ---------------------------- */
-		strcpy( bank_description,
-			bank_upload_unique_bank_description(
-				exists_fund,
-				fund_name,
-				bank_description
-					/* input_bank_description */,
-				bank_amount ) );
-
-		bank_upload_description_crop( bank_description );
-
 		/* Get bank_balance */
 		/* ---------------- */
 		if ( balance_piece_offset >= 0 )
@@ -443,6 +432,19 @@ LIST *bank_upload_fetch_file_list(
 				input_string,
 				balance_piece_offset );
 		}
+
+		/* Note: returns static memory. */
+		/* ---------------------------- */
+		strcpy( bank_description,
+			bank_upload_unique_bank_description(
+				exists_fund,
+				fund_name,
+				bank_description
+					/* input_bank_description */,
+				bank_amount,
+				bank_balance ) );
+
+		bank_upload_description_crop( bank_description );
 
 		bank_upload = bank_upload_calloc();
 
@@ -2511,31 +2513,33 @@ char *bank_upload_unique_bank_description(
 				boolean exists_fund,
 				char *fund_name,
 				char *input_bank_description,
-				char *bank_amount )
+				char *bank_amount,
+				char *bank_balance )
 {
 	static char bank_description[ 1024 ];
+	char fund_portion[ 512 ];
+	char balance_portion[ 512 ];
 
-	if ( exists_fund
-	&& ( timlib_strcmp(
-			input_bank_description,
-			"interest earned" ) == 0
-	||   timlib_strcmp(
-			input_bank_description,
-			"deposit" ) == 0 ) )
+	*fund_portion = '\0';
+
+	if ( exists_fund )
 	{
-		sprintf( bank_description,
-			 "%s %s %s",
-			 input_bank_description,
-		 	 fund_name,
-			 bank_amount );
+		sprintf( fund_portion, " %s", fund_name );
 	}
-	else
+
+	*balance_portion = '\0';
+
+	if ( *bank_balance )
 	{
-		sprintf( bank_description,
-			 "%s %s",
-			 input_bank_description,
-			 bank_amount );
+		sprintf( balance_portion, " %s", bank_balance );
 	}
+
+	sprintf( bank_description,
+		 "%s%s %s%s",
+		 input_bank_description,
+	 	 fund_portion,
+		 bank_amount,
+		 balance_portion );
 
 	return bank_description;
 

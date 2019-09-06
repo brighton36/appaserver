@@ -363,7 +363,8 @@ char *bank_upload_unique_bank_description(
 					boolean exists_fund,
 					char *fund_name,
 					char *input_bank_description,
-					char *bank_amount );
+					char *bank_amount,
+					char *bank_balance );
 
 LIST *bank_upload_fetch_uncleared_checks_list(
 					char *application_name,

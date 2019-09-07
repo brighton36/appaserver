@@ -28,10 +28,16 @@
 
 /* Prototypes */
 /* ---------- */
+char *bank_upload_get_bank_description_original(
+				char *bank_description,
+				double bank_amount );
+
 void feeder_upload_missing_pipe(
+				FILE *output_pipe,
 				char *bank_date,
 				char *bank_description_embedded,
-				char *bank_description );
+				char *bank_description,
+				double bank_amount );
 
 void feeder_upload_missing_execute(
 				LIST *bank_upload_list );
@@ -268,28 +274,46 @@ void feeder_upload_missing_execute(
 			LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;
+	char sys_string[ 1024 ];
+	char *heading;
+	FILE *output_pipe;
 
 	if ( !list_rewind( bank_upload_list ) ) return;
+
+	heading = "bank_date,bank_description,amount";
+
+	sprintf( sys_string,
+		 "html_table.e '' %s '^' left,left,right",
+		 heading );
+
+	output_pipe = popen( sys_string, "w" );
 
 	do {
 		bank_upload = list_get( bank_upload_list );
 
 		feeder_upload_missing_pipe(
+			output_pipe,
 			bank_upload->bank_date,
 			bank_upload->bank_description_embedded,
-			bank_upload->bank_description );
+			bank_upload->bank_description,
+			bank_upload->bank_amount );
 
 	} while( list_next( bank_upload_list ) );
+
+	pclose( output_pipe );
 
 } /* feeder_upload_missing_execute() */
 
 void feeder_upload_missing_pipe(
+			FILE *output_pipe,
 			char *bank_date,
 			char *bank_description_embedded,
-			char *bank_description )
+			char *bank_description,
+			double bank_amount )
 {
 	char sys_string[ 1024 ];
 	char where[ 1024 ];
+	char *bank_description_original;
 
 	sprintf( sys_string,
 		 "echo \"select count(*)			 "
@@ -303,9 +327,57 @@ void feeder_upload_missing_pipe(
 
 	if ( !atoi( pipe2string( sys_string ) ) )
 	{
-			printf( "<p>%s %s\n",
-				bank_upload->bank_date,
-				bank_upload->bank_description_embedded );
+		bank_description_original =
+			bank_upload_get_bank_description_original(
+				bank_description,
+				bank_amount );
+
+		sprintf( sys_string,
+		 	"echo \"select count(*)			 "
+		 	"from bank_upload				 "
+		 	"where %s;\"					|"
+		 	"sql.e						 ",
+		 	bank_upload_get_where(
+				where,
+		 		bank_date,
+		 		bank_description_original ) );
+
+		if ( !atoi( pipe2string( sys_string ) ) )
+		{
+			fprintf(output_pipe,
+				"%s^%s^%.2lf\n",
+				bank_date,
+				bank_description,
+				bank_amount );
+		}
 	}
 
 } /* feeder_upload_missing_pipe() */
+
+char *bank_upload_get_bank_description_original(
+				char *bank_description,
+				double bank_amount )
+{
+	static char bank_description_original[ 1024 ];
+	char bank_portion[ 512 ];
+
+	*bank_portion = '\0';
+
+	if ( bank_amount - (double)(int)bank_amount == 0.0 )
+	{
+		sprintf( bank_portion, " %d", (int)bank_amount );
+	}
+	else
+	{
+		sprintf( bank_portion, " %.2lf", bank_amount );
+	}
+
+	sprintf( bank_description_original,
+		 "%s%s",
+		 bank_description,
+		 bank_portion );
+
+	return bank_description_original;
+
+} /* bank_upload_get_bank_description_original() */
+

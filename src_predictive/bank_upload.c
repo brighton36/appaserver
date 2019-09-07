@@ -113,6 +113,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 /* Sets:
 		bank_upload->bank_date
 		bank_upload->bank_description
+		bank_upload->bank_description_embedded
 		bank_upload->sequence_number
 		bank_upload->bank_amount
 		bank_upload->bank_running_balance
@@ -122,7 +123,6 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			p->file.error_line_list,
 			&p->file.file_sha256sum,
 			&p->file.minimum_bank_date,
-			application_name,
 			p->file.input_filename,
 			reverse_order,
 			p->file.date_piece_offset,
@@ -219,6 +219,7 @@ BANK_UPLOAD *bank_upload_new(	char *bank_date,
 /* Sets:
 		bank_upload->bank_date
 		bank_upload->bank_description
+		bank_upload->bank_description_embedded
 		bank_upload->sequence_number
 		bank_upload->bank_amount
 		bank_upload->bank_running_balance
@@ -227,7 +228,6 @@ LIST *bank_upload_fetch_file_list(
 				LIST *error_line_list,
 				char **file_sha256sum,
 				char **minimum_bank_date,
-				char *application_name,
 				char *input_filename,
 				boolean reverse_order,
 				int date_piece_offset,
@@ -249,7 +249,6 @@ LIST *bank_upload_fetch_file_list(
 	FILE *input_pipe;
 	BANK_UPLOAD *bank_upload;
 	LIST *bank_upload_list;
-	boolean exists_fund;
 	int line_number = 0;
 
 	if ( file_sha256sum )
@@ -273,8 +272,6 @@ LIST *bank_upload_fetch_file_list(
 /* sprintf( sys_string, "cat \"%s\"", input_filename ); */
 
 	input_pipe = popen( sys_string, "r" );
-
-	exists_fund = ledger_fund_attribute_exists( application_name );
 
 	if ( minimum_bank_date )
 	{
@@ -433,6 +430,10 @@ LIST *bank_upload_fetch_file_list(
 				balance_piece_offset );
 		}
 
+#ifdef NOT_DEFINED
+	boolean exists_fund;
+	exists_fund = ledger_fund_attribute_exists( application_name );
+
 		/* Note: returns static memory. */
 		/* ---------------------------- */
 		strcpy( bank_description,
@@ -443,6 +444,7 @@ LIST *bank_upload_fetch_file_list(
 					/* input_bank_description */,
 				bank_amount,
 				bank_balance ) );
+#endif
 
 		bank_upload_description_crop( bank_description );
 
@@ -459,6 +461,13 @@ LIST *bank_upload_fetch_file_list(
 		bank_upload->sequence_number = starting_sequence_number;
 		bank_upload->bank_amount = atof( bank_amount );;
 		bank_upload->bank_running_balance = atof( bank_balance );;
+
+		bank_upload->bank_description_embedded =
+			bank_upload_get_description_embedded(
+					bank_upload->bank_description,
+					fund_name,
+					bank_upload->bank_amount,
+					bank_upload->bank_running_balance );
 
 		list_append_pointer( bank_upload_list, bank_upload );
 		starting_sequence_number++;
@@ -552,6 +561,7 @@ void bank_upload_event_insert(		char *application_name,
 } /* bank_upload_event_insert() */
 
 void bank_upload_archive_insert(	char *application_name,
+					char *fund_name,
 					LIST *bank_upload_list,
 					char *bank_upload_date_time )
 {
@@ -586,11 +596,21 @@ void bank_upload_archive_insert(	char *application_name,
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
 
+		if ( !bank_upload->bank_description_embedded )
+		{
+			bank_upload->bank_description_embedded =
+				bank_upload_get_description_embedded(
+					bank_upload->bank_description,
+					fund_name,
+					bank_upload->bank_amount,
+					bank_upload->bank_running_balance );
+		}
+
 		fprintf(bank_upload_archive_insert_pipe,
 			"%s^%s^%d^%.2lf^%.2lf^%s\n",
 		 	bank_upload->bank_date,
 			bank_upload_description_crop(
-				bank_upload->bank_description ),
+				bank_upload->bank_description_embedded ),
 			bank_upload->sequence_number,
 		 	bank_upload->bank_amount,
 			bank_upload->bank_running_balance,
@@ -605,7 +625,7 @@ void bank_upload_archive_insert(	char *application_name,
 void bank_upload_transaction_direct_insert(
 					char *application_name,
 					char *bank_date,
-					char *bank_description,
+					char *bank_description_embedded,
 					char *full_name,
 					char *street_address,
 					char *transaction_date_time )
@@ -635,7 +655,7 @@ void bank_upload_transaction_direct_insert(
 		"%s^%s^%s^%s^%s\n",
 		bank_date,
 		bank_upload_description_crop(
-			bank_description ),
+			bank_description_embedded ),
 		full_name,
 		street_address,
 		transaction_date_time );
@@ -647,6 +667,7 @@ void bank_upload_transaction_direct_insert(
 /* Returns table_insert_count */
 /* -------------------------- */
 int bank_upload_insert(			char *application_name,
+					char *fund_name,
 					LIST *bank_upload_list,
 					char *bank_upload_date_time )
 {
@@ -689,13 +710,23 @@ int bank_upload_insert(			char *application_name,
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
 
+		if ( !bank_upload->bank_description_embedded )
+		{
+			bank_upload->bank_description_embedded =
+				bank_upload_get_description_embedded(
+					bank_upload->bank_description,
+					fund_name,
+					bank_upload->bank_amount,
+					bank_upload->bank_running_balance );
+		}
+
 		/* Output insert into BANK_UPLOAD */
 		/* ------------------------------ */
 		fprintf(bank_upload_insert_pipe,
 			"%s^%s^%d^%.2lf^%s\n",
 		 	bank_upload->bank_date,
 			bank_upload_description_crop(
-				bank_upload->bank_description ),
+				bank_upload->bank_description_embedded ),
 			bank_upload->sequence_number,
 		 	bank_upload->bank_amount,
 			bank_upload_date_time );
@@ -849,7 +880,7 @@ char *bank_upload_get_where(	char *where,
 
 BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 					char *bank_date,
-					char *bank_description )
+					char *bank_description_embedded )
 {
 	BANK_UPLOAD *bank_upload;
 	char *select;
@@ -869,7 +900,7 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 		 bank_upload_get_where(
 			where,
 			bank_date,
-			bank_description ) );
+			bank_description_embedded ) );
 
 	if ( ! ( results = pipe2string( sys_string ) ) )
 		return (BANK_UPLOAD *)0;
@@ -885,9 +916,59 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 			&bank_upload->check_number,
 			results );
 
+	bank_upload->bank_description_embedded =
+		bank_upload->bank_description;
+
 	return bank_upload;
 
 } /* bank_upload_fetch() */
+
+char *bank_upload_get_description_embedded(
+			char *bank_description,
+			char *fund_name,
+			double bank_amount,
+			double bank_running_balance )
+{
+	char bank_description_embedded[ 1024 ];
+	char fund_portion[ 512 ];
+	char bank_portion[ 512 ];
+	char balance_portion[ 512 ];
+
+	*fund_portion = '\0';
+
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
+	{
+		sprintf( fund_portion, " %s", fund_name );
+	}
+
+	*balance_portion = '\0';
+
+	if ( bank_running_balance )
+	{
+		sprintf( balance_portion, " %.2lf", bank_running_balance );
+	}
+
+	*bank_portion = '\0';
+
+	if ( bank_amount - (double)(int)bank_amount == 0.0 )
+	{
+		sprintf( bank_portion, " %d", (int)bank_amount );
+	}
+	else
+	{
+		sprintf( bank_portion, " %.2lf", bank_amount );
+	}
+
+	sprintf( bank_description_embedded,
+		 "%s%s%s%s",
+		 bank_description,
+	 	 fund_portion,
+		 bank_portion,
+		 balance_portion );
+
+	return strdup( bank_description_embedded );
+
+} /* bank_upload_get_description_embedded() */
 
 LIST *bank_upload_fetch_bank_upload_table_list(
 					char *application_name,
@@ -1594,9 +1675,11 @@ double bank_upload_fetch_bank_amount(
 {
 	BANK_UPLOAD *b;
 
-	if ( ! ( b = bank_upload_fetch(	application_name,
-					bank_date,
-					bank_description ) ) )
+	if ( ! ( b = bank_upload_fetch(
+			application_name,
+			bank_date,
+			bank_description
+				/* bank_description_embedded */ ) ) )
 	{
 		return 0.0;
 	}

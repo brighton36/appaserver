@@ -39,6 +39,7 @@ EXECUTABLES=	trial_balance						\
 		pay_liabilities_process					\
 		populate_print_checks_entity				\
 		load_bank_spreadsheet					\
+		feeder_upload_missing					\
 		inventory_balance_detail				\
 		propagate_inventory_purchase_layers			\
 		propagate_inventory_sale_layers				\
@@ -399,6 +400,18 @@ load_bank_spreadsheet: load_bank_spreadsheet.c				\
 		bank_upload.o						\
 		reoccurring.o						\
 		-o load_bank_spreadsheet
+
+feeder_upload_missing: feeder_upload_missing.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		reoccurring.o						\
+		bank_upload.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		feeder_upload_missing.c					\
+		bank_upload.o						\
+		reoccurring.o						\
+		-o feeder_upload_missing
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

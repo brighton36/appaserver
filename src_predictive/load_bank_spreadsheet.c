@@ -556,6 +556,7 @@ int load_bank_spreadsheet(
 		if ( ! ( bank_upload_structure->file.table_insert_count =
 				bank_upload_insert(
 					application_name,
+					fund_name,
 					bank_upload_structure->
 						file.
 						bank_upload_file_list
@@ -582,6 +583,7 @@ int load_bank_spreadsheet(
 
 		bank_upload_archive_insert(
 			application_name,
+			fund_name,
 			bank_upload_structure->
 				file.
 				bank_upload_file_list

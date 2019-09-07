@@ -56,6 +56,7 @@ typedef struct
 {
 	char *bank_date;
 	char *bank_description;
+	char *bank_description_embedded;
 	int sequence_number;
 	double bank_amount;
 	double bank_running_balance;
@@ -128,7 +129,7 @@ BANK_UPLOAD *bank_upload_new(		char *bank_date,
 void bank_upload_transaction_direct_insert(
 					char *application_name,
 					char *bank_date,
-					char *bank_description,
+					char *bank_description_embedded,
 					char *full_name,
 					char *street_address,
 					char *transaction_date_time );
@@ -136,6 +137,7 @@ void bank_upload_transaction_direct_insert(
 /* Returns table_insert_count */
 /* -------------------------- */
 int bank_upload_insert(			char *application_name,
+					char *fund_name,
 					LIST *bank_upload_list,
 					char *bank_upload_date_time );
 
@@ -218,9 +220,16 @@ BANK_UPLOAD *bank_upload_dictionary_extract(
 					char *application_name,
 					DICTIONARY *dictionary );
 
+char *bank_upload_get_description_embedded(
+					char *bank_description,
+					char *fund_name,
+					double bank_amount,
+					double bank_running_balance );
+
 /* Sets:
 		bank_upload->bank_date
 		bank_upload->bank_description
+		bank_upload->bank_description_embedded
 		bank_upload->sequence_number
 		bank_upload->bank_amount
 		bank_upload->bank_running_balance
@@ -229,7 +238,6 @@ LIST *bank_upload_fetch_file_list(
 					LIST *error_line_list,
 					char **file_sha256sum,
 					char **minimum_bank_date,
-					char *application_name,
 					char *input_filename,
 					boolean reverse_order,
 					int date_piece_offset,
@@ -258,6 +266,7 @@ boolean bank_upload_sha256sum_exists(
 					char *file_sha256sum );
 
 void bank_upload_archive_insert(	char *application_name,
+					char *fund_name,
 					LIST *bank_upload_list,
 					char *bank_upload_date_time );
 
@@ -399,6 +408,12 @@ void bank_upload_cleared_journal_text_display(
 
 char *bank_upload_get_insert_bank_upload_filename(
 				char *bank_upload_filename );
+
+char *bank_upload_get_description_embedded(
+				char *bank_description,
+				char *fund_name,
+				double bank_amount,
+				double bank_running_balance );
 
 #endif
 

@@ -325,32 +325,60 @@ void feeder_upload_missing_pipe(
 		 	bank_date,
 		 	bank_description_embedded ) );
 
-	if ( !atoi( pipe2string( sys_string ) ) )
+	if ( atoi( pipe2string( sys_string ) ) ) return;
+
+	if ( timlib_strncmp( bank_description, "check " ) == 0 )
 	{
-		bank_description_original =
-			bank_upload_get_bank_description_original(
-				bank_description,
-				bank_amount );
+		sprintf( where,
+			 "bank_date = '%s' and bank_description like '%s%c'",
+			 bank_date,
+			 bank_description,
+			 '%' );
 
 		sprintf( sys_string,
-		 	"echo \"select count(*)			 "
-		 	"from bank_upload				 "
-		 	"where %s;\"					|"
-		 	"sql.e						 ",
-		 	bank_upload_get_where(
-				where,
-		 		bank_date,
-		 		bank_description_original ) );
+	 		"echo \"select count(*)			 "
+	 		"from bank_upload			 "
+	 		"where %s;\"				|"
+	 		"sql.e					 ",
+			where );
 
-		if ( !atoi( pipe2string( sys_string ) ) )
-		{
-			fprintf(output_pipe,
-				"%s^%s^%.2lf\n",
-				bank_date,
-				bank_description,
-				bank_amount );
-		}
+		if ( atoi( pipe2string( sys_string ) ) ) return;
 	}
+
+	bank_description_original =
+		bank_upload_get_bank_description_original(
+			bank_description,
+			bank_amount );
+
+	sprintf( sys_string,
+	 	"echo \"select count(*)			 	 "
+	 	"from bank_upload				 "
+	 	"where %s;\"					|"
+	 	"sql.e						 ",
+	 	bank_upload_get_where(
+			where,
+	 		bank_date,
+	 		bank_description_original ) );
+
+	if ( atoi( pipe2string( sys_string ) ) ) return;
+
+	sprintf( sys_string,
+ 		"echo \"select count(*)			 "
+ 		"from bank_upload			 "
+ 		"where %s;\"				|"
+ 		"sql.e					 ",
+ 		bank_upload_get_where(
+			where,
+ 			bank_date,
+ 			bank_description ) );
+
+	if ( atoi( pipe2string( sys_string ) ) ) return;
+
+	fprintf(output_pipe,
+		"%s^%s^%.2lf\n",
+		bank_date,
+		bank_description,
+		bank_amount );
 
 } /* feeder_upload_missing_pipe() */
 
@@ -363,17 +391,25 @@ char *bank_upload_get_bank_description_original(
 
 	*bank_portion = '\0';
 
-	if ( bank_amount - (double)(int)bank_amount == 0.0 )
+	sprintf( bank_portion, "%.2lf", bank_amount );
+
+	if ( *( bank_portion + strlen( bank_portion ) - 1 ) == '0' )
 	{
-		sprintf( bank_portion, " %d", (int)bank_amount );
+		*( bank_portion + strlen( bank_portion ) - 1 ) = '\0';
 	}
-	else
+
+	if ( *( bank_portion + strlen( bank_portion ) - 1 ) == '0' )
 	{
-		sprintf( bank_portion, " %.2lf", bank_amount );
+		*( bank_portion + strlen( bank_portion ) - 1 ) = '\0';
+	}
+
+	if ( *( bank_portion + strlen( bank_portion ) - 1 ) == '.' )
+	{
+		*( bank_portion + strlen( bank_portion ) - 1 ) = '\0';
 	}
 
 	sprintf( bank_description_original,
-		 "%s%s",
+		 "%s %s",
 		 bank_description,
 		 bank_portion );
 

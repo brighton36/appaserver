@@ -22,30 +22,22 @@
 #include "application.h"
 #include "application_constants.h"
 #include "bank_upload.h"
+#include "feeder_upload.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-LIST *feeder_upload_get_possible_description_list(
-				char *bank_description_embedded,
-				char *bank_description,
-				double bank_amount );
-
-char *bank_upload_get_bank_description_original(
-				char *bank_description,
-				double bank_amount );
-
 void feeder_upload_missing_pipe(
 				FILE *output_pipe,
+				LIST *possible_description_list,
 				char *bank_date,
-				char *bank_description_embedded,
-				char *bank_description,
+				char *bank_description_file,
 				double bank_amount );
 
 void feeder_upload_missing_execute(
-				LIST *bank_upload_list );
+				LIST *bank_upload_file_list );
 
 void feeder_upload_missing(	
 				char *application_name,
@@ -276,14 +268,15 @@ void feeder_upload_missing(
 } /* feeder_upload_missing() */
 
 void feeder_upload_missing_execute(
-			LIST *bank_upload_list )
+			LIST *bank_upload_file_list )
 {
 	BANK_UPLOAD *bank_upload;
 	char sys_string[ 1024 ];
 	char *heading;
 	FILE *output_pipe;
+	LIST *possible_description_list;
 
-	if ( !list_rewind( bank_upload_list ) ) return;
+	if ( !list_rewind( bank_upload_file_list ) ) return;
 
 	heading = "bank_date,bank_description,amount";
 
@@ -294,173 +287,72 @@ void feeder_upload_missing_execute(
 	output_pipe = popen( sys_string, "w" );
 
 	do {
-		bank_upload = list_get( bank_upload_list );
+		bank_upload = list_get_pointer( bank_upload_file_list );
+
+		possible_description_list =
+			feeder_upload_get_possible_description_list(
+				bank_upload->bank_description
+					/* bank_description_file */,
+				bank_upload->fund_name,
+				bank_upload->bank_amount,
+				bank_upload->bank_running_balance,
+				bank_upload->check_number );
 
 		feeder_upload_missing_pipe(
 			output_pipe,
+			possible_description_list,
 			bank_upload->bank_date,
-			bank_upload->bank_description_embedded,
-			bank_upload->bank_description,
+			bank_upload->bank_description
+				/* bank_description_file */,
 			bank_upload->bank_amount );
 
-	} while( list_next( bank_upload_list ) );
+		list_free_string_list( possible_description_list );
+
+	} while( list_next( bank_upload_file_list ) );
 
 	pclose( output_pipe );
 
 } /* feeder_upload_missing_execute() */
 
-LIST *feeder_upload_get_possible_description_list(
-			char *bank_description_embedded,
-			char *bank_description,
-			double bank_amount )
-{
-	char *bank_description_original;
-	char buffer[ 512 ];
-	LIST *possible_description_list = list_new();
-
-	list_append_pointer(
-		possible_description_list,
-		strdup( bank_description_embedded ) );
-
-	if ( timlib_strncmp( bank_description, "check " ) == 0 )
-	{
-		sprintf( buffer,
-			 "%s%c",
-			 bank_description,
-			 '%' );
-
-		list_append_pointer(
-			possible_description_list,
-			strdup( buffer ) );
-	}
-
-	bank_description_original =
-		bank_upload_get_bank_description_original(
-			bank_description,
-			bank_amount );
-
-	list_append_pointer(
-		possible_description_list,
-		strdup( bank_description_original ) );
-
-	list_append_pointer(
-		possible_description_list,
-		strdup( bank_description ) );
-
-	return possible_description_list;
-
-} /* feeder_upload_get_possible_description_list() */
-
 void feeder_upload_missing_pipe(
 			FILE *output_pipe,
+			LIST *possible_description_list,
 			char *bank_date,
-			char *bank_description_embedded,
-			char *bank_description,
+			char *bank_description_file,
 			double bank_amount )
 {
 	char sys_string[ 1024 ];
 	char where[ 1024 ];
-	char *bank_description_original;
+	char *possible_description;
 
-	sprintf( sys_string,
-		 "echo \"select count(*)			 "
-		 "from bank_upload				 "
-		 "where %s;\"					|"
-		 "sql.e						 ",
-		 bank_upload_get_where(
-			where,
-		 	bank_date,
-		 	bank_description_embedded ) );
+	if ( !list_rewind( possible_description_list ) ) return;
 
-	if ( atoi( pipe2string( sys_string ) ) ) return;
-
-	if ( timlib_strncmp( bank_description, "check " ) == 0 )
-	{
-		sprintf( where,
-			 "bank_date = '%s' and bank_description like '%s%c'",
-			 bank_date,
-			 bank_description,
-			 '%' );
+	do {
+		possible_description =
+			list_get_pointer( 
+				possible_description_list );
 
 		sprintf( sys_string,
-	 		"echo \"select count(*)			 "
-	 		"from bank_upload			 "
-	 		"where %s;\"				|"
-	 		"sql.e					 ",
-			where );
+		 	"echo \"select count(*)				 "
+		 	"from bank_upload				 "
+		 	"where %s;\"					|"
+		 	"sql.e						 ",
+		 	feeder_upload_get_like_where(
+				where,
+		 		bank_date,
+		 		possible_description ) );
 
-		if ( atoi( pipe2string( sys_string ) ) ) return;
-	}
+		if ( atoi( pipe2string( sys_string ) ) )
+		{
+			return;
+		}
 
-	bank_description_original =
-		bank_upload_get_bank_description_original(
-			bank_description,
-			bank_amount );
-
-	sprintf( sys_string,
-	 	"echo \"select count(*)			 	 "
-	 	"from bank_upload				 "
-	 	"where %s;\"					|"
-	 	"sql.e						 ",
-	 	bank_upload_get_where(
-			where,
-	 		bank_date,
-	 		bank_description_original ) );
-
-	if ( atoi( pipe2string( sys_string ) ) ) return;
-
-	sprintf( sys_string,
- 		"echo \"select count(*)			 "
- 		"from bank_upload			 "
- 		"where %s;\"				|"
- 		"sql.e					 ",
- 		bank_upload_get_where(
-			where,
- 			bank_date,
- 			bank_description ) );
-
-	if ( atoi( pipe2string( sys_string ) ) ) return;
+	} while ( list_next( possible_description_list ) );
 
 	fprintf(output_pipe,
 		"%s^%s^%.2lf\n",
 		bank_date,
-		bank_description,
+		bank_description_file,
 		bank_amount );
 
 } /* feeder_upload_missing_pipe() */
-
-char *bank_upload_get_bank_description_original(
-				char *bank_description,
-				double bank_amount )
-{
-	static char bank_description_original[ 1024 ];
-	char bank_portion[ 512 ];
-
-	*bank_portion = '\0';
-
-	sprintf( bank_portion, "%.2lf", bank_amount );
-
-	if ( *( bank_portion + strlen( bank_portion ) - 1 ) == '0' )
-	{
-		*( bank_portion + strlen( bank_portion ) - 1 ) = '\0';
-	}
-
-	if ( *( bank_portion + strlen( bank_portion ) - 1 ) == '0' )
-	{
-		*( bank_portion + strlen( bank_portion ) - 1 ) = '\0';
-	}
-
-	if ( *( bank_portion + strlen( bank_portion ) - 1 ) == '.' )
-	{
-		*( bank_portion + strlen( bank_portion ) - 1 ) = '\0';
-	}
-
-	sprintf( bank_description_original,
-		 "%s %s",
-		 bank_description,
-		 bank_portion );
-
-	return bank_description_original;
-
-} /* bank_upload_get_bank_description_original() */
-

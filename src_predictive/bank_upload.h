@@ -409,11 +409,5 @@ void bank_upload_cleared_journal_text_display(
 char *bank_upload_get_insert_bank_upload_filename(
 				char *bank_upload_filename );
 
-char *bank_upload_get_description_embedded(
-				char *bank_description,
-				char *fund_name,
-				double bank_amount,
-				double bank_running_balance );
-
 #endif
 

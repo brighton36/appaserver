@@ -15,6 +15,7 @@
 #include "appaserver_library.h"
 #include "html_table.h"
 #include "basename.h"
+#include "feeder_upload.h"
 #include "bank_upload.h"
 
 BANK_UPLOAD *bank_upload_calloc( void )
@@ -463,8 +464,9 @@ LIST *bank_upload_fetch_file_list(
 		bank_upload->bank_running_balance = atof( bank_balance );;
 
 		bank_upload->bank_description_embedded =
-			bank_upload_get_description_embedded(
-					bank_upload->bank_description,
+			feeder_upload_get_description_embedded(
+					bank_upload->bank_description
+						/* bank_description_file */,
 					fund_name,
 					bank_upload->bank_amount,
 					bank_upload->bank_running_balance );
@@ -599,7 +601,7 @@ void bank_upload_archive_insert(	char *application_name,
 		if ( !bank_upload->bank_description_embedded )
 		{
 			bank_upload->bank_description_embedded =
-				bank_upload_get_description_embedded(
+				feeder_upload_get_description_embedded(
 					bank_upload->bank_description,
 					fund_name,
 					bank_upload->bank_amount,
@@ -713,7 +715,7 @@ int bank_upload_insert(			char *application_name,
 		if ( !bank_upload->bank_description_embedded )
 		{
 			bank_upload->bank_description_embedded =
-				bank_upload_get_description_embedded(
+				feeder_upload_get_description_embedded(
 					bank_upload->bank_description,
 					fund_name,
 					bank_upload->bank_amount,
@@ -922,53 +924,6 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 	return bank_upload;
 
 } /* bank_upload_fetch() */
-
-char *bank_upload_get_description_embedded(
-			char *bank_description,
-			char *fund_name,
-			double bank_amount,
-			double bank_running_balance )
-{
-	char bank_description_embedded[ 1024 ];
-	char fund_portion[ 512 ];
-	char bank_portion[ 512 ];
-	char balance_portion[ 512 ];
-
-	*fund_portion = '\0';
-
-	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
-	{
-		sprintf( fund_portion, " %s", fund_name );
-	}
-
-	*balance_portion = '\0';
-
-	if ( bank_running_balance )
-	{
-		sprintf( balance_portion, " %.2lf", bank_running_balance );
-	}
-
-	*bank_portion = '\0';
-
-	if ( bank_amount - (double)(int)bank_amount == 0.0 )
-	{
-		sprintf( bank_portion, " %d", (int)bank_amount );
-	}
-	else
-	{
-		sprintf( bank_portion, " %.2lf", bank_amount );
-	}
-
-	sprintf( bank_description_embedded,
-		 "%s%s%s%s",
-		 bank_description,
-	 	 fund_portion,
-		 bank_portion,
-		 balance_portion );
-
-	return strdup( bank_description_embedded );
-
-} /* bank_upload_get_description_embedded() */
 
 LIST *bank_upload_fetch_bank_upload_table_list(
 					char *application_name,

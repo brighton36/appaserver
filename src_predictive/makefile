@@ -163,6 +163,7 @@ tax_dvr: tax_dvr.c 							\
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o						\
 		${LIBRARY}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -170,6 +171,7 @@ post_reoccurring_transaction: post_reoccurring_transaction.c		\
 		${SOURCE_LIBRARY}					\
 		post_reoccurring_transaction.c				\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o						\
 		${LIBRARY}/folder_menu.o				\
 		-o post_reoccurring_transaction
@@ -177,6 +179,7 @@ post_reoccurring_transaction: post_reoccurring_transaction.c		\
 post_cash_expense_transaction: post_cash_expense_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o						\
 		${LIBRARY}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -184,6 +187,7 @@ post_cash_expense_transaction: post_cash_expense_transaction.c		\
 		${SOURCE_LIBRARY}					\
 		post_cash_expense_transaction.c				\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o						\
 		${LIBRARY}/folder_menu.o				\
 		-o post_cash_expense_transaction
@@ -207,24 +211,28 @@ shortcut_service_work: shortcut_service_work.c				\
 bank_upload_transaction_insert: bank_upload_transaction_insert.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		bank_upload_transaction_insert.c			\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o						\
 		-o bank_upload_transaction_insert
 
 bank_upload_journal_ledger_insert: bank_upload_journal_ledger_insert.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		bank_upload_journal_ledger_insert.c			\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o						\
 		-o bank_upload_journal_ledger_insert
 
@@ -313,6 +321,7 @@ transaction_balance_report: transaction_balance_report.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
 		transaction_balance.o					\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
@@ -320,6 +329,7 @@ transaction_balance_report: transaction_balance_report.c		\
 		transaction_balance_report.c				\
 		transaction_balance.o					\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o						\
 		-o transaction_balance_report
 
@@ -391,25 +401,29 @@ populate_print_checks_entity: populate_print_checks_entity.c		\
 
 load_bank_spreadsheet: load_bank_spreadsheet.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		reoccurring.o						\
-		bank_upload.o
+		bank_upload.o						\
+		feeder_upload.o						\
+		reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		load_bank_spreadsheet.c					\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o						\
 		-o load_bank_spreadsheet
 
 feeder_upload_missing: feeder_upload_missing.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		reoccurring.o						\
-		bank_upload.o
+		bank_upload.o						\
+		feeder_upload.o						\
+		reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		feeder_upload_missing.c					\
 		bank_upload.o						\
+		feeder_upload.o						\
 		reoccurring.o						\
 		-o feeder_upload_missing
 
@@ -423,14 +437,16 @@ post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 
 post_change_bank_upload: post_change_bank_upload.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		reoccurring.o						\
-		bank_upload.o
+		bank_upload.o						\
+		feeder_upload.o						\
+		reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		post_change_bank_upload.c				\
-		reoccurring.o						\
 		bank_upload.o						\
+		feeder_upload.o						\
+		reoccurring.o						\
 		-o post_change_bank_upload
 
 post_change_inventory_purchase: post_change_inventory_purchase.c	\
@@ -798,6 +814,11 @@ fixed_asset.o: fixed_asset.c						\
 		fixed_asset.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c fixed_asset.c
+
+feeder_upload.o: feeder_upload.c					\
+		feeder_upload.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c feeder_upload.c
 
 tax_recovery.o: tax_recovery.c						\
 		tax_recovery.h

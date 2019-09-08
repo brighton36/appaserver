@@ -870,16 +870,16 @@ struct LINKTYPE *create_node()
 
 void list_free_string_list( LIST *string_list )
 {
-	free_string_list( string_list );
-}
-
-void free_string_list( LIST *string_list )
-{
 	if ( list_rewind( string_list ) )
 		do {
 			free( list_get_string( string_list ) );
 		} while( list_next( string_list ) );
 	list_free_container( string_list );
+}
+
+void free_string_list( LIST *string_list )
+{
+	free_string_list( string_list );
 }
 
 void list_free( LIST *list )

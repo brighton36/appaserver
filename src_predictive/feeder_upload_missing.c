@@ -28,6 +28,11 @@
 
 /* Prototypes */
 /* ---------- */
+LIST *feeder_upload_get_possible_description_list(
+				char *bank_description_embedded,
+				char *bank_description,
+				double bank_amount );
+
 char *bank_upload_get_bank_description_original(
 				char *bank_description,
 				double bank_amount );
@@ -303,6 +308,48 @@ void feeder_upload_missing_execute(
 	pclose( output_pipe );
 
 } /* feeder_upload_missing_execute() */
+
+LIST *feeder_upload_get_possible_description_list(
+			char *bank_description_embedded,
+			char *bank_description,
+			double bank_amount )
+{
+	char *bank_description_original;
+	char buffer[ 512 ];
+	LIST *possible_description_list = list_new();
+
+	list_append_pointer(
+		possible_description_list,
+		strdup( bank_description_embedded ) );
+
+	if ( timlib_strncmp( bank_description, "check " ) == 0 )
+	{
+		sprintf( buffer,
+			 "%s%c",
+			 bank_description,
+			 '%' );
+
+		list_append_pointer(
+			possible_description_list,
+			strdup( buffer ) );
+	}
+
+	bank_description_original =
+		bank_upload_get_bank_description_original(
+			bank_description,
+			bank_amount );
+
+	list_append_pointer(
+		possible_description_list,
+		strdup( bank_description_original ) );
+
+	list_append_pointer(
+		possible_description_list,
+		strdup( bank_description ) );
+
+	return possible_description_list;
+
+} /* feeder_upload_get_possible_description_list() */
 
 void feeder_upload_missing_pipe(
 			FILE *output_pipe,

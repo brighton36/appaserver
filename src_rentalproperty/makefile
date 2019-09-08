@@ -97,6 +97,7 @@ post_rental_property_reoccurring_transaction:				\
 		post_rental_property_reoccurring_transaction.c		\
 		${EXTERNAL_LIBRARY_OBJECT} ${SOURCE_LIBRARY_OBJECT}	\
 		${PREDICTIVEBOOKS_LIBRARY}/bank_upload.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/feeder_upload.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/reoccurring.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/tax.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -105,6 +106,7 @@ post_rental_property_reoccurring_transaction:				\
 		${SOURCE_LIBRARY_OBJECT}				\
 		post_rental_property_reoccurring_transaction.c		\
 		${PREDICTIVEBOOKS_LIBRARY}/bank_upload.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/feeder_upload.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/reoccurring.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/tax.o			\
 		-o post_rental_property_reoccurring_transaction

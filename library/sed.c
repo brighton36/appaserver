@@ -9,6 +9,11 @@
 #include "sed.h"
 #include "timlib.h"
 
+void sed_free( SED *sed )
+{
+	free( sed );
+}
+
 SED *new_sed( char *regular_expression, char *replace )
 {
 	return sed_new( regular_expression, replace );

@@ -1011,11 +1011,41 @@ void date_increment_days(	DATE *d,
 	d->current += (long)((double)SECONDS_IN_DAY * days);
 	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
 }
+/* Returns static memory */
+/* --------------------- */
 
 char *date_yyyy_mm_dd( DATE *date )
 {
 	static char destination[ 16 ];
 	return date_get_yyyy_mm_dd( destination, date );
+}
+
+/* Returns static memory */
+/* --------------------- */
+char *date_get_month_number_string(
+				DATE *date )
+{
+	static char number_string[ 16 ];
+
+	sprintf( 	number_string, 
+			"%02d",
+			date_get_month( date ) );
+
+	return number_string;
+}
+
+/* Returns static memory */
+/* --------------------- */
+char *date_get_day_number_string(
+				DATE *date )
+{
+	static char number_string[ 16 ];
+
+	sprintf( 	number_string, 
+			"%02d",
+			date_get_day( date ) );
+
+	return number_string;
 }
 
 char *date_get_yyyy_mm_dd( char *destination, DATE *date )

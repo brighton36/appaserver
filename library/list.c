@@ -325,6 +325,31 @@ void list_display_lines( LIST *list )
 
 } /* list_display_lines() */
 
+void list_html_table_display(	LIST *list,
+				char *heading_string )
+{
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( list ) ) return;
+
+	sprintf( sys_string,
+		 "html_table.e '' '%s' '^'",
+		 heading_string );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		fprintf( output_pipe,
+			 "%s\n",
+			 (char *)list_get_pointer( list ) );
+
+	} while( list_next( list ) );
+
+	pclose( output_pipe );
+	
+} /* list_html_table_display() */
+
 char *list_display( LIST *list )
 {
 	return list2comma_string( list );

@@ -8,13 +8,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "timlib.h"
-#include "date.h"
-#include "date_convert.h"
+#include "sed.h"
 #include "piece.h"
-#include "session.h"
-#include "appaserver_library.h"
-#include "html_table.h"
-#include "basename.h"
 #include "feeder_upload.h"
 
 /* Returns static memory */
@@ -44,15 +39,13 @@ char *feeder_upload_get_bank_description_original(
 LIST *feeder_upload_get_possible_description_list(
 				char *bank_description_file,
 				char *fund_name,
+				char *bank_date,
 				double bank_amount,
 				double bank_running_balance,
 				int check_number )
 {
 	LIST *possible_description_list = list_new();
-
-	list_append_pointer(
-		possible_description_list,
-		strdup( bank_description_file ) );
+	char *trimmed_bank_description;
 
 	list_append_pointer(
 		possible_description_list,
@@ -99,6 +92,20 @@ LIST *feeder_upload_get_possible_description_list(
 					check_number ) ) );
 	}
 
+	/* If they append the MM/DD to the row. */
+	/* ------------------------------------ */
+	if ( ( trimmed_bank_description =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			feeder_upload_trim_bank_date_description(
+				bank_description_file ) ) )
+	{
+		list_append_pointer(
+			possible_description_list,
+			strdup( trimmed_bank_description ) );
+	}
+
 	return possible_description_list;
 
 } /* feeder_upload_get_possible_description_list() */
@@ -136,6 +143,8 @@ char *feeder_upload_get_description_partially_embedded(
 
 } /* feeder_upload_get_description_partially_embedded() */
 
+/* Returns strdup() memory */
+/* ----------------------- */
 char *feeder_upload_get_description_embedded(
 			char *bank_description_file,
 			char *fund_name,
@@ -187,6 +196,17 @@ char *feeder_upload_get_bank_amount_portion(
 	else
 	{
 		sprintf( bank_amount_portion, " %.2lf", bank_amount );
+
+		/* They trim off the pennies if on the dime. */
+		/* ----------------------------------------- */
+		if ( * (bank_amount_portion +
+			strlen( bank_amount_portion ) -
+			1 ) == '0' )
+		{
+			*(bank_amount_portion +
+			  strlen( bank_amount_portion ) -
+			  1) = '\0';
+		}
 	}
 
 	return bank_amount_portion;
@@ -247,4 +267,33 @@ char *feeder_upload_get_like_where(	char *where,
 	return where;
 
 } /* feeder_upload_get_like_where() */
+
+/* Returns static memory */
+/* --------------------- */
+char *feeder_upload_trim_bank_date_description(
+				char *bank_description_file )
+{
+	static char sans_bank_date_description[ 512 ];
+	char *replace;
+	char *regular_expression;
+	char buffer[ 512 ];
+	SED *sed;
+
+	regular_expression = "[ ][0-9][1-9]/[0-9][1-9]$";
+	replace = "";
+
+	sed = new_sed( regular_expression, (char *)0 );
+
+	if ( sed_will_replace( buffer, sed ) )
+	{
+		sed->replace = replace;
+fprintf( stderr, "before: %s\n", replace );
+		sed_search_replace( sans_bank_date_description, sed );
+fprintf( stderr, "after:  %s\n", sans_bank_date_description );
+	}
+
+	sed_free( sed );
+	return sans_bank_date_description;
+
+} /* feeder_upload_trim_bank_date_description() */
 

@@ -22,6 +22,8 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+void sed_free(				SED *sed );
+
 SED *new_sed(				char *regular_expression,
 					char *replace );
 

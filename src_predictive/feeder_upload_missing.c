@@ -31,6 +31,7 @@
 /* ---------- */
 void feeder_upload_missing_pipe(
 				FILE *output_pipe,
+				LIST *duplicate_line_list,
 				LIST *possible_description_list,
 				char *bank_date,
 				char *bank_description_file,
@@ -80,6 +81,11 @@ int main( int argc, char **argv )
 	/* Exits if not found. */
 	/* ------------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 11 )
 	{
@@ -274,6 +280,7 @@ void feeder_upload_missing_execute(
 	char sys_string[ 1024 ];
 	char *heading;
 	FILE *output_pipe;
+	LIST *duplicate_line_list = list_new();
 	LIST *possible_description_list;
 
 	if ( !list_rewind( bank_upload_file_list ) ) return;
@@ -281,7 +288,7 @@ void feeder_upload_missing_execute(
 	heading = "bank_date,bank_description,amount";
 
 	sprintf( sys_string,
-		 "html_table.e '' %s '^' left,left,right",
+		 "html_table.e '^^Possible Missing' %s '^' left,left,right",
 		 heading );
 
 	output_pipe = popen( sys_string, "w" );
@@ -294,12 +301,14 @@ void feeder_upload_missing_execute(
 				bank_upload->bank_description
 					/* bank_description_file */,
 				bank_upload->fund_name,
+				bank_upload->bank_date,
 				bank_upload->bank_amount,
 				bank_upload->bank_running_balance,
 				bank_upload->check_number );
 
 		feeder_upload_missing_pipe(
 			output_pipe,
+			duplicate_line_list,
 			possible_description_list,
 			bank_upload->bank_date,
 			bank_upload->bank_description
@@ -312,10 +321,27 @@ void feeder_upload_missing_execute(
 
 	pclose( output_pipe );
 
+	if ( list_length( duplicate_line_list ) )
+	{
+		char *heading;
+
+		heading = "bank_date,bank_description";
+
+		printf( "<h3>Possible Duplicates</h3>\n" );
+		fflush( stdout );
+
+		list_html_table_display(
+			duplicate_line_list,
+			heading );
+
+		fflush( stdout );
+	}
+
 } /* feeder_upload_missing_execute() */
 
 void feeder_upload_missing_pipe(
 			FILE *output_pipe,
+			LIST *duplicate_line_list,
 			LIST *possible_description_list,
 			char *bank_date,
 			char *bank_description_file,
@@ -324,6 +350,7 @@ void feeder_upload_missing_pipe(
 	char sys_string[ 1024 ];
 	char where[ 1024 ];
 	char *possible_description;
+	int results;
 
 	if ( !list_rewind( possible_description_list ) ) return;
 
@@ -331,6 +358,12 @@ void feeder_upload_missing_pipe(
 		possible_description =
 			list_get_pointer( 
 				possible_description_list );
+
+		if ( !possible_description
+		||   !*possible_description )
+		{
+			continue;
+		}
 
 		sprintf( sys_string,
 		 	"echo \"select count(*)				 "
@@ -342,10 +375,22 @@ void feeder_upload_missing_pipe(
 		 		bank_date,
 		 		possible_description ) );
 
-		if ( atoi( pipe2string( sys_string ) ) )
+		results = atoi( pipe2string( sys_string ) );
+
+		if ( results > 1 )
 		{
-			return;
+			char buffer[ 512 ];
+
+			sprintf(buffer,
+				"%s^%s",
+				bank_date,
+				possible_description );
+
+			list_append_pointer(	duplicate_line_list,
+						strdup( buffer ) );
 		}
+
+		if ( results ) return;
 
 	} while ( list_next( possible_description_list ) );
 

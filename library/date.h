@@ -514,4 +514,14 @@ boolean date_set_yyyy_mm_dd_hh_mm_ss_colon(
 				/* ------------------- */
 				char *date_time_string );
 
+/* Returns static memory */
+/* --------------------- */
+char *date_get_month_number_string(
+				DATE *date );
+
+/* Returns static memory */
+/* --------------------- */
+char *date_get_day_number_string(
+				DATE *date );
+
 #endif

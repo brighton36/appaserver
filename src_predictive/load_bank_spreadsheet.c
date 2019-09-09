@@ -432,7 +432,9 @@ int load_bank_spreadsheet_transactions_only(
 		printf( "<h3>Errors:</h3>\n" );
 
 		list_display_lines(
-			bank_upload_structure->file.error_line_list );
+			bank_upload_structure->
+				file.
+				error_line_list );
 
 		printf( "\n" );
 	}
@@ -656,7 +658,9 @@ int load_bank_spreadsheet(
 		printf( "<h3>Errors:</h3>\n" );
 
 		list_display_lines(
-			bank_upload_structure->file.error_line_list );
+			bank_upload_structure->
+				file.
+				error_line_list );
 
 		printf( "\n" );
 	}

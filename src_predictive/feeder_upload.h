@@ -31,6 +31,7 @@ char *feeder_upload_get_bank_description_original(
 LIST *feeder_upload_get_possible_description_list(
 					char *bank_description_file,
 					char *fund_name,
+					char *bank_date,
 					double bank_amount,
 					double bank_running_balance,
 					int check_number );
@@ -66,6 +67,11 @@ char *feeder_upload_get_check_portion(
 char *feeder_upload_get_like_where(	char *where,
 					char *bank_date,
 					char *bank_description );
+
+/* Returns static memory */
+/* --------------------- */
+char *feeder_upload_trim_bank_date_description(
+					char *bank_description_file );
 
 #endif
 

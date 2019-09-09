@@ -464,6 +464,9 @@ LIST *bank_upload_fetch_file_list(
 		bank_upload->bank_running_balance = atof( bank_balance );;
 
 		bank_upload->bank_description_embedded =
+			/* ----------------------- */
+			/* Returns strdup() memory */
+			/* ----------------------- */
 			feeder_upload_get_description_embedded(
 					bank_upload->bank_description
 						/* bank_description_file */,
@@ -601,6 +604,9 @@ void bank_upload_archive_insert(	char *application_name,
 		if ( !bank_upload->bank_description_embedded )
 		{
 			bank_upload->bank_description_embedded =
+				/* ----------------------- */
+				/* Returns strdup() memory */
+				/* ----------------------- */
 				feeder_upload_get_description_embedded(
 					bank_upload->bank_description,
 					fund_name,
@@ -715,6 +721,9 @@ int bank_upload_insert(			char *application_name,
 		if ( !bank_upload->bank_description_embedded )
 		{
 			bank_upload->bank_description_embedded =
+				/* ----------------------- */
+				/* Returns strdup() memory */
+				/* ----------------------- */
 				feeder_upload_get_description_embedded(
 					bank_upload->bank_description,
 					fund_name,

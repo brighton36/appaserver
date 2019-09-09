@@ -51,14 +51,14 @@ all_done
 # ------------------
 if [ "$fund" = "" -o "$fund" = "fund" ]
 then
-	where_clause="hard_coded_account_key = 'cash_key'"
+	where="hard_coded_account_key = 'cash_key'"
 else
-	where_clause="hard_coded_account_key = 'cash_key' and fund = '$fund'"
+	where="hard_coded_account_key = 'cash_key' and fund = '$fund'"
 fi
 
 credit_account=`echo "	select account		\
 			from account		\
-			where $where		\
+			where $where;"		|
 			sql.e`
 
 if [ "$credit_account" = "" ]
@@ -75,14 +75,14 @@ transaction_date_time="${transaction_date} `now.sh seconds`"
 # ------------------
 if [ "$check_number" = "check_number" ]
 then
-	check_number = ""
+	check_number=""
 fi
 
 # Build memo
 # ----------
 if [ "$memo" = "memo" ]
 then
-	memo = ""
+	memo=""
 fi
 
 # Insert transaction
@@ -121,9 +121,9 @@ insert_statement.e table=$table field=$field del='^'		|
 sql.e 2>&1							|
 html_paragraph_wrapper.e
 
-# Execute the post change process twice
-# -------------------------------------
-./post_change_journal_ledger.sh	insert				\
+# Execute the post change process for debit and credit accounts
+# -------------------------------------------------------------
+post_change_journal_ledger.sh	insert				\
 				"$full_name"			\
 				"$street_address"		\
 				"$transaction_date_time"	\
@@ -131,7 +131,7 @@ html_paragraph_wrapper.e
 				preupdate_transaction_date_time	\
 				preupdate_account
 
-./post_change_journal_ledger.sh	insert				\
+post_change_journal_ledger.sh	insert				\
 				"$full_name"			\
 				"$street_address"		\
 				"$transaction_date_time"	\

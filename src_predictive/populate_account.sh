@@ -30,8 +30,9 @@ one2m_folder=$2
 subclassification=$3
 
 table=$(get_table_name $application account)
-select="concat( account, '|', chart_account_number, '---', account )"
-order="chart_account_number,account"
+#select="concat( account, '|', chart_account_number, '---', account )"
+select="concat( account, '|', account, '---', chart_account_number )"
+order="account"
 
 if [ "$subclassification" = "" -o "$subclassification" = "subclassification" ]
 then

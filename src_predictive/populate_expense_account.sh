@@ -18,6 +18,12 @@ then
 	exit 1
 fi
 
+echo $0 $* 1>&2
+
+populate_account.sh ignored one2m_folder operating_expense
+
+exit 0
+
 select="concat( account.account, '|', chart_account_number, '---', account.account )"
 
 subclassification_join="account.subclassification = subclassification.subclassification"

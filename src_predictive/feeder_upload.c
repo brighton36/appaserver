@@ -59,15 +59,14 @@ LIST *feeder_upload_get_possible_description_list(
 
 	list_append_pointer(
 		possible_description_list,
-		strdup(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			feeder_upload_get_description_embedded(
-				bank_description_file,
-				fund_name,
-				bank_amount,
-				bank_running_balance ) ) );
+		/* ----------------------- */
+		/* Returns strdup() memory */
+		/* ----------------------- */
+		feeder_upload_get_description_embedded(
+			bank_description_file,
+			fund_name,
+			bank_amount,
+			bank_running_balance ) );
 
 	list_append_pointer(
 		possible_description_list,

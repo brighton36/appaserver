@@ -18,27 +18,7 @@ then
 	exit 1
 fi
 
-echo $0 $* 1>&2
-
-populate_account.sh ignored one2m_folder operating_expense
+populate_account.sh one2m_folder subclassification expense
 
 exit 0
 
-select="concat( account.account, '|', chart_account_number, '---', account.account )"
-
-subclassification_join="account.subclassification = subclassification.subclassification"
-
-element_join="subclassification.element = element.element"
-
-subset_where="element.element = 'expense'"
-
-where="${element_join} and ${subclassification_join} and ${subset_where}"
-
-from="element,account,subclassification"
-
-echo "select $select from $from where $where order by $select;"		|
-sql.e									|
-grep -v '^$'								|
-cat
-
-exit 0

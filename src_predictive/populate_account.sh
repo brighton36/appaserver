@@ -18,69 +18,93 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 3 ]
+if [ "$#" -lt 2 ]
 then
-	echo "Usage: $0 ignored one2m_folder subclassification" 1>&2
+	echo "Usage: $0 one2m_folder subclassification [element]" 1>&2
 	exit 1
 fi
 
 echo $0 $* 1>&2
 
-one2m_folder=$2
-subclassification=$3
+one2m_folder=$1
+subclassification="$2"
 
-table=$(get_table_name $application account)
-#select="concat( account, '|', chart_account_number, '---', account )"
-select="concat( account, '|', account, '---', chart_account_number )"
+if [ "$#" -eq 3 -a "$3" != "" -a "$3" != "element" ]
+then
+	element="$3"
+else
+	element=""
+fi
+
+select="concat( account, '|', account, '---', ifnull( chart_account_number, '' ) )"
+#select="concat( account, '|', account )"
+from="account"
 order="account"
 
 if [ "$subclassification" = "" -o "$subclassification" = "subclassification" ]
 then
-	where="1 = 1"
+	subclassification_where="1 = 1"
 else
-	where="subclassification = '$subclassification'"
+	subclassification_where="subclassification = '$subclassification'"
 fi
+
+if [ "$element" != "" ]
+then
+	subclassification_join="account.subclassification = subclassification.subclassification"
+
+	element_portion="subclassification.element = 'expense'"
+
+	element_where="${subclassification_join} and ${element_portion}"
+
+	# Override from clause
+	# --------------------
+	from="account,subclassification"
+else
+	element_where="1 = 1"
+fi
+
+one2m_where="1 = 1"
 
 if [ "$one2m_folder" = "inventory" ]
 then
-	where="subclassification = 'inventory' or subclassification = 'cost_of_goods_sold'"
+	one2m_where="account.subclassification = 'inventory' or account.subclassification = 'cost_of_goods_sold'"
 fi
 
 if [ "$one2m_folder" = "investment_account" ]
 then
-	where="subclassification like '%investment%'"
+	one2m_where="account.subclassification like '%investment%'"
 fi
 
 if [ "$one2m_folder" = "fixed_asset" ]
 then
-	where="subclassification = 'property_plant_equipment' or	\
-	       subclassification = 'fixed_asset'"
+	one2m_where="account.subclassification = 'property_plant_equipment' or account.subclassification = 'fixed_asset'"
 fi
 
 if [	"$one2m_folder" = "fixed_service" -o	\
 	"$one2m_folder" = "hourly_service" 	]
 then
-	where="subclassification = 'revenue'"
+	one2m_where="account.subclassification = 'revenue'"
 fi
 
 if [ "$one2m_folder" = "liability_account_entity" ]
 then
-	where="subclassification = 'current_liability'"
+	one2m_where="account.subclassification = 'current_liability'"
 fi
 
 if [ "$one2m_folder" = "supply" ]
 then
-	where="subclassification = 'supply_expense'"
+	one2m_where="account.subclassification = 'supply_expense'"
 fi
 
 if [ "$one2m_folder" = "service_purchase" ]
 then
-	where="subclassification = 'service_expense'"
+	one2m_where="account.subclassification = 'service_expense'"
 fi
 
-echo "select $select from $table where $where order by $order;"		|
+where="$one2m_where and $subclassification_where and $element_where"
+
+echo "select $select from $from where $where order by $order;"		|
 sql.e									|
-grep -v '^$'								|
 cat
 
 exit 0

@@ -768,6 +768,11 @@ char *right_trim_session( char *buffer )
 
 } /* right_trim_session() */
 
+char *timlib_rtrim( char *buffer )
+{
+	return trim( buffer );
+}
+
 char *rtrim( char *buffer )
 {
         char *buf_ptr;

@@ -157,6 +157,12 @@ char *feeder_upload_get_description_embedded(
 
 	*fund_portion = '\0';
 
+	/* Returns static memory */
+	/* --------------------- */
+	bank_description_file =
+		feeder_upload_trim_bank_date_description(
+			bank_description_file );
+
 	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
 		sprintf( fund_portion, " %s", fund_name );
@@ -286,13 +292,11 @@ char *feeder_upload_trim_bank_date_description(
 	if ( sed_will_replace( buffer, sed ) )
 	{
 		sed->replace = replace;
-fprintf( stderr, "before: %s\n", replace );
 		sed_search_replace( sans_bank_date_description, sed );
-fprintf( stderr, "after:  %s\n", sans_bank_date_description );
 	}
 
 	sed_free( sed );
-	return sans_bank_date_description;
+	return timlib_rtrim( sans_bank_date_description );
 
 } /* feeder_upload_trim_bank_date_description() */
 

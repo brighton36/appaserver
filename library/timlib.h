@@ -609,4 +609,6 @@ char *timlib_trim_trailing_character(
 				char *source_destination,
 				char character );
 
+char *timlib_rtrim(		char *buffer );
+
 #endif

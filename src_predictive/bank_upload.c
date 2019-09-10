@@ -421,16 +421,6 @@ LIST *bank_upload_fetch_file_list(
 			continue;
 		}
 
-		/* Get bank_balance */
-		/* ---------------- */
-		if ( balance_piece_offset >= 0 )
-		{
-			piece_quote_comma(
-				bank_balance,
-				input_string,
-				balance_piece_offset );
-		}
-
 		/* Trim off trailing date and crop to database size. */
 		/* ------------------------------------------------- */
 		strcpy( bank_description,
@@ -441,6 +431,16 @@ LIST *bank_upload_fetch_file_list(
 				bank_description ) );
 
 		bank_upload_description_crop( bank_description );
+
+		/* Get bank_balance */
+		/* ---------------- */
+		if ( balance_piece_offset >= 0 )
+		{
+			piece_quote_comma(
+				bank_balance,
+				input_string,
+				balance_piece_offset );
+		}
 
 		bank_upload = bank_upload_calloc();
 

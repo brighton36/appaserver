@@ -244,7 +244,7 @@ char *feeder_upload_trim_bank_date_description(
 	char buffer[ 512 ];
 	SED *sed;
 
-	regular_expression = "[ ][0-9][1-9]/[0-9][1-9]$";
+	regular_expression = "[ ][0-9][0-9]/[0-9][0-9]$";
 	replace = "";
 
 	sed = sed_new( regular_expression, replace );

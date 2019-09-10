@@ -54,9 +54,8 @@ char *feeder_upload_get_fund_portion(
 
 /* Returns static memory */
 /* --------------------- */
-char *feeder_upload_get_description_partially_embedded(
+char *feeder_upload_get_description_bank_amount(
 					char *bank_description_file,
-					char *fund_name,
 					double bank_amount );
 
 /* Returns static memory */

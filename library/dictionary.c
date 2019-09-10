@@ -571,7 +571,7 @@ char *dictionary_index_zero_display_delimited( DICTIONARY *d, char delimiter )
 char *dictionary_display_delimiter( DICTIONARY *d, char delimiter )
 {
 	/* char buffer[ 65536 ]; */
-	char buffer[ 131072 ];
+	char buffer[ 196608 ];
 
 	if ( !d ) return "NULL";
 

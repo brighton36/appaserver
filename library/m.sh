@@ -3,6 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_predictive
-	make tax_form_report
+	cd ../src_appaserver
+	make post_edit_table_form
 fi
+

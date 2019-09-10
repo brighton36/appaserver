@@ -12,30 +12,6 @@
 #include "piece.h"
 #include "feeder_upload.h"
 
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_get_bank_description_original(
-				char *bank_description_file,
-				double bank_amount )
-{
-	static char bank_description_original[ 1024 ];
-	char *bank_amount_portion;
-
-	bank_amount_portion =
-		/* Returns static memory */
-		/* --------------------- */
-		feeder_upload_get_bank_amount_portion(
-			bank_amount );
-
-	sprintf( bank_description_original,
-		 "%s%s",
-		 bank_description_file,
-		 bank_amount_portion );
-
-	return bank_description_original;
-
-} /* feeder_upload_get_bank_description_original() */
-
 LIST *feeder_upload_get_possible_description_list(
 				char *bank_description_file,
 				char *fund_name,
@@ -46,16 +22,6 @@ LIST *feeder_upload_get_possible_description_list(
 {
 	LIST *possible_description_list = list_new();
 	char *trimmed_bank_description;
-
-	list_append_pointer(
-		possible_description_list,
-		strdup( 
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			feeder_upload_get_bank_description_original(
-				bank_description_file,
-				bank_amount ) ) );
 
 	list_append_pointer(
 		possible_description_list,
@@ -74,9 +40,8 @@ LIST *feeder_upload_get_possible_description_list(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			feeder_upload_get_description_partially_embedded(
+			feeder_upload_get_description_bank_amount(
 				bank_description_file,
-				fund_name,
 				bank_amount ) ) );
 
 	if ( check_number )
@@ -91,6 +56,9 @@ LIST *feeder_upload_get_possible_description_list(
 					check_number ) ) );
 	}
 
+#ifdef NOT_DEFINED
+Trimming MM/DD from the input file.
+
 	/* If they append the MM/DD to the row. */
 	/* ------------------------------------ */
 	if ( ( trimmed_bank_description =
@@ -104,6 +72,7 @@ LIST *feeder_upload_get_possible_description_list(
 			possible_description_list,
 			strdup( trimmed_bank_description ) );
 	}
+#endif
 
 	return possible_description_list;
 
@@ -111,20 +80,12 @@ LIST *feeder_upload_get_possible_description_list(
 
 /* Returns static memory */
 /* --------------------- */
-char *feeder_upload_get_description_partially_embedded(
+char *feeder_upload_get_description_bank_amount(
 			char *bank_description_file,
-			char *fund_name,
 			double bank_amount )
 {
-	static char bank_description_embedded[ 1024 ];
-	char *fund_portion;
+	static char bank_description_bank_amount[ 1024 ];
 	char *bank_amount_portion;
-
-	fund_portion =
-		/* Returns static memory */
-		/* --------------------- */
-		feeder_upload_get_fund_portion(
-			fund_name );
 
 	bank_amount_portion =
 		/* Returns static memory */
@@ -132,15 +93,14 @@ char *feeder_upload_get_description_partially_embedded(
 		feeder_upload_get_bank_amount_portion(
 			bank_amount );
 
-	sprintf( bank_description_embedded,
-		 "%s%s%s",
+	sprintf( bank_description_bank_amount,
+		 "%s%s",
 		 bank_description_file,
-	 	 fund_portion,
 		 bank_amount_portion );
 
-	return bank_description_embedded;
+	return bank_description_bank_amount;
 
-} /* feeder_upload_get_description_partially_embedded() */
+} /* feeder_upload_get_description_bank_amount() */
 
 /* Returns strdup() memory */
 /* ----------------------- */

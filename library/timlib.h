@@ -135,7 +135,9 @@ char *up_string(		char * );
 char *low_string(		char * );
 
 int get_line( char *destination, FILE *infile );
+
 boolean timlib_get_line( char *destination, FILE *infile, int buffer_size );
+
 void skip_line( FILE *infile );
 
 int instr(			char *substr,
@@ -148,7 +150,9 @@ int timlib_strict_case_instr(
 				int occurrence );
 
 int instr_character( char delimiter, char *string );
+
 char *delete_str( char *string, int start, int num_chars );
+
 char *insert_str( char *sub, char *string, int pos );
 
 char *search_replace_word( 	char *source_destination,

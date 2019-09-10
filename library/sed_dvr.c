@@ -1,14 +1,17 @@
 #include <string.h>
 #include <stdio.h>
+#include "timlib.h"
 #include "sed.h"
 
 void test1( void );
 void test2( void );
+void test3( void );
 
 int main( void )
 {
 	/* test1(); */
-	test2();
+	/* test2(); */
+	test3();
 	return 0;
 }
 
@@ -53,3 +56,46 @@ void test2( void )
 	}
 }
 
+void test3( void )
+{
+	char sans_bank_date_description[ 512 ];
+	char *replace;
+	char *regular_expression;
+	SED *sed;
+
+	regular_expression = "[ ][0-9][1-9]/[0-9][1-9]$";
+	replace = "";
+
+	strcpy( sans_bank_date_description,
+"Amazon.com AMZN.COM/BILL WA                  01/14$" );
+
+	sed = sed_new( regular_expression, (char *)0 /* replace */ );
+
+fprintf( stderr, "%s/%s()/%d: before: [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sans_bank_date_description );
+
+	if ( sed_will_replace( sans_bank_date_description, sed ) )
+	{
+		sed->replace = replace;
+
+fprintf( stderr, "%s/%s()/%d: will replace!\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+		sed_search_replace( sans_bank_date_description, sed );
+
+fprintf( stderr, "%s/%s()/%d: after:  [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sans_bank_date_description );
+
+	}
+
+	sed_free( sed );
+	printf( "Will return = [%s]\n",
+		timlib_rtrim( sans_bank_date_description ) );
+}

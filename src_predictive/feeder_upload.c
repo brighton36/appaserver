@@ -287,15 +287,29 @@ char *feeder_upload_trim_bank_date_description(
 	regular_expression = "[ ][0-9][1-9]/[0-9][1-9]$";
 	replace = "";
 
-	sed = new_sed( regular_expression, (char *)0 );
+	sed = sed_new( regular_expression, replace );
 
-	if ( sed_will_replace( buffer, sed ) )
+	timlib_strcpy(	sans_bank_date_description,
+			bank_description_file,
+			512 );
+
+	/* Why do I need to append the EOL character for sed() to work? */
+	/* ------------------------------------------------------------ */
+	sprintf( sans_bank_date_description +
+		 strlen( sans_bank_date_description ),
+		 "$" );
+
+	if ( sed_will_replace( sans_bank_date_description, sed ) )
 	{
-		sed->replace = replace;
 		sed_search_replace( sans_bank_date_description, sed );
+	}
+	else
+	{
+		trim_right( sans_bank_date_description, 1 );
 	}
 
 	sed_free( sed );
+
 	return timlib_rtrim( sans_bank_date_description );
 
 } /* feeder_upload_trim_bank_date_description() */

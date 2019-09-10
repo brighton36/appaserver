@@ -431,21 +431,14 @@ LIST *bank_upload_fetch_file_list(
 				balance_piece_offset );
 		}
 
-#ifdef NOT_DEFINED
-	boolean exists_fund;
-	exists_fund = ledger_fund_attribute_exists( application_name );
-
-		/* Note: returns static memory. */
-		/* ---------------------------- */
+		/* Trim off trailing date and crop to database size. */
+		/* ------------------------------------------------- */
 		strcpy( bank_description,
-			bank_upload_unique_bank_description(
-				exists_fund,
-				fund_name,
-				bank_description
-					/* input_bank_description */,
-				bank_amount,
-				bank_balance ) );
-#endif
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			feeder_upload_trim_bank_date_description(
+				bank_description ) );
 
 		bank_upload_description_crop( bank_description );
 

@@ -1,6 +1,6 @@
 :
 
-make load_bank_spreadsheet
+make income_statement
 
 #if [ "$?" -eq 0 ]
 #then

@@ -1444,11 +1444,6 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 
 	latex_append_column_data_list(
 		latex_row->column_data_list,
-		"",
-		0 /* not large_bold */ );
-
-	latex_append_column_data_list(
-		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   net_income ) ),
 		0 /* not large_bold */ );
@@ -1462,7 +1457,7 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 			( net_income /
 	  		percent_denominator ) * 100.0;
 
-		sprintf( buffer,
+		sprintf(buffer,
 	 		"%.1lf%c",
 	 		percent_of_total,
 	 		'%' );

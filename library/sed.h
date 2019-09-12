@@ -40,4 +40,9 @@ void sed_get_begin_end(			regoff_t *begin,
 					regoff_t *end,
 					regex_t *regex,
 					char *buffer );
+
+/* Returns static memory */
+/* --------------------- */
+char *sed_trim_double_spaces(		char *string );
+
 #endif

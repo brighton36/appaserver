@@ -15,6 +15,7 @@
 /* ---------------- */
 enum bank_upload_status{	bank_upload_status_unknown,
 				bank_upload_existing_transaction,
+				bank_upload_existing_bank_upload,
 				bank_upload_feeder_phrase_match,
 				bank_upload_cleared_check,
 				bank_upload_check_number_match };
@@ -29,6 +30,7 @@ enum bank_upload_exception {	bank_upload_exception_none,
 /* --------- */
 #define BANK_UPLOAD_DESCRIPTION_SIZE	140
 #define BANK_UPLOAD_FILENAME_SIZE	80
+#define BANK_UPLOAD_TABLE_NAME	"bank_upload"
 
 /* Need to run bank_upload_transaction_insert within a month. */
 /* ---------------------------------------------------------- */
@@ -136,8 +138,7 @@ void bank_upload_transaction_direct_insert(
 
 /* Returns table_insert_count */
 /* -------------------------- */
-int bank_upload_insert(			char *application_name,
-					char *fund_name,
+int bank_upload_insert(			char *fund_name,
 					LIST *bank_upload_list,
 					char *bank_upload_date_time );
 
@@ -238,6 +239,7 @@ LIST *bank_upload_fetch_file_list(
 					LIST *error_line_list,
 					char **file_sha256sum,
 					char **minimum_bank_date,
+					char *application_name,
 					char *input_filename,
 					boolean reverse_order,
 					int date_piece_offset,
@@ -329,7 +331,7 @@ LIST *bank_upload_get_reconciled_transaction_list(
 /* ----------------------------------- */
 void bank_upload_reconciliation_transaction_insert(
 					char *bank_date,
-					char *bank_description,
+					char *bank_description_embedded,
 					LIST *transaction_list );
 
 LIST *bank_upload_get_feeder_transaction_list(
@@ -408,6 +410,20 @@ void bank_upload_cleared_journal_text_display(
 
 char *bank_upload_get_insert_bank_upload_filename(
 				char *bank_upload_filename );
+
+/* Insert into BANK_UPLOAD_TRANSACTION */
+/* ----------------------------------- */
+void bank_upload_direct_bank_upload_transaction_insert(
+				LIST *bank_upload_list );
+
+boolean bank_upload_exists(	char *application_name,
+				char *bank_date,
+				char *bank_description_embedded );
+
+void bank_upload_free(		BANK_UPLOAD *b );
+
+int bank_upload_get_file_row_count(
+				LIST *bank_upload_list );
 
 #endif
 

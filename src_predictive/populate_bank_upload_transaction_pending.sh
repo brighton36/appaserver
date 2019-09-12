@@ -58,7 +58,6 @@ echo "select $debit_select from $table where $debit_where;"		|
 sql.e									|
 cat									;
 echo "select $credit_select from $table where $credit_where;"		|
-tee /dev/tty |
 sql.e									|
 cat									;
 ) | sort

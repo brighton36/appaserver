@@ -69,7 +69,7 @@ char *feeder_upload_get_like_where(	char *where,
 
 /* Returns static memory */
 /* --------------------- */
-char *feeder_upload_trim_bank_date_description(
+char *feeder_upload_trim_bank_date_from_description(
 					char *bank_description_file );
 
 #endif

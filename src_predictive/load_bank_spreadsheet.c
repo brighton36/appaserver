@@ -28,10 +28,6 @@
 
 /* Prototypes */
 /* ---------- */
-void load_bank_spreadsheet_transaction_insert(
-				char *fund_name,
-				LIST *bank_upload_table_list );
-
 void bank_upload_propagate(	char *minimum_bank_date );
 
 /* Returns either file_row_count or table_insert_count */
@@ -266,9 +262,10 @@ int main( int argc, char **argv )
 				balance_piece_offset,
 				execute );
 
+/*
 		if ( execute )
 		{
-			char sys_string[ 128 ];
+			char sys_string[ 1024 ];
 
 			sprintf( sys_string,
 	"automatic_transaction_assign.sh all process_name '%s' 1>&2",
@@ -277,9 +274,10 @@ int main( int argc, char **argv )
 
 			if ( system( sys_string ) ) {};
 		}
-	/* ------------ */
-	/* If full load */
-	/* ------------ */
+*/
+		/* ------------ */
+		/* If full load */
+		/* ------------ */
 	}
 
 	if ( execute )
@@ -557,7 +555,6 @@ int load_bank_spreadsheet(
 	{
 		if ( ! ( bank_upload_structure->file.table_insert_count =
 				bank_upload_insert(
-					application_name,
 					fund_name,
 					bank_upload_structure->
 						file.
@@ -592,14 +589,6 @@ int load_bank_spreadsheet(
 					/* bank_upload_list */,
 			bank_upload_structure->
 				bank_upload_date_time );
-
-		bank_upload_structure->table.bank_upload_table_list =
-			bank_upload_fetch_bank_upload_table_list(
-				application_name,
-				0 /* starting_sequence_number */,
-				bank_upload_structure->
-					file.
-					minimum_bank_date );
 
 		/* ------------------------------------ */
 		/* Sets bank_upload->transaction	*/
@@ -637,8 +626,7 @@ int load_bank_spreadsheet(
 
 		/* Insert into BANK_UPLOAD_TRANSACTION */
 		/* ----------------------------------- */
-		load_bank_spreadsheet_transaction_insert(
-			bank_upload_structure->fund_name,
+		bank_upload_direct_bank_upload_transaction_insert(
 			bank_upload_structure->
 				file.
 				bank_upload_file_list );
@@ -676,74 +664,4 @@ int load_bank_spreadsheet(
 		return bank_upload_structure->file.table_insert_count;
 
 } /* load_bank_spreadsheet() */
-
-/* Inserts into BANK_UPLOAD_TRANSACTION */
-/* ------------------------------------ */
-void load_bank_spreadsheet_transaction_insert(
-				char *fund_name,
-				LIST *bank_upload_table_list )
-{
-	char sys_string[ 1024 ];
-	BANK_UPLOAD *bank_upload;
-	char fund_buffer[ 128 ];
-
-	if ( fund_name
-	&&   *fund_name
-	&&   strcmp( fund_name, "fund" ) != 0 )
-	{
-		strcpy( fund_buffer, fund_name );
-	}
-	else
-	{
-		*fund_buffer = '\0';
-	}
-
-	if ( !list_rewind( bank_upload_table_list ) ) return;
-
-	do {
-		bank_upload = list_get( bank_upload_table_list );
-
-		if ( bank_upload->transaction )
-		{
-			bank_upload_description_crop(
-				bank_upload->bank_description );
-
-			sprintf(
-				sys_string,
-	"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" '%s' | sql.e",
-				bank_upload->bank_date,
-				bank_upload->bank_description,
-				bank_upload->transaction->full_name,
-				bank_upload->transaction->street_address,
-				bank_upload->
-					transaction->
-					transaction_date_time,
-				fund_buffer );
-
-			if ( system( sys_string ) ) {};
-		}
-		else
-		if ( bank_upload->cleared_journal_ledger )
-		{
-			bank_upload_description_crop(
-				bank_upload->bank_description );
-
-			sprintf(
-			sys_string,
-	"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" '%s' | sql.e",
-			bank_upload->bank_date,
-			bank_upload->bank_description,
-			bank_upload->cleared_journal_ledger->full_name,
-			bank_upload->cleared_journal_ledger->street_address,
-			bank_upload->
-				cleared_journal_ledger->
-				transaction_date_time,
-			fund_buffer );
-
-			if ( system( sys_string ) ) {};
-		}
-
-	} while( list_next( bank_upload_table_list ) );
-
-} /* load_bank_spreadsheet_transaction_insert() */
 

@@ -101,3 +101,32 @@ int sed_search_replace( char *buffer, SED *sed )
 	return did_any;
 } /* sed_search_replace() */
 
+/* Returns static memory */
+/* --------------------- */
+char *sed_trim_double_spaces( char *string )
+{
+	static char return_string[ 1024 ];
+	char *replace;
+	char *regular_expression;
+	char buffer[ 512 ];
+	SED *sed;
+
+	regular_expression = "[ ][ ]";
+	replace = " ";
+
+	sed = sed_new( regular_expression, replace );
+
+	timlib_strcpy(	return_string,
+			string,
+			1024 );
+
+	while ( sed_will_replace( return_string, sed ) )
+	{
+		sed_search_replace( return_string, sed );
+	}
+
+	sed_free( sed );
+	return timlib_rtrim( return_string );
+
+} /* sed_trim_double_spaces() */
+

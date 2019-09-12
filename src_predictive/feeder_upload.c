@@ -56,24 +56,6 @@ LIST *feeder_upload_get_possible_description_list(
 					check_number ) ) );
 	}
 
-#ifdef NOT_DEFINED
-Trimming MM/DD from the input file.
-
-	/* If they append the MM/DD to the row. */
-	/* ------------------------------------ */
-	if ( ( trimmed_bank_description =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			feeder_upload_trim_bank_date_description(
-				bank_description_file ) ) )
-	{
-		list_append_pointer(
-			possible_description_list,
-			strdup( trimmed_bank_description ) );
-	}
-#endif
-
 	return possible_description_list;
 
 } /* feeder_upload_get_possible_description_list() */
@@ -117,11 +99,26 @@ char *feeder_upload_get_description_embedded(
 
 	*fund_portion = '\0';
 
-	/* Returns static memory */
-	/* --------------------- */
+	/* -------------------------------------- */
+	/* Gets sed_trim_double_spaces()'s memory */
+	/* -------------------------------------- */
 	bank_description_file =
-		feeder_upload_trim_bank_date_description(
+		/* ------------ */
+		/* Returns self */
+		/* ------------ */
+		bank_upload_description_crop(
+			/* ------------------------- */
+			/* Both Return static memory */
+			/* ------------------------- */
+			sed_trim_double_spaces(
+				feeder_upload_trim_bank_date_from_description(
+					bank_description_file ) ) );
+
+/*
+	bank_description_file =
+		feeder_upload_trim_bank_date_from_description(
 			bank_description_file );
+*/
 
 	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
@@ -235,7 +232,7 @@ char *feeder_upload_get_like_where(	char *where,
 
 /* Returns static memory */
 /* --------------------- */
-char *feeder_upload_trim_bank_date_description(
+char *feeder_upload_trim_bank_date_from_description(
 				char *bank_description_file )
 {
 	static char sans_bank_date_description[ 512 ];
@@ -272,5 +269,5 @@ char *feeder_upload_trim_bank_date_description(
 
 	return timlib_rtrim( sans_bank_date_description );
 
-} /* feeder_upload_trim_bank_date_description() */
+} /* feeder_upload_trim_bank_date_from_description() */
 

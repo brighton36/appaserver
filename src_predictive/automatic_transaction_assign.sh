@@ -3,6 +3,8 @@
 # $APPASERVER_HOME/src_predictive/automatic_transaction_assign.sh
 # ---------------------------------------------------------------
 
+echo "$0 $*" 1>&2
+
 if [ "$APPASERVER_DATABASE" != "" ]
 then
 	application=$APPASERVER_DATABASE

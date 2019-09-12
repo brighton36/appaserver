@@ -90,7 +90,7 @@ int main( int argc, char **argv )
 
 	printf( "<h2>Load Visit Spreadsheet\n" );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	printf( "</h2>\n" );
 	fflush( stdout );
 

@@ -115,7 +115,7 @@ int main( int argc, char **argv )
 
 	printf( "<h2>Load Trailer Count\n" );
 	fflush( stdout );
-	results = system( "date '+%x %H:%M'" );
+	results = system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	printf( "</h2>\n" );
 	fflush( stdout );
 

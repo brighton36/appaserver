@@ -125,7 +125,7 @@ int main( int argc, char **argv )
 			buffer,
 			process_name ) );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	printf( "</h2>\n" );
 	fflush( stdout );
 

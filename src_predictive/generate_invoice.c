@@ -263,7 +263,7 @@ void output_invoice_window(
 	printf( "<h1>%s<br>",
 		format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	if ( system( "date '+%x %H:%M'" ) ) {};
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
 	printf( "</h1>\n" );
 	printf( "<a href='%s' target=%s>Press to view document.</a>\n",
 		ftp_output_filename,

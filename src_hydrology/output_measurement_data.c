@@ -522,7 +522,7 @@ int main( int argc, char **argv )
 			printf( "<h1>Measurement Transmission<br></h1>\n" );
 			printf( "<h2>\n" );
 			fflush( stdout );
-			system( "date '+%x %H:%M'" );
+			system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 			fflush( stdout );
 			printf( "</h2>\n" );
 		
@@ -549,7 +549,7 @@ int main( int argc, char **argv )
 			printf( "<h1>Measurement Transmission<br></h1>\n" );
 			printf( "<h2>\n" );
 			fflush( stdout );
-			system( "date '+%x %H:%M'" );
+			system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 			fflush( stdout );
 			printf( "</h2>\n" );
 		

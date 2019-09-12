@@ -537,7 +537,7 @@ int main( int argc, char **argv )
 			printf( "<BR><p>Sent to %s<hr>\n", email_address );
 			printf( "<h2>\n" );
 			fflush( stdout );
-			system( "date '+%x %H:%M'" );
+			system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 			fflush( stdout );
 			printf( "</h2>\n" );
 		}
@@ -552,7 +552,7 @@ int main( int argc, char **argv )
 					value_folder->value_folder_name ) );
 			printf( "<h2>\n" );
 			fflush( stdout );
-			system( "date '+%x %H:%M'" );
+			system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 			fflush( stdout );
 			printf( "</h2>\n" );
 		
@@ -705,7 +705,7 @@ int main( int argc, char **argv )
 			printf( "<BR><p>Sent to %s<hr>\n", email_address );
 			printf( "<h2>\n" );
 			fflush( stdout );
-			system( "date '+%x %H:%M'" );
+			system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 			fflush( stdout );
 			printf( "</h2>\n" );
 		}
@@ -720,7 +720,7 @@ int main( int argc, char **argv )
 					value_folder->value_folder_name ) );
 			printf( "<h2>\n" );
 			fflush( stdout );
-			system( "date '+%x %H:%M'" );
+			system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 			fflush( stdout );
 			printf( "</h2>\n" );
 		

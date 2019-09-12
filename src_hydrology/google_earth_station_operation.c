@@ -205,7 +205,7 @@ int main( int argc, char **argv )
 
 		printf( "<h1>Google Earth Station Viewer " );
 		fflush( stdout );
-		if ( system( "date '+%x %H:%M'" ) ) {};
+		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h1>\n" );
 

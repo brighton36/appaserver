@@ -488,7 +488,7 @@ void output_measurement_data_sets_transmit(
 	}
 
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	fflush( stdout );
 	printf( "</h1>\n" );
 

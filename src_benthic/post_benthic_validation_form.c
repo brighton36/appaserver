@@ -223,7 +223,7 @@ void post_benthic_validation_form(
 	printf( "<h1>%s</h1>\n", title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	results = system( "date '+%x %H:%M'" );
+	results = system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	fflush( stdout );
 	printf( "</h2>\n" );
 	fflush( stdout );

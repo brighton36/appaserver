@@ -186,7 +186,7 @@ int main( int argc, char **argv )
 	printf( "<h1>%s\n",
 		format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	if ( system( "date '+%x %H:%M'" ) ) {};
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
 	printf( "</h1>\n" );
 	fflush( stdout );
 

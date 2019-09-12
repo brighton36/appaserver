@@ -375,7 +375,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", title );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		if ( system( "date '+%x %H:%M'" ) ) {};
+		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h1>\n" );
 	

@@ -220,7 +220,7 @@ int main( int argc, char **argv )
 
 	printf( "<h1>Statistics Report\n" );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	printf( "</h1>\n" );
 	fflush( stdout );
 

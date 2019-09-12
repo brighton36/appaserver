@@ -4523,7 +4523,7 @@ void grace_email_graph(	char *application_name,
 	printf( "<h1>Emailed graph to %s ", email_address );
 	fflush( stdout );
 
-	if ( system( "date '+%x %H:%M'" ) ){};
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 
 	printf( "</h1>\n" );
 

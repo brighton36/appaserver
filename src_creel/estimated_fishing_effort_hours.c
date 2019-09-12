@@ -278,7 +278,7 @@ int main( int argc, char **argv )
 		printf( "<h2>\n" );
 		printf( "Sport and Guide Combined\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 		fflush( stdout );
 		printf( "</h2>\n" );
 	}

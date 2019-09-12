@@ -1656,7 +1656,7 @@ void easycharts_output_graph_window(
 
 	printf( "<h1>Easycharts Chart Viewer " );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	printf( "</h1>\n" );
 
 	if ( where_clause && *where_clause )

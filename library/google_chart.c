@@ -1142,7 +1142,7 @@ void google_chart_output_prompt(
 
 	printf( "<h1>Google Chart Viewer " );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	printf( "</h1>\n" );
 
 	if ( where_clause && *where_clause )

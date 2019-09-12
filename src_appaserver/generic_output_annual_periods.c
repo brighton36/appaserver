@@ -717,7 +717,7 @@ int main( int argc, char **argv )
 							value_folder_name ) );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 		fflush( stdout );
 		printf( "</h1>\n" );
 

@@ -484,7 +484,7 @@ void output_spreadsheet(
 	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	fflush( stdout );
 	printf( "</h2>\n" );
 		

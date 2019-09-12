@@ -107,7 +107,7 @@ int main( int argc, char **argv )
 	fflush( stdout );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	if ( system( "date '+%x %H:%M'" ) );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) );
 	fflush( stdout );
 	printf( "</h2>\n" );
 

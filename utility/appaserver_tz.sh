@@ -7,8 +7,10 @@ utc_offset=`echo "	select application_constant_value		\
 			where application_constant = 'utc_offset';"	|
 			sql.e | sed 's/^-//'`
 
-# Looks like EST5EDT or PST8PDT
-# -----------------------------
+# -----------------------------------------
+# TZ usually looks like EST5EDT or PST8PDT.
+# But date takes XXX5XXX or XXX8XXX okay.
+# -----------------------------------------
 echo "XXX${utc_offset}XXX"
 
 exit 0

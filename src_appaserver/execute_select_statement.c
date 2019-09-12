@@ -147,7 +147,9 @@ int main( int argc, char **argv )
 
 	printf( "<h2>%s\n", format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
+
 	printf( "</h2>\n" );
 	fflush( stdout );
 
@@ -409,7 +411,7 @@ int main( int argc, char **argv )
 		 FOLDER_DATA_DELIMITER,
 		 output_sys_string );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	if ( strcmp( output_medium, "text_file" ) == 0
 	|| ( strcmp( output_medium, "spreadsheet" ) == 0 ) )
@@ -455,7 +457,7 @@ int main( int argc, char **argv )
 			 table_name,
 			 field );
 
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 
 	document_close();
@@ -801,7 +803,7 @@ char *spool_from_table(		char *application_name,
 		 where,
 		 input_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	return input_filename;
 

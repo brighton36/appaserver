@@ -451,7 +451,7 @@ void guide_compliance_mail_merge_output_text_file(
 	printf( "<h1>%s<br></h1>\n", title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	if ( system( "date '+%x %H:%M'" ) ) {};
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
 	fflush( stdout );
 	printf( "</h2>\n" );
 		
@@ -581,7 +581,7 @@ void guide_compliance_mail_merge_output_labels(
 	printf( "<h1>%s Labels<br></h1>\n", title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	if ( system( "date '+%x %H:%M'" ) ) {};
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
 	fflush( stdout );
 	printf( "</h2>\n" );
 		

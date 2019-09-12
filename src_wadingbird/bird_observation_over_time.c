@@ -206,7 +206,7 @@ int main( int argc, char **argv )
 		begin_year_string,
 		end_year_string );
 	fflush( stdout );
-	if ( system( "date '+%x %H:%M'" ) );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) );
 	printf( "</h2>\n" );
 	fflush( stdout );
 

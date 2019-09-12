@@ -154,7 +154,7 @@ void output_visit_spreadsheet(	char *application_name,
 	printf( "<h1>%s</h1>\n", title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	fflush( stdout );
 	printf( "</h2>\n" );
 

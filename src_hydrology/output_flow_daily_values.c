@@ -240,7 +240,7 @@ int main( int argc, char **argv )
 		format_initial_capital( buffer, process_name ) );
 	printf( "<h2>Aggregate %s \n", aggregate_level_string );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
 	fflush( stdout );
 	printf( "</h2>\n" );
 

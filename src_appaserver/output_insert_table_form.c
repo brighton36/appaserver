@@ -431,7 +431,12 @@ int main( int argc, char **argv )
 
 			printf( "<h1>Insert Complete</h1>\n" );
 			fflush( stdout );
-			system( "echo '<h2>' && date.sh && echo '</h2>'" );
+
+			if ( system(
+			  "echo '<h2>' && date.sh && echo '</h2>'" )
+				) {};
+
+			fflush( stdout );
 
 			if ( pair_one2m->inserted_duplicate )
 			{
@@ -524,7 +529,7 @@ int main( int argc, char **argv )
 			"y" /* content_type_yn */,
 			appaserver_error_get_filename(
 				application_name ) );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 		fflush( stdout );
 	}
 	else
@@ -667,7 +672,7 @@ int main( int argc, char **argv )
 					application_name ) );
 		}
 
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 
 		sprintf(onload_control_string,
 			"window.open('%s','%s');",
@@ -842,7 +847,7 @@ int main( int argc, char **argv )
 				folder->
 				primary_attribute_name_list ) /* select */ );
 
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 
 	form_output_heading(

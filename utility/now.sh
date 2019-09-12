@@ -53,6 +53,6 @@ else
 	from_now=0
 fi
 
-date "$date_format" --date "$from_now days"
+TZ=`appaserver_tz.sh` /bin/date "$date_format" --date "$from_now days"
 
 exit 0

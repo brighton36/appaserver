@@ -152,10 +152,10 @@ char *date_get_now_hhmm(	int utc_offset );
 char *date_get_now_date_yyyy_mm_dd(
 				int utc_offset );
 
+char *date_get_now_date_hhmm(	int utc_offset );
+
 char *date_get_now_date_oracle_format(
 				int utc_offset );
-
-char *date_get_now_date_hhmm(	int utc_offset );
 
 char *date_get_today_yyyy_mm_dd(
 				int utc_offset );
@@ -175,6 +175,9 @@ char *date_get_now_hh_colon_mm_colon_ss(
 				int utc_offset );
 
 char *date_get_now_hh_colon_mm(	int utc_offset );
+
+char *date_get_now_yyyy_mm_dd_hh_mm(
+				int utc_offset );
 
 char *date_get_yyyy_mm_dd_hh_mm_ss(
 				DATE *date_time );

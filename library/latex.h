@@ -80,7 +80,8 @@ void latex_output_longtable_document_heading(
 					boolean landscape_flag,
 					boolean table_package_flag,
 					char *logo_filename,
-					boolean omit_page_numbers );
+					boolean omit_page_numbers,
+					char *footline );
 
 void latex_output_longtable_heading(	FILE *output_stream,
 					char *caption,
@@ -100,7 +101,8 @@ void latex_longtable_output(		FILE *output_stream,
 					boolean landscape_flag,
 					LIST *table_list,
 					char *logo_filename,
-					boolean omit_page_numbers );
+					boolean omit_page_numbers,
+					char *footer );
 
 void latex_output_documentclass_letter(	FILE *output_stream,
 					boolean omit_page_numbers );

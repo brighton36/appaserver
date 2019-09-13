@@ -1076,7 +1076,10 @@ void trial_balance_PDF(
 		latex->landscape_flag,
 		latex->table_list,
 		latex->logo_filename,
-		0 /* not omit_page_numbers */ );
+		0 /* not omit_page_numbers */,
+		date_get_now_yyyy_mm_dd_hh_mm(
+			date_get_utc_offset() )
+				/* footline */ );
 
 	fclose( latex->output_stream );
 

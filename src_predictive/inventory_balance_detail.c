@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include "timlib.h"
 #include "environ.h"
+#include "date.h"
 #include "piece.h"
 #include "list.h"
 #include "appaserver_library.h"
@@ -415,7 +416,10 @@ void inventory_balance_average_PDF(	char *application_name,
 		latex->landscape_flag,
 		latex->table_list,
 		latex->logo_filename,
-		0 /* not omit_page_numbers */ );
+		0 /* not omit_page_numbers */,
+		date_get_now_yyyy_mm_dd_hh_mm(
+			date_get_utc_offset() )
+				/* footline */ );
 
 	fclose( latex->output_stream );
 

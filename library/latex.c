@@ -120,11 +120,19 @@ void latex_output_longtable_document_heading(
 					boolean landscape_flag,
 					boolean table_package_flag,
 					char *logo_filename,
-					boolean omit_page_numbers )
+					boolean omit_page_numbers,
+					char *footline )
 {
 	fprintf( output_stream,
 "\\documentclass{report}\n"
 "\\usepackage{graphics}\n" );
+
+
+	if ( footline && *footline )
+	{
+		fprintf( output_stream,
+"\\usepackage{fancyhdr}\n" );
+	}
 
 	if ( landscape_flag )
 	{
@@ -155,6 +163,17 @@ void latex_output_longtable_document_heading(
 		}
 	}
  
+
+	if ( footline && *footline )
+	{
+		fprintf( output_stream,
+"\\pagestyle{fancy}\n"
+"\\fancyhf{}\n"
+"\\cfoot{%s}\n"
+"\\rfoot{Page \\thepage}\n",
+			 footline );
+	}
+	else
 	if ( omit_page_numbers )
 	{
 		fprintf( output_stream,
@@ -424,9 +443,9 @@ void latex_tex2pdf(	char *tex_filename,
 	/* Need to run it several times because	*/
 	/* header widths may need adjustments.	*/
 	/* ------------------------------------ */
-	system( sys_string );
-	system( sys_string );
-	system( sys_string );
+	if ( system( sys_string ) );
+	if ( system( sys_string ) );
+	if ( system( sys_string ) );
 
 } /* latex_tex2pdf() */
 
@@ -434,7 +453,8 @@ void latex_longtable_output(	FILE *output_stream,
 				boolean landscape_flag,
 				LIST *table_list,
 				char *logo_filename,
-				boolean omit_page_numbers )
+				boolean omit_page_numbers,
+				char *footline )
 {
 	LATEX_TABLE *table;
 
@@ -443,7 +463,8 @@ void latex_longtable_output(	FILE *output_stream,
 					landscape_flag,
 					1 /* table_package_flag */,
 					logo_filename,
-					omit_page_numbers );
+					omit_page_numbers,
+					footline );
 
 	if ( !list_rewind( table_list ) ) return;
 

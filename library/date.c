@@ -1357,6 +1357,15 @@ char *date_get_now_time_second( int utc_offset )
 	return date_get_now_hh_colon_mm_colon_ss( utc_offset );
 }
 
+char *date_get_now_yyyy_mm_dd_hh_mm(
+				int utc_offset )
+{
+	DATE *d;
+
+	d = date_today_new( utc_offset );
+	return date_display_yyyy_mm_dd_hh_mm( d );
+}
+
 char *date_get_yyyy_mm_dd_hh_mm_ss(
 				DATE *date_time )
 {

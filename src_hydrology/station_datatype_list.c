@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "timlib.h"
+#include "environ.h"
+#include "appaserver_error.h"
 #include "piece.h"
 #include "dictionary.h"
 #include "appaserver_library.h"
@@ -30,11 +32,12 @@ void station_datatype_list(	char *application,
 				char *plot_for_station_check_yn,
 				char *validation_required_yn,
 				boolean dont_filter_manipulate,
-				char *one2m_folder );
+				char *one2m_folder,
+				char *favorite_station_set_name );
 
 int main( int argc, char **argv )
 {
-	char *application;
+	char *application_name;
 	char *login_name;
 	char *process_name;
 	char *station;
@@ -43,18 +46,26 @@ int main( int argc, char **argv )
 	char *validation_required_yn;
 	char *one2m_folder;
 	boolean dont_filter_manipulate;
+	char *favorite_station_set_name;
 
-	output_starting_argv_stderr( argc, argv );
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	if ( argc != 9 )
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
+	if ( argc < 9 )
 	{
 		fprintf(stderr,
-"Usage: %s application login_name process station datatype plot_for_station_check_yn one2m_folder validation_required_yn\n",
+"Usage: %s ignored login_name process station datatype plot_for_station_check_yn one2m_folder validation_required_yn [favorite_station_set_name]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	login_name = argv[ 2 ];
 	process_name = argv[ 3 ];
 	station = argv[ 4 ];
@@ -63,12 +74,17 @@ int main( int argc, char **argv )
 	one2m_folder = argv[ 7 ];
 	validation_required_yn = argv[ 8 ];
 
+	if ( argc == 10 )
+		favorite_station_set_name = argv[ 9 ];
+	else
+		favorite_station_set_name = "";
+
 	dont_filter_manipulate =
 		( strcmp(
 			process_name,
 			"estimation_nearest_neighbor" ) == 0 );
 
-	station_datatype_list(	application,
+	station_datatype_list(	application_name,
 				login_name,
 				process_name,
 				station,
@@ -76,7 +92,8 @@ int main( int argc, char **argv )
 				plot_for_station_check_yn,
 				validation_required_yn,
 				dont_filter_manipulate,
-				one2m_folder );
+				one2m_folder,
+				favorite_station_set_name );
 
 	return 0;
 
@@ -90,7 +107,8 @@ void station_datatype_list(	char *application_name,
 				char *plot_for_station_check_yn,
 				char *validation_required_yn,
 				boolean dont_filter_manipulate,
-				char *one2m_folder )
+				char *one2m_folder,
+				char *favorite_station_set_name )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
@@ -114,7 +132,7 @@ void station_datatype_list(	char *application_name,
 			"site_visit_calibrate" ) == 0 );
 
 	sprintf( sys_string,
-"station_datatype_agency_list.sh '%s' '%s' '%s' '%s' '%s' '%s' '%c' '%s' '%c'",
+"station_datatype_agency_list.sh '%s' '%s' '%s' '%s' '%s' '%s' '%c' '%s' '%c' \"%s\"",
 		 application_name,
 		 login_name,
 		 process_name,
@@ -123,9 +141,8 @@ void station_datatype_list(	char *application_name,
 		 plot_for_station_check_yn,
 		 (dont_filter_manipulate) ? 'y' : 'n',
 		 validation_required_yn,
-		 (filter_calibrated) ? 'y' : 'n' );
-
-fprintf( stderr, "sys_string: %s\n", sys_string );
+		 (filter_calibrated) ? 'y' : 'n',
+		 favorite_station_set_name );
 
 	input_pipe = popen( sys_string, "r" );
 

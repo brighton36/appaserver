@@ -8,9 +8,9 @@
 
 echo "Starting: $0 $*" 1>&2
 
-if [ "$#" -ne 9 ]
+if [ "$#" -lt 9 ]
 then
-	echo "Usage: $0 application login_name process station datatype plot_for_station_check_yn dont_filter_manipulate_yn validation_required_yn filter_calibrated_yn" 1>&2
+	echo "Usage: $0 application login_name process station datatype plot_for_station_check_yn dont_filter_manipulate_yn validation_required_yn filter_calibrated_yn [favorite_station_set_name]" 1>&2
 	exit 1
 fi
 
@@ -18,19 +18,13 @@ application=$1
 login_name=$2
 process_name=$3
 
-station_table=`get_table_name $application station`
-station_datatype=`get_table_name $application station_datatype`
-datatype=`get_table_name $application datatype`
-process=`get_table_name $application process`
-appaserver_user_agency=`get_table_name $application appaserver_user_agency`
-
 got_station=0
 
 if [ "$4" != "station" ]
 then
-	station_and_clause="and ($station_datatype.station in (`single_quotes_around.e $4`)"
+	station_and_clause="and (station_datatype.station in (`single_quotes_around.e $4`)"
 
-	if "$process_name" != "station_datatype_list" ]
+	if [ "$process_name" != "station_datatype_list" ]
 	then
 		got_station=1
 	fi
@@ -40,14 +34,14 @@ fi
 
 if [ "$5" != "datatype" -a $got_station -eq 0 ]
 then
-	datatype_and_clause="and $station_datatype.datatype in (`single_quotes_around.e $5`))"
+	datatype_and_clause="and station_datatype.datatype in (`single_quotes_around.e $5`))"
 else
 	datatype_and_clause="and 1 = 1)"
 fi
 
 if [ "$6" != "plot_for_station_check_yn" ]
 then
-	plot_for_station_check_yn_and_clause="and $station_datatype.plot_for_station_check_yn = '$6'"
+	plot_for_station_check_yn_and_clause="and station_datatype.plot_for_station_check_yn = '$6'"
 else
 	plot_for_station_check_yn_and_clause="and 1 = 1"
 fi
@@ -59,27 +53,53 @@ fi
 
 if [ "$8" != "validation_required_yn" ]
 then
-	validation_required_yn_and_clause="and $station_datatype.validation_required_yn = '$8'"
+	validation_required_yn_and_clause="and station_datatype.validation_required_yn = '$8'"
 else
 	validation_required_yn_and_clause="and 1 = 1"
 fi
 
 if [ "$9" = "y" ]
 then
-	calibrated_yn_and_clause="and $datatype.calibrated_yn = 'y'"
+	calibrated_yn_and_clause="and datatype.calibrated_yn = 'y'"
 else
 	calibrated_yn_and_clause="and 1 = 1"
 fi
 
+favorite_station_set_name=""
+
+if [ "$#" -eq 10 ]
+then
+	favorite_station_set_name="${10}"
+
+	if [ "$favorite_station_set_name" = "favorite_station_set_name" ]
+	then
+		favorite_station_set_name=""
+	fi
+fi
+
+from="datatype,station,station_datatype,appaserver_user_agency"
+
+if [ "$favorite_station_set_name" != "" ]
+then
+	from="datatype,station,station_datatype,appaserver_user_agency,favorite_station"
+
+	escaped=`echo "$favorite_station_set_name" | escape_character.e "'"`
+
+	favorite_station_where="favorite_station.station = station.station and favorite_station_set_name = '$escaped' and favorite_station.station = station.station"
+
+else
+	favorite_station_where="1 = 1"
+fi
+
 process_group=`echo "	select process_group
-			from $process
+			from process
 			where process = '$process_name';" |
 	       sql.e`
 
 if [ "$dont_filter_manipulate_yn" != "y" -a "$process_group" = "manipulate" ]
 then
 	agency=`echo "	select agency
-			from $appaserver_user_agency
+			from appaserver_user_agency
 			where login_name = '$login_name'
 			  and filter_manipulate_yn = 'y'" |
 	        sql.e					  |
@@ -97,28 +117,28 @@ else
 	station_datatype_and_clause="and 1 = 1"
 fi
 
-select="	$station_table.station,					\
-		$station_datatype.datatype,				\
+select="	station.station,					\
+		station_datatype.datatype,				\
 		concat(	' [',						\
-			$datatype.units,				\
-			'--',						\
-			$station_table.agency,				\
+			datatype.units,					\
+			'---',						\
+			station.agency,					\
 			']' )"
 
 echo "	select $select							\
-	from $datatype, $station_table, $station_datatype,		\
-		$appaserver_user_agency					\
-	where $station_table.agency = $appaserver_user_agency.agency	\
-	  and $station_table.station = $station_datatype.station	\
-	  and $appaserver_user_agency.login_name = '$login_name'	\
-	  and $station_datatype.datatype = $datatype.datatype		\
+	from $from							\
+	where station.agency = appaserver_user_agency.agency		\
+	  and station.station = station_datatype.station		\
+	  and appaserver_user_agency.login_name = '$login_name'		\
+	  and station_datatype.datatype = datatype.datatype		\
+	  and $favorite_station_where					\
 	  $station_and_clause						\
 	  $datatype_and_clause						\
 	  $plot_for_station_check_yn_and_clause				\
 	  $validation_required_yn_and_clause				\
 	  $calibrated_yn_and_clause					\
 	  $station_datatype_and_clause					\
-	order by $station_table.station, $station_datatype.datatype;"	|
+	order by station.station, station_datatype.datatype;"		|
 sql.e '^'								|
 sed 's/\^//2'								|
 sed 's/\^//2'								|

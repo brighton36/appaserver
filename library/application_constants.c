@@ -165,16 +165,23 @@ char *application_constants_quick_fetch(
 boolean application_constants_cat_javascript_source( char *application_name )
 {
 	char *value;
+	boolean return_value;
 
-	if ( ! ( value = application_constants_quick_fetch(
+	return_value = 0;
+
+	if ( ( value = application_constants_quick_fetch(
 					application_name,
 					"cat_javascript_source" ) ) )
 	{
-		return 0;
+		if ( timlib_strcmp( value, "yes" ) == 0
+		||   timlib_strcmp( value, "true" ) == 0
+		||   timlib_strcmp( value, "1" ) == 0 )
+		{
+			return_value = 1;
+		}
 	}
-	else
-	{
-		return ( timlib_strcmp( value, "yes" ) == 0 );
-	}
+
+	return return_value;
+
 } /* application_constants_cat_javascript_source() */
 

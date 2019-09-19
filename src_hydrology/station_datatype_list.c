@@ -162,15 +162,17 @@ void station_datatype_list(	char *application_name,
 					manipulate_agency_dictionary,
 					key ) ) )
 		{
-			strcpy( agency, manipulate_agency );
+			if ( *manipulate_agency )
+				strcpy( agency, manipulate_agency );
 		}
 
-		printf( "%s^%s[%s--%s]\n",
+		printf( "%s^%s [%s---%s]\n",
 			input_station,
 			input_datatype,
 			units,
 			agency );
 	}
+
 	pclose( input_pipe );
 
 } /* station_datatype_list() */

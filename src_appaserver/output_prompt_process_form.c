@@ -395,7 +395,7 @@ int main( int argc, char **argv )
 				application_name ) );
 
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		fflush( stdout );
 		printf( "</ul>\n" );
 	}
@@ -880,7 +880,6 @@ void populate_process_parameter_list_element_list(
 				document_root_directory,
 				application_name,
 				session,
-				(char *)0 /* database_string */,
 				login_name );
 
 			list_append_list( 

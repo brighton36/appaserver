@@ -917,9 +917,7 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 				element->notepad,
 				width );
 
-		element_notepad_set_heading(
-				element->notepad,
-				element->name );
+		element->notepad->heading = element->name;
 	}
 	else
 	if ( strcmp( datatype, "password" ) == 0 )
@@ -2814,9 +2812,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 				element->notepad,
 				width );
 
-		element_notepad_set_heading(
-				element->notepad, 
-				element->name );
+		element->notepad->heading = element->name;
 
 		element_notepad_set_onchange_null2slash(
 				element->notepad );

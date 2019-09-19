@@ -32,7 +32,7 @@ else
 	station_and_clause="and (1 = 1"
 fi
 
-if [ "$5" != "datatype" -a $got_station -eq 0 ]
+if [ "$5" != "datatype" ]
 then
 	datatype_and_clause="and station_datatype.datatype in (`single_quotes_around.e $5`))"
 else
@@ -117,12 +117,14 @@ else
 	station_datatype_and_clause="and 1 = 1"
 fi
 
+# Note: station_datatype_list.c parses this.
+# ------------------------------------------
 select="	station.station,					\
 		station_datatype.datatype,				\
 		concat(	' [',						\
-			datatype.units,					\
-			'---',						\
-			station.agency,					\
+			ifnull(datatype.units,''),			\
+			'--',						\
+			ifnull(station.agency,''),			\
 			']' )"
 
 echo "	select $select							\
@@ -140,11 +142,6 @@ echo "	select $select							\
 	  $station_datatype_and_clause					\
 	order by station.station, station_datatype.datatype;"		|
 sql.e '^'								|
-sed 's/\^//2'								|
-sed 's/\^//2'								|
-sed 's/\^//2'								|
-sed 's/\^//2'								|
-sed 's/\^//2'								|
 sed 's/\^//2'								|
 cat
 

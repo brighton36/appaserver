@@ -112,7 +112,6 @@ LIST *process_parameter_get_folder_element_list(
 			char *document_root_directory,
 			char *application_name,
 			char *session,
-			char *database_string,
 			char *login_name );
 
 ELEMENT *process_parameter_get_attribute_element(

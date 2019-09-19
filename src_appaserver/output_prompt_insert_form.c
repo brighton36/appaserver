@@ -1546,9 +1546,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 				element->notepad,
 				attribute->width );
 
-		element_notepad_set_heading(
-				element->notepad, 
-				element->name );
+		element->notepad->heading = element->name;
 	}
 	else
 	if ( strcmp( attribute->datatype,

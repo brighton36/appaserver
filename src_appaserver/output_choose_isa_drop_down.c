@@ -351,8 +351,7 @@ LIST *get_element_list(		char *login_name,
 			drop_down,
 			strdup( element_name ) );
 
-	element_drop_down_set_option_data_list(
-		element->drop_down,
+	element->drop_down->option_data_list =
 		folder_get_primary_data_list(
 			application_name,
 			session,
@@ -370,7 +369,7 @@ LIST *get_element_list(		char *login_name,
 			(char *)0 /* state */,
 			(char *)0 /* one2m_folder_name_for_processes */,
 			(char *)0 /* appaserver_user_foreign_login_name */,
-			0 /* not include_root_folder */ ) );
+			0 /* not include_root_folder */ );
 
 	list_append( 	return_list, 
 			element, 

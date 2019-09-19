@@ -333,12 +333,6 @@ void element_notepad_set_attribute_width(	ELEMENT_NOTEPAD *e,
 void element_notepad_set_field_width(		ELEMENT_NOTEPAD *e,
 						int w );
 
-void element_notepad_set_number_rows(		ELEMENT_NOTEPAD *e,
-						int w );
-
-void element_notepad_set_heading(		ELEMENT_NOTEPAD *e,
-						char *s );
-
 char *element_notepad_get_heading( 		ELEMENT_NOTEPAD *e );
 
 void element_notepad_output( 			FILE *output_file,
@@ -473,12 +467,6 @@ void element_prompt_data_output(		FILE *output_file,
 						boolean format_initial_capital);
 
 ELEMENT_DROP_DOWN *element_drop_down_new(	void );
-
-void element_drop_down_set_option_data_list(	ELEMENT_DROP_DOWN *e,
-						LIST *l );
-
-void element_drop_down_set_option_label_list(	ELEMENT_DROP_DOWN *e,
-						LIST *l );
 
 void element_drop_down_set_option_data_option_label_list(
 						LIST **option_data_list,

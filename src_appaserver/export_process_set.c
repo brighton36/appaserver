@@ -68,7 +68,6 @@ LIST *get_drop_down_prompt_list(
 
 void output_export_process_shell_script_initialize(
 			char *export_process_filename,
-			char *application_name,
 			CREATE_CLONE_FILENAME *create_clone_filename );
 
 void output_export_process_shell_script_process(
@@ -245,7 +244,6 @@ int main( int argc, char **argv )
 
 	output_export_process_shell_script_initialize(
 			export_process_filename,
-			application_name,
 			create_clone_filename );
 
 	list_rewind( process_set_name_list );
@@ -377,7 +375,7 @@ void clone_table_process_set(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	output_export_process_shell_script_process(
 				export_process_filename,
@@ -417,7 +415,7 @@ void clone_table_generic(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	output_export_process_shell_script_process(
 				export_process_filename,
@@ -428,7 +426,6 @@ void clone_table_generic(
 
 void output_export_process_shell_script_initialize(
 				char *export_process_filename,
-				char *application_name,
 				CREATE_CLONE_FILENAME *create_clone_filename )
 {
 	FILE *export_process_file;
@@ -444,29 +441,7 @@ void output_export_process_shell_script_initialize(
 		exit( 0 );
 	}
 
-	fprintf( export_process_file,
-	"#!/bin/sh\n" );
-	fprintf( export_process_file,
-	"if [ \"$#\" -ne 1 ]\n" );
-	fprintf( export_process_file,
-	"then\n" );
-	fprintf( export_process_file,
-	"\techo \"Usage: $0 application\" 1>&2\n" );
-	fprintf( export_process_file,
-	"\texit 1\n" );
-	fprintf( export_process_file,
-	"fi\n" );
-
-	fprintf( export_process_file, "application=$1\n\n" );
-
-	fprintf( export_process_file,
-		"if [ \"$application\" != %s ]\n", application_name );
-	fprintf( export_process_file,
-		"then\n" );
-	fprintf( export_process_file,
-		"\texit 0\n" );
-	fprintf( export_process_file,
-		"fi\n\n" );
+	environ_output_application_shell( export_process_file );
 
 	list_rewind( create_clone_filename->folder_name_list );
 	do {
@@ -474,17 +449,13 @@ void output_export_process_shell_script_initialize(
 			list_get_pointer(
 				create_clone_filename->folder_name_list );
 
-/*
+		/* This used to execute `get_table_name` */
+		/* ------------------------------------- */
 		fprintf( export_process_file,
-		"%s_%s=`get_table_name $application %s`\n",
-			 application_name,
+			 "%s=\"%s\"\n",
 			 folder_name,
 			 folder_name );
-*/
-		fprintf( export_process_file,
-		"%s=`get_table_name $application %s`\n",
-			 folder_name,
-			 folder_name );
+
 	} while( list_next( create_clone_filename->folder_name_list ) );
 
 	fprintf(export_process_file,
@@ -518,13 +489,13 @@ void output_export_process_shell_script_process(
 			clone_folder_filename,
 			export_process_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	sprintf(sys_string,
 			"rm %s",
 			clone_folder_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 } /* output_export_process_shell_script_process() */
 
@@ -545,7 +516,7 @@ void output_export_process_shell_script_finish(
 	sprintf( sys_string,
 		 "chmod +x,g+w %s",
 		 export_process_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 } /* output_export_process_shell_script_finish() */
 
@@ -589,7 +560,7 @@ void clone_table_process(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		output_export_process_shell_script_process(
 			export_process_filename,
@@ -639,7 +610,7 @@ void clone_table_prompt(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		output_export_process_shell_script_process(
 			export_process_filename,
@@ -689,7 +660,7 @@ void clone_table_drop_down_prompt(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	
 		output_export_process_shell_script_process(
 			export_process_filename,
@@ -711,7 +682,7 @@ void clone_table_drop_down_prompt(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		output_export_process_shell_script_process(
 			export_process_filename,
@@ -876,7 +847,7 @@ void clone_table_javascript_files(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		output_export_process_shell_script_process(
 				export_process_filename,

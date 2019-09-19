@@ -1,6 +1,6 @@
-//
+// ---------------------------------------------
 // output_measurements_process_set.js
-// ----------------------------------
+// ---------------------------------------------
 // Freely available software. See appaserver.org
 // ---------------------------------------------
 
@@ -18,7 +18,11 @@ function post_change_output_measurements( current_element )
 		timlib_get_element(
 			"original_datatype_1" );
 
-	if ( element ) return
+	if ( element )
+	{
+		post_change_output_measurements_preprompt();
+		return true;
+	}
 
 	element =
 		timlib_get_element(
@@ -271,33 +275,28 @@ function post_change_output_measurements( current_element )
 function post_change_output_measurements_preprompt()
 {
 	var element;
-	var datatype_populated;
 	var station_populated;
+	var favorite_station_populated;
 
 	// Set defaults
 	// ------------
 	element =
 		timlib_get_element(
-			"original_datatype_1" );
-	element.disabled = false;
-
-	element =
-		timlib_get_element(
 			"original_station_1" );
 	element.disabled = false;
 
-	// If datatype was moved to the right
-	// ----------------------------------
 	element =
 		timlib_get_element(
-			"datatype_1" );
+			"station_1" );
+	element.disabled = false;
 
-	datatype_populated =
-		timlib_get_multi_select_drop_down_element_populated(
-			element.options );
+	element =
+		timlib_get_element(
+			"favorite_station_set_name^login_name_0" );
+	element.disabled = false;
 
-	// If station was moved to the right
-	// ---------------------------------
+	// Set station_populated
+	// ---------------------
 	element =
 		timlib_get_element(
 			"station_1" );
@@ -306,23 +305,39 @@ function post_change_output_measurements_preprompt()
 		timlib_get_multi_select_drop_down_element_populated(
 			element.options );
 
+	// Set favorite_station_populated
+	// ------------------------------
+	element =
+		timlib_get_element(
+			"favorite_station_set_name^login_name_0" );
+
+	favorite_station_populated =
+		timlib_get_drop_down_element_populated(
+			element.options );
+
+
 	// Set disabled
 	// ------------
-	if ( datatype_populated )
+	if ( station_populated )
+	{
+		element =
+			timlib_get_element(
+				"favorite_station_set_name^login_name_0" );
+		element.disabled = true;
+	}
+	else
+	if ( favorite_station_populated )
 	{
 		element =
 			timlib_get_element(
 				"original_station_1" );
 		element.disabled = true;
 
-	}
-	else
-	if ( station_populated )
-	{
 		element =
 			timlib_get_element(
-				"original_datatype_1" );
+				"station_1" );
 		element.disabled = true;
+
 	}
 
 } // post_change_output_measurements_preprompt()

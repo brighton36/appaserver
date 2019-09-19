@@ -383,8 +383,7 @@ void post_state_one(	char *application_name,
 						drop_down,
 						strdup( element_name ) );
 
-				element_drop_down_set_option_data_list(
-				element->drop_down,
+			element->drop_down->option_data_list =
 				folder_get_primary_data_list(
 					application_name,
 					BOGUS_SESSION,
@@ -415,8 +414,7 @@ void post_state_one(	char *application_name,
 					/* one2m_folder_name_for_processes */,
 					(char *)0,
 					/* appaserver_user_foreign_login_name */
-					0 /* not include_root_folder */
-				) );
+					0 /* not include_root_folder */ );
 			}
 		}
 

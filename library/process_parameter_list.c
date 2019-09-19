@@ -1,4 +1,4 @@
-/* process_parameter_list.c						*/
+/* $APPASERVER_HOME/library/process_parameter_list.c			*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver process_parameter_list ADT.			*/
 /*									*/
@@ -337,9 +337,9 @@ LIST *process_parameter_get_drop_down_prompt_element_list(
 
 	element->drop_down->multi_select =
 		parameter_drop_down_prompt->multi_select;
+
 	element->drop_down->multi_select_element_name =
 		multi_select_element_name;
-
 
 	element->drop_down->post_change_javascript =
 		post_change_javascript;
@@ -387,7 +387,6 @@ LIST *process_parameter_get_folder_element_list(
 			char *document_root_directory,
 			char *application_name,
 			char *session,
-			char *database_string,
 			char *login_name )
 {
 	LIST *element_list;
@@ -396,10 +395,6 @@ LIST *process_parameter_get_folder_element_list(
 	char *element_name;
 	POPULATE_HELPER_PROCESS *
 		populate_helper_process = {0};
-
-/* Stub */
-/* ---- */
-database_string = (char *)0;
 
 	element_list = list_new_list();
 
@@ -673,10 +668,10 @@ ELEMENT *process_parameter_get_process_set_output_drop_down_element(
 	} while( list_next( members4set_list ) );
 
 	element->drop_down->option_data_list = option_data_list;
-
 	element->drop_down->option_label_list = option_label_list;
 
 	return element;
+
 } /* process_parameter_get_process_set_output_drop_down_element() */
 
 ELEMENT *process_parameter_get_attribute_element(
@@ -1822,8 +1817,8 @@ ELEMENT *process_parameter_get_folder_process_element(
 			(char *)0 /* prompt */ );
 
 	element->drop_down->multi_select = multi_select;
-
 	return element;
+
 } /* process_parameter_get_folder_process_element() */
 
 ELEMENT *process_parameter_get_prompt_process_element(

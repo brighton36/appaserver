@@ -1366,9 +1366,8 @@ LIST *attribute_get_attribute_element_list(
 				drop_down,
 				strdup( element_name ) );
 	
-		element_drop_down_set_option_data_list(
-				element->drop_down,
-				get_relation_operator_list( datatype ) );
+		element->drop_down->option_data_list =
+			get_relation_operator_list( datatype );
 	
 		list_append_pointer(
 				return_list,
@@ -1436,8 +1435,7 @@ LIST *attribute_get_attribute_element_list(
 		
 			element->notepad->attribute_width = width;
 
-			element_notepad_set_number_rows(
-					element->notepad, 1 );
+			element->notepad->number_rows = 1;
 	
 			list_append_pointer(	return_list,
 						element );

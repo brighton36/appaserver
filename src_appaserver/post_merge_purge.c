@@ -332,8 +332,7 @@ void post_state_one(	char *application_name,
 			drop_down,
 			KEEP_LABEL );
 
-	element_drop_down_set_option_data_list(
-		element->drop_down,
+	element->drop_down->option_data_list =
 		folder_get_primary_data_list(
 			application_name,
 			session,
@@ -355,8 +354,7 @@ void post_state_one(	char *application_name,
 			/* one2m_folder_name_for_processes */,
 			(char *)0
 			/* appaserver_user_foreign_login_name */,
-			0 /* not include_root_folder */
-		) );
+			0 /* not include_root_folder */ );
 
 	printf( "<tr><td>Keep %s\n",
 		format_initial_capital( buffer, folder_name ) );
@@ -394,8 +392,7 @@ void post_state_one(	char *application_name,
 			drop_down,
 			PURGE_LABEL );
 
-	element_drop_down_set_option_data_list(
-		element->drop_down,
+	element->drop_down->option_data_list =
 		folder_get_primary_data_list(
 			application_name,
 			session,
@@ -419,8 +416,7 @@ void post_state_one(	char *application_name,
 			/* one2m_folder_name_for_processes */,
 			(char *)0
 			/* appaserver_user_foreign_login_name */,
-			0 /* not include_root_folder */
-		) );
+			0 /* not include_root_folder */ );
 
 	printf( "<tr><td>Purge %s\n",
 		format_initial_capital( buffer, folder_name ) );
@@ -461,16 +457,13 @@ void post_state_one(	char *application_name,
 	list_set_pointer( option_data_list, "y" );
 	list_set_pointer( option_data_list, "n" );
 
-	element_drop_down_set_option_data_list(	element->drop_down,
-						option_data_list );
+	element->drop_down->option_data_list = option_data_list;
 
 	option_label_list = list_new();
 	list_set_pointer( option_label_list, "Yes" );
 	list_set_pointer( option_label_list, "No" );
 
-
-	element_drop_down_set_option_label_list(element->drop_down,
-						option_label_list );
+	element->drop_down->option_label_list = option_label_list;
 
 	printf( "<tr><td>Execute\n" );
 

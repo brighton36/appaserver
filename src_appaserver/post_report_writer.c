@@ -498,9 +498,7 @@ void post_state_one(	char *application_name,
 
 	element = element_new( drop_down, DROP_DOWN_ELEMENT_NAME );
 
-	element_drop_down_set_option_data_list(
-		element->drop_down,
-		folder_name_list );
+	element->drop_down->option_data_list = folder_name_list;
 
 	list_append_pointer( form->regular_element_list, element );
 
@@ -672,9 +670,7 @@ void post_state_two(	char *application_name,
 			mto1_recursive_related_folder_list );
 	}
 
-	element_drop_down_set_option_data_list(
-		element->drop_down,
-		option_data_list );
+	element->drop_down->option_data_list = option_data_list;
 
 	list_append_pointer( form->regular_element_list, element );
 

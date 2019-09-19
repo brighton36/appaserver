@@ -772,6 +772,14 @@ LIST *folder_get_drop_down_process_list(
 			(char *)0 /* operation_row_count_string */,
 			prompt );
 
+/*
+fprintf( stderr, "%s/%s()/%d: executable = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+populate_drop_down_process->executable );
+*/
+
 	return_list = process2list( populate_drop_down_process->executable );
 
 	if ( piece_multi_attribute_data_label_delimiter )

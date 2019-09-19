@@ -75,6 +75,26 @@ function timlib_check_notepad_size( element, max_length )
 	return true;
 } // timlib_check_notepad_size()
 
+function timlib_get_drop_down_element_populated( options )
+{
+	var value;
+	var i;
+
+	if ( options == undefined ) return false;
+
+	value =
+		// Returns 'undefined' if false.
+		// -----------------------------
+		timlib_get_drop_down_element_value(
+			options );
+
+	if ( value != 'undefined' && value != 'select' )
+		return true;
+	else
+		return false;
+
+} // timlib_get_drop_down_element_populated()
+
 function timlib_get_multi_select_drop_down_element_populated( options )
 {
 	var value;
@@ -125,18 +145,6 @@ function timlib_get_element( search_element_name )
 				form_number );
 
 		if ( element != "" ) return element;
-
-//		form = document.forms[ form_number ];
-//
-//		for( i = 0; i < form.elements.length; i++ )
-//		{
-//			element = form.elements[ i ];
-//
-//			if ( element.name == search_element_name )
-//                      {
-//				return element;
-//			}
-//		}
 	}
 
 	modified_element_name = 'from_' + search_element_name;
@@ -151,18 +159,6 @@ function timlib_get_element( search_element_name )
 				form_number );
 
 		if ( element != "" ) return element;
-
-//		form = document.forms[ form_number ];
-//
-//		for( i = 0; i < form.elements.length; i++ )
-//		{
-//			element = form.elements[ i ];
-//
-//			if ( element.name == modified_element_name )
-//                      {
-//				return element;
-//			}
-//		}
 	}
 
 	modified_element_name = 'from_' + search_element_name + '_0';
@@ -177,18 +173,6 @@ function timlib_get_element( search_element_name )
 				form_number );
 
 		if ( element != "" ) return element;
-
-//		form = document.forms[ form_number ];
-//
-//		for( i = 0; i < form.elements.length; i++ )
-//		{
-//			element = form.elements[ i ];
-//
-//			if ( element.name == modified_element_name )
-//                      {
-//				return element;
-//			}
-//		}
 	}
 
 	modified_element_name = search_element_name + '_0';
@@ -203,18 +187,6 @@ function timlib_get_element( search_element_name )
 				form_number );
 
 		if ( element != "" ) return element;
-
-//		form = document.forms[ form_number ];
-//
-//		for( i = 0; i < form.elements.length; i++ )
-//		{
-//			element = form.elements[ i ];
-//
-//			if ( element.name == modified_element_name )
-//                      {
-//				return element;
-//			}
-//		}
 	}
 
 	return "";
@@ -274,6 +246,8 @@ function timlib_get_radio_selected_value( search_element_name )
         return "";
 } // timlib_get_radio_selected_value()
 
+// Returns 'undefined' if false.
+// -----------------------------
 function timlib_get_drop_down_element_value( options )
 {
         var return_value;

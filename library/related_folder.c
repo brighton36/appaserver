@@ -495,6 +495,11 @@ LIST *related_folder_get_drop_down_element_list(
 
 	if ( set_option_data_option_label_list )
 	{
+
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 		element_drop_down_set_option_data_option_label_list(
 			&element->drop_down->option_data_list,
 			&element->drop_down->option_label_list,

@@ -274,9 +274,8 @@ void generic_measurement_load(
 						drop_down,
 						strdup( element_name ) );
 
-				element_drop_down_set_option_data_list(
-				element->drop_down,
-				folder_get_primary_data_list(
+				element->drop_down->option_data_list =
+				   folder_get_primary_data_list(
 					application_name,
 					BOGUS_SESSION,
 					related_folder->
@@ -306,8 +305,14 @@ void generic_measurement_load(
 					/* one2m_folder_name_for_processes */,
 					(char *)0,
 					/* appaserver_user_foreign_login_name */
-					0 /* not include_root_folder */
-				) );
+					0 /* not include_root_folder */ );
+
+fprintf( stderr, "%s/%s()/%d: setting option_data_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_display_delimited( element->drop_down->option_data_list, '@' ) );
+
 			}
 		}
 

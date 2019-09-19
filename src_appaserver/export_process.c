@@ -85,9 +85,7 @@ LIST *get_drop_down_prompt_list(
 
 void output_export_process_shell_script_initialize(
 			char *export_process_filename,
-			char *application_name,
-			CREATE_CLONE_FILENAME *create_clone_filename,
-			LIST *process_name_list );
+			CREATE_CLONE_FILENAME *create_clone_filename );
 
 void output_export_process_shell_script_process(
 			char *export_process_filename,
@@ -284,9 +282,7 @@ int main( int argc, char **argv )
 
 	output_export_process_shell_script_initialize(
 			export_process_filename,
-			application_name,
-			create_clone_filename,
-			process_name_list );
+			create_clone_filename );
 
 	list_rewind( process_name_list );
 
@@ -470,7 +466,7 @@ void clone_table_process(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	output_export_process_shell_script_process(
 				export_process_filename,
@@ -521,7 +517,7 @@ void clone_table_operation(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	output_export_process_shell_script_process(
 				export_process_filename,
@@ -546,7 +542,7 @@ void clone_table_operation(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	}
 
 	output_export_process_shell_script_process(
@@ -588,7 +584,7 @@ void clone_table_generic(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	output_export_process_shell_script_process(
 				export_process_filename,
@@ -600,9 +596,7 @@ void clone_table_generic(
 
 void output_export_process_shell_script_initialize(
 				char *export_process_filename,
-				char *application_name,
-				CREATE_CLONE_FILENAME *create_clone_filename,
-				LIST *process_name_list )
+				CREATE_CLONE_FILENAME *create_clone_filename )
 {
 	FILE *export_process_file;
 	char *folder_name;
@@ -619,37 +613,20 @@ void output_export_process_shell_script_initialize(
 
 	environ_output_application_shell( export_process_file );
 
-/*
-	fprintf( export_process_file,
-	"#!/bin/sh\n" );
-
-	fprintf( export_process_file,
-"if [ \"$APPASERVER_DATABASE\" != \"\" ]\n"
-"then\n"
-"	application=$APPASERVER_DATABASE\n"
-"elif [ \"$DATABASE\" != \"\" ]\n"
-"then\n"
-"	application=$DATABASE\n"
-"fi\n"
-"\n"
-"if [ \"$application\" = \"\" ]\n"
-"then\n"
-"	echo \"Error in `basename.e $0 n`: you must first:\" 1>&2\n"
-"	echo \"$ . set_database\" 1>&2\n"
-"	exit 1\n"
-"fi\n" );
-*/
-
 	list_rewind( create_clone_filename->folder_name_list );
+
 	do {
 		folder_name =
 			list_get_pointer(
 				create_clone_filename->folder_name_list );
 
+		/* Note: this used to execute `get_table_name` */
+		/* ------------------------------------------- */
 		fprintf( export_process_file,
-			 "%s=`get_table_name $application %s`\n",
+			 "%s=\"%s\"\n",
 			 	 folder_name,
 			 	 folder_name );
+
 	} while( list_next( create_clone_filename->folder_name_list ) );
 
 	fprintf(export_process_file,
@@ -689,13 +666,13 @@ void output_export_process_shell_script_process(
 			application_name,
 			export_process_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	sprintf(sys_string,
 			"rm %s",
 			clone_folder_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 } /* output_export_process_shell_script_process() */
 
@@ -716,7 +693,7 @@ void output_export_process_shell_script_finish(
 	sprintf( sys_string,
 		 "chmod +x,g+w %s",
 		 export_process_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 } /* output_export_process_shell_script_finish() */
 
@@ -759,7 +736,7 @@ void clone_table_prompt(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		output_export_process_shell_script_process(
 			export_process_filename,
@@ -806,7 +783,7 @@ void clone_table_process_groups(
 		"n" /* really_yn */,
 		"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	output_export_process_shell_script_process(
 		export_process_filename,
@@ -857,7 +834,7 @@ void clone_table_javascript_files(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		output_export_process_shell_script_process(
 			export_process_filename,
@@ -908,7 +885,7 @@ void clone_table_drop_down_prompt(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	
 		output_export_process_shell_script_process(
 			export_process_filename,
@@ -931,7 +908,7 @@ void clone_table_drop_down_prompt(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		output_export_process_shell_script_process(
 			export_process_filename,
@@ -1075,7 +1052,7 @@ void clone_table_process_for_process_parameter_process(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	
 		output_export_process_shell_script_process(
 					export_process_filename,
@@ -1133,7 +1110,7 @@ void clone_table_process_for_helper_process(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	
 		output_export_process_shell_script_process(
 					export_process_filename,

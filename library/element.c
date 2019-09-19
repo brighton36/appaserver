@@ -591,9 +591,10 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 		if ( !list_length( element->drop_down->option_label_list ) )
 		{
 			element_drop_down_set_option_data_option_label_list(
-					&element->drop_down->option_data_list,
-					&element->drop_down->option_label_list,
-					element->drop_down->option_data_list );
+				&element->drop_down->option_data_list,
+				&element->drop_down->option_label_list,
+				element->drop_down->option_data_list
+					/* source_list */ );
 		}
 
 		element_drop_down_output(
@@ -990,18 +991,6 @@ void element_notepad_set_attribute_width(	ELEMENT_NOTEPAD *e,
 						int w )
 {
 	e->attribute_width = w;
-}
-
-void element_notepad_set_number_rows(		ELEMENT_NOTEPAD *e,
-						int w )
-{
-	e->number_rows = w;
-}
-
-void element_notepad_set_heading(		ELEMENT_NOTEPAD *e,
-						char *s )
-{
-	e->heading = strdup( s );
 }
 
 char *element_drop_down_get_heading(	char *element_name,
@@ -2068,24 +2057,6 @@ void element_drop_down_set_option_data_option_label_list(
 	} while( list_next( source_list ) );
 
 } /* element_drop_down_set_option_data_option_label_list() */
-
-void element_drop_down_set_option_data_list(	ELEMENT_DROP_DOWN *e,
-						LIST *l )
-{
-	e->option_data_list = l;
-}
-
-void element_drop_down_set_option_label_list(	ELEMENT_DROP_DOWN *e,
-						LIST *l )
-{
-	e->option_label_list = l;
-}
-
-void element_drop_down_set_number_columns(	ELEMENT_DROP_DOWN *e,
-						int n )
-{
-	e->number_columns = n;
-}
 
 ELEMENT_NON_EDIT_MULTI_SELECT *element_non_edit_multi_select_new( void )
 {
@@ -3281,9 +3252,7 @@ ELEMENT *element_get_yes_no_element(	char *attribute_name,
 			drop_down,
 			strdup( element_name ) );
 
-	element_drop_down_set_option_data_list(
-			element->drop_down,
-			option_data_list );
+	element->drop_down->option_data_list = option_data_list;
 
 	if ( post_change_javascript
 	&&   *post_change_javascript )

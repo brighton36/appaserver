@@ -33,6 +33,14 @@
 
 /* Prototypes */
 /* ---------- */
+void clone_table_folder_row_level_restrictions(
+				char *export_subschema_filename,
+				char *application_name,
+				char *appaserver_data_directory,
+				char *folder_name,
+				char *session,
+				char *login_name,
+				char *role_name );
 
 void clone_table_process(
 				char *export_subschema_filename,
@@ -382,6 +390,16 @@ int main( int argc, char **argv )
 					login_name,
 					role_name );
 
+		clone_table_folder_row_level_restrictions(
+					export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
 	} while( list_next( folder_name_list ) );
 
 	output_shell_script_footer( export_subschema_filename );
@@ -422,7 +440,7 @@ void clone_table_folder(char *export_subschema_filename,
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	append_export_subschema_file(	export_subschema_filename,
 					application_name,
@@ -460,7 +478,7 @@ void clone_table_relation(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	append_export_subschema_file(	export_subschema_filename,
 					application_name,
@@ -482,7 +500,7 @@ void clone_table_relation(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	append_export_subschema_file(	export_subschema_filename,
 					application_name,
@@ -537,7 +555,7 @@ void clone_table_attribute(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	
 		append_export_subschema_file(	export_subschema_filename,
 						application_name,
@@ -576,7 +594,7 @@ void clone_table_folder_attribute(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	append_export_subschema_file(	export_subschema_filename,
 					application_name,
@@ -614,7 +632,7 @@ void clone_table_row_security_role_update(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	append_export_subschema_file(	export_subschema_filename,
 					application_name,
@@ -652,7 +670,7 @@ void clone_table_role_folder(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	append_export_subschema_file(	export_subschema_filename,
 					application_name,
@@ -660,6 +678,44 @@ void clone_table_role_folder(
 					"role_folder" );
 
 } /* clone_table_role_folder() */
+
+void clone_table_folder_row_level_restrictions(
+				char *export_subschema_filename,
+				char *application_name,
+				char *appaserver_data_directory,
+				char *folder_name,
+				char *session,
+				char *login_name,
+				char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+
+	where_data = folder_name;
+
+	sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+			application_name,
+			session,
+			login_name,
+			role_name,
+			application_name,
+			"folder_row_level_restrictions" /* folder_name */,
+			"folder" /* attribute_name */,
+			where_data,
+			where_data,
+			"n" /* delete_yn */,
+			"n" /* really_yn */,
+			"y" /* output2file_yn */ );
+
+	if ( system( sys_string ) ){};
+
+	append_export_subschema_file(	export_subschema_filename,
+					application_name,
+					appaserver_data_directory,
+					"folder_row_level_restrictions" );
+
+} /* clone_table_folder_row_level_restrictions() */
 
 void clone_table_role(
 			char *export_subschema_filename,
@@ -704,7 +760,7 @@ void clone_table_role(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	
 		append_export_subschema_file(	export_subschema_filename,
 						application_name,
@@ -757,7 +813,7 @@ void clone_table_process(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	
 		append_export_subschema_file(	export_subschema_filename,
 						application_name,
@@ -810,7 +866,7 @@ void clone_table_javascript_files(
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 	
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	
 		append_export_subschema_file(	export_subschema_filename,
 						application_name,
@@ -850,7 +906,7 @@ void clone_table_javascript_folders(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	append_export_subschema_file(	export_subschema_filename,
 					application_name,
@@ -894,7 +950,7 @@ void clone_table_subschema(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	append_export_subschema_file(	export_subschema_filename,
 					application_name,
@@ -932,7 +988,7 @@ void clone_table_role_operation(
 			"n" /* really_yn */,
 			"y" /* output2file_yn */ );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	append_export_subschema_file(	export_subschema_filename,
 					application_name,
@@ -982,13 +1038,13 @@ void append_export_subschema_file(	char *export_subschema_filename,
 		folder_name,
 		export_subschema_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	sprintf(sys_string,
 		"rm %s",
 		clone_folder_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 } /* append_export_subschema_file() */
 
@@ -1008,7 +1064,7 @@ void output_shell_script_footer( char *export_subschema_filename )
 	sprintf( sys_string,
 		 "chmod +x,g+w %s 2>/dev/null",
 		 export_subschema_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 } /* output_shell_script_footer() */
 
@@ -1045,41 +1101,46 @@ void output_shell_script_header( char *export_subschema_filename )
 "	exit 1\n"
 "fi\n" );
 
+	/* These were once wrapped around `get_table_name ...` */
+	/* --------------------------------------------------- */
 	fprintf( output_file,
-	"folder=`get_table_name $application folder`\n" );
+	"folder=\"folder\"\n" );
 
 	fprintf( output_file,
-	"relation=`get_table_name $application relation`\n" );
+	"relation=\"relation\"\n" );
 
 	fprintf( output_file,
-	"attribute=`get_table_name $application attribute`\n" );
+	"attribute=\"attribute\"\n" );
 
 	fprintf( output_file,
-	"folder_attribute=`get_table_name $application folder_attribute`\n" );
+	"folder_attribute=\"folder_attribute\"\n" );
 
 	fprintf( output_file,
-	"role_folder=`get_table_name $application role_folder`\n" );
+	"role_folder=\"role_folder\"\n" );
 
 	fprintf( output_file,
-"row_security_role_update=`get_table_name $application row_security_role_update`\n" );
+	"row_security_role_update=\"row_security_role_update\"\n" );
 
 	fprintf( output_file,
-	"subschemas=`get_table_name $application subschemas`\n" );
+	"folder_row_level_restrictions=\"folder_row_level_restrictions\"\n" );
 
 	fprintf( output_file,
-	"role_operation=`get_table_name $application role_operation`\n" );
+	"subschemas=\"subschemas\"\n" );
 
 	fprintf( output_file,
-"javascript_folders=`get_table_name $application javascript_folders`\n" );
+	"role_operation=\"role_operation\"\n" );
 
 	fprintf( output_file,
-"javascript_files=`get_table_name $application javascript_files`\n" );
+	"javascript_folders=\"javascript_folders\"\n" );
 
 	fprintf( output_file,
-"process=`get_table_name $application process`\n" );
+	"javascript_files=\"javascript_files\"\n" );
 
 	fprintf( output_file,
-"role=`get_table_name $application role`\n" );
+	"process=\"process\"\n" );
+
+	fprintf( output_file,
+	"role=\"role\"\n" );
 
 	fprintf(output_file,
 		"\n(\ncat << %s\n",

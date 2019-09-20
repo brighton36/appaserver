@@ -85,7 +85,9 @@ then
 
 	escaped=`echo "$favorite_station_set_name" | escape_character.e "'"`
 
-	favorite_station_where="favorite_station_set_name = '$escaped' and favorite_station_member.station = station.station and favorite_station_member.login_name = '$login_name'"
+	#favorite_station_where="favorite_station_set_name = '$escaped' and favorite_station_member.station = station.station and favorite_station_member.login_name = '$login_name'"
+
+	favorite_station_where="favorite_station_set_name = '$escaped' and favorite_station_member.station = station.station"
 
 else
 	favorite_station_where="1 = 1"

@@ -83,10 +83,22 @@ rm -f $untar_directory/* 2>/dev/null
 cd $backup_root
 tar xf $master_archive --wildcards "$archive_expression"
 
+if [ $? -ne 0 ]
+then
+	echo "$0 exiting: failed to extract from $master_archive" 1>&2
+	exit 1
+fi
+
 # Extract from the backup files to the untar directory
 # ----------------------------------------------------
 cd $untar_directory
 tar xzf $input_file
+
+if [ $? -ne 0 ]
+then
+	echo "$0 exiting: failed to extract from ${untar_directory}/${input_file}" 1>&2
+	exit 1
+fi
 
 pwd
 

@@ -35,10 +35,10 @@ account_name=$5
 preupdate_transaction_date_time=$6
 preupdate_account_name=$7
 
+hard_coded_account_key=`hard_coded_account_key.sh "$account_name"`
+
 if [ "$state" = "insert" ]
 then
-	hard_coded_account_key=`hard_coded_account_key.sh "$account_name"`
-
 	if [ "$hard_coded_account_key" = "cash_key" ]
 	then
 		automatic_transaction_assign.sh all process_name fund
@@ -51,18 +51,13 @@ then
 	exit 0
 fi
 
-sys_string="echo \"select hard_coded_account_key			\
-		   from account						\
-		   where account = '$account';\"			|
-	    sql.e"
-
-hard_coded_account_key=`$sys_string`
-
-if [ "$hard_coded_account_key" = "cash_key" ]
-then
-	bank_upload_sequence_propagate.sh "$transaction_date_time"
-	bank_upload_balance_propagate.sh "$transaction_date_time"
-fi
+# This is now executed via post_change_bank_upload_transaction.sh
+# ---------------------------------------------------------------
+#if [ "$hard_coded_account_key" = "cash_key" ]
+#then
+#	bank_upload_sequence_propagate.sh bank_date | sql.e
+#	bank_upload_balance_propagate.sh bank_date | sql.e
+#fi
 
 if [ "$preupdate_transaction_date_time" != "preupdate_transaction_date_time" ]
 then
@@ -105,6 +100,8 @@ then
 	exit 0
 fi
 
+# Set TRANSACTION.transaction_amount
+# ----------------------------------
 full_name_escaped=`echo $full_name | escape_character.e "'"`
 
 from=journal_ledger

@@ -176,6 +176,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		bank_upload_get_file_row_count(
 			p->file.bank_upload_file_list );
 
+/*
 	if ( !p->file.file_row_count )
 	{
 		char *msg;
@@ -195,6 +196,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 
 		return (BANK_UPLOAD_STRUCTURE *)0;
 	}
+*/
 
 	p->existing_cash_journal_ledger_list =
 		bank_upload_fetch_existing_cash_journal_ledger_list(
@@ -312,6 +314,8 @@ LIST *bank_upload_fetch_file_list(
 		trim( input_string );
 		if ( !*input_string ) continue;
 
+		/* Why is BofA escaping the closing double-quote? */
+		/* ---------------------------------------------- */
 		timlib_remove_character( input_string, '\\' );
 
 		/* Get bank_date */
@@ -324,7 +328,10 @@ LIST *bank_upload_fetch_file_list(
 			continue;
 		}
 
-		if ( timlib_exists_string( bank_date, "date" ) )
+		if ( timlib_exists_string( bank_date, "date" )
+		||   timlib_exists_string( bank_date, "description" )
+		||   timlib_exists_string( bank_date, "balance" )
+		||   timlib_exists_string( bank_date, "total" ) )
 		{
 			continue;
 		}
@@ -512,6 +519,7 @@ LIST *bank_upload_fetch_file_list(
 	}
 
 	pclose( input_pipe );
+
 	return bank_upload_list;
 
 } /* bank_upload_fetch_file_list() */

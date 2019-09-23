@@ -1,8 +1,8 @@
 :
-# src_predictive/post_change_bank_upload_transaction.sh
-# -----------------------------------------------------
+# $APPASERVER_HOME/src_predictive/post_change_bank_upload_transaction.sh
+# ----------------------------------------------------------------------
 # Freely available software. See appaserver.org
-# -----------------------------------------------------
+# ----------------------------------------------------------------------
 
 echo "$0 $*" 1>&2
 
@@ -21,16 +21,19 @@ then
 	exit 1
 fi
 
-if [ "$#" -lt 1 ]
+if [ "$#" -ne 6 ]
 then
-	echo "Usage: $0 bank_date [bank_description]" 1>&2
+	echo "Usage: $0 state bank_date bank_description full_name street_address transaction_date_time" 1>&2
 	exit 1
 fi
 
-bank_date=$1
-#bank_description=$2
+state=$1
+bank_date=$2
+bank_description=$3
+full_name=$4
+transaction_date_time=$5
 
-bank_upload_sequence_propagate.sh "$bank_date" | sql.e
-bank_upload_balance_propagate.sh "$bank_date" | sql.e
+bank_upload_sequence_propagate.sh $bank_date | sql.e
+bank_upload_balance_propagate.sh $bank_date | sql.e
 
 exit 0

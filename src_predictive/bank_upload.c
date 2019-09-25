@@ -1279,7 +1279,7 @@ void bank_upload_set_non_purchase_order_check(
 		if ( !bank_upload->check_number ) continue;
 
 		if ( ( journal_ledger =
-				ledger_check_number_seek_journal_ledger(
+				feeder_check_number_existing_journal_ledger(
 					existing_cash_journal_ledger_list,
 					bank_upload->check_number ) ) )
 		{
@@ -1327,9 +1327,6 @@ void bank_upload_set_reoccurring_transaction(
 			continue;
 		}
 
-		bank_upload->bank_upload_status =
-			bank_upload_feeder_phrase_match;
-
 		if ( ledger_exists_journal_ledger(
 				existing_cash_journal_ledger_list,
 				reoccurring_transaction->full_name,
@@ -1344,6 +1341,10 @@ void bank_upload_set_reoccurring_transaction(
 			continue;
 		}
 
+		bank_upload->bank_upload_status =
+			bank_upload_feeder_phrase_match;
+
+#ifdef NOT_DEFINED
 		transaction =
 			ledger_transaction_new(
 				reoccurring_transaction->full_name,
@@ -1357,6 +1358,16 @@ void bank_upload_set_reoccurring_transaction(
 			float_abs( bank_upload->bank_amount );
 
 		bank_upload->transaction = transaction;
+#endif
+
+		transaction =
+		bank_upload->feeder_phrase_match_new_transaction =
+			feeder_phrase_match_new_transaction(
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				bank_upload->bank_date,
+				bank_upload->bank_amount );
+
 		transaction->journal_ledger_list = list_new();
 
 		/* Set the debit account */
@@ -1415,9 +1426,10 @@ void bank_upload_transaction_insert(	char *application_name,
 			continue;
 		}
 
-		if ( !bank_upload->transaction ) continue;
+		if ( !bank_upload->feeder_phrase_match_new_transaction )
+			continue;
 
-		transaction = bank_upload->transaction;
+		transaction = bank_upload->feeder_phrase_match_new_transaction;
 
 		/* Here is the bottleneck. */
 		/* ----------------------- */
@@ -1464,7 +1476,8 @@ void bank_upload_table_display(
 			 bank_upload_get_account_html(
 				application_name,
 				bank_upload->bank_upload_status,
-				bank_upload->transaction,
+				bank_upload->
+					feeder_phrase_match_new_transaction,
 				bank_upload->cleared_journal_ledger ),
 			 bank_upload->bank_date,
 			 bank_upload->bank_description_embedded,
@@ -1480,6 +1493,7 @@ void bank_upload_transaction_text_display( LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;
 	char *transaction_memo;
+	TRANSACTION *transaction;
 
 	if ( !list_rewind( bank_upload_list ) ) return;
 
@@ -1492,24 +1506,22 @@ void bank_upload_transaction_text_display( LIST *bank_upload_list )
 			continue;
 		}
 
-		if ( bank_upload->transaction )
+		transaction = bank_upload->feeder_phrase_match_new_transaction;
+
+		if ( transaction )
 		{
 			transaction_memo =
 				bank_upload_get_transaction_memo(
-					bank_upload->
-						transaction->
+					transaction->
 						full_name,
-					bank_upload->
-						transaction->
+					transaction->
 						street_address,
-					bank_upload->
-						transaction->
+					transaction->
 						transaction_date_time );
 
 			ledger_list_text_display(
 				transaction_memo,
-				bank_upload->
-					transaction->
+				transaction->
 					journal_ledger_list );
 		}
 		else
@@ -1527,6 +1539,7 @@ void bank_upload_transaction_table_display( LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;
 	char *transaction_memo;
+	TRANSACTION *transaction;
 
 	if ( !list_rewind( bank_upload_list ) ) return;
 
@@ -1539,25 +1552,22 @@ void bank_upload_transaction_table_display( LIST *bank_upload_list )
 			continue;
 		}
 
-		if ( bank_upload->transaction )
+		transaction = bank_upload->feeder_phrase_match_new_transaction;
+
+		if ( transaction )
 		{
 			transaction_memo =
 				bank_upload_get_transaction_memo(
-					bank_upload->
-						transaction->
+					transaction->
 						full_name,
-					bank_upload->
-						transaction->
+					transaction->
 						street_address,
-					bank_upload->
-						transaction->
+					transaction->
 						transaction_date_time );
 
 			ledger_list_html_display(
 				transaction_memo,
-				bank_upload->
-					transaction->
-					journal_ledger_list );
+				transaction->journal_ledger_list );
 		}
 
 	} while( list_next( bank_upload_list ) );
@@ -1656,7 +1666,7 @@ boolean bank_upload_sha256sum_exists(
 
 } /* bank_upload_sha256sum_exists() */
 
-int bank_upload_transaction_count(
+int bank_upload_feeder_phrase_match_transaction_count(
 			LIST *bank_upload_list )
 {
 	BANK_UPLOAD *b;
@@ -1673,14 +1683,14 @@ int bank_upload_transaction_count(
 				continue;
 			}
 
-			if ( b->transaction ) count++;
+			if ( b->feeder_phrase_match_new_transaction ) count++;
 
 		} while( list_next( bank_upload_list ) );
 	}
 
 	return count;
 
-} /* bank_upload_transaction_count() */
+} /* bank_upload_feeder_phrase_match_transaction_count() */
 
 int bank_upload_get_file_row_count(
 			LIST *bank_upload_list )
@@ -2063,15 +2073,20 @@ void bank_upload_direct_bank_upload_transaction_insert(
 			continue;
 		}
 
-		if ( bank_upload->transaction )
+		if ( bank_upload->feeder_phrase_match_new_transaction )
 		{
 			fprintf( output_pipe,
 			 	"%s^%s^%s^%s^%s\n",
 			 	bank_upload->bank_date,
 			 	bank_upload->bank_description_embedded,
-			 	bank_upload->transaction->full_name,
-			 	bank_upload->transaction->street_address,
-			 	bank_upload->transaction->
+			 	bank_upload->
+					feeder_phrase_match_new_transaction->
+					full_name,
+			 	bank_upload->
+					feeder_phrase_match_new_transaction->
+					street_address,
+			 	bank_upload->
+					feeder_phrase_match_new_transaction->
 					transaction_date_time );
 		}
 		else
@@ -2296,6 +2311,9 @@ LIST *bank_upload_get_general_transaction_list(
 
 	if ( !timlib_file_populated( temp_output_file ) )
 	{
+		sprintf( sys_string, "rm %s", temp_output_file );
+		if ( system( sys_string ) ) {};
+
 		return (LIST *)0;
 	}
 
@@ -2303,6 +2321,9 @@ LIST *bank_upload_get_general_transaction_list(
 		 "cat %s",
 		 temp_output_file );
 
+	/* ------------------------------------------------------------ */
+	/* Format: full_name^street_address^transaction_date_time[|...] */
+	/* ------------------------------------------------------------ */
 	pipe_delimited_transaction_list_string = pipe2string( sys_string );
 
 	sprintf( sys_string, "rm %s", temp_output_file );
@@ -2490,6 +2511,9 @@ join_where,
 		 "cat %s",
 		 temp_output_file );
 
+	/* ------------------------------------------------------------ */
+	/* Format: full_name^street_address^transaction_date_time[|...] */
+	/* ------------------------------------------------------------ */
 	pipe_delimited_transaction_list_string = pipe2string( sys_string );
 
 	sprintf( sys_string, "rm %s", temp_output_file );
@@ -2505,8 +2529,11 @@ join_where,
 } /* bank_upload_get_feeder_transaction_list() */
 
 LIST *bank_upload_transaction_list_string_parse(
-			char *transaction_list_string,
-			char delimiter )
+	/* ------------------------------------------------------------ */
+	/* Format: full_name^street_address^transaction_date_time[|...] */
+	/* ------------------------------------------------------------ */
+	char *transaction_list_string,
+	char delimiter )
 {
 	TRANSACTION *transaction;
 	LIST *transaction_list;
@@ -2669,10 +2696,10 @@ void bank_upload_transaction_balance_propagate(
 } /* bank_upload_transaction_balance_propagate() */
 
 char *bank_upload_get_account_html(
-				char *application_name,
-				enum bank_upload_status bank_upload_status,
-				TRANSACTION *transaction,
-				JOURNAL_LEDGER *cleared_journal_ledger )
+			char *application_name,
+			enum bank_upload_status bank_upload_status,
+			TRANSACTION *feeder_phrase_match_new_transaction,
+			JOURNAL_LEDGER *cleared_journal_ledger )
 {
 	if ( bank_upload_status == bank_upload_existing_bank_upload )
 	{
@@ -2684,26 +2711,17 @@ char *bank_upload_get_account_html(
 		return "Existing transaction";
 	}
 	else
-	if ( bank_upload_status == bank_upload_feeder_phrase_match )
+	if ( feeder_phrase_match_new_transaction )
 	{
-		char buffer[ 128 ];
-
-		if ( !transaction )
-		{
-			fprintf( stderr,
-	"Error in %s/%s()/%d: got feeder_phrase_match but no transaction.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		char buffer[ 512 ];
 
 		return strdup(
 			format_initial_capital(
 				buffer,
 				ledger_get_non_cash_account_name(
 					application_name,
-					transaction ) ) );
+					feeder_phrase_match_new_transaction )
+			) );
 	}
 	else
 	if ( bank_upload_status == bank_upload_cleared_check

@@ -380,7 +380,7 @@ int load_bank_spreadsheet_transactions_only(
 				bank_upload_file_list );
 
 		*transaction_count =
-			bank_upload_transaction_count(
+			bank_upload_feeder_phrase_match_transaction_count(
 				bank_upload_structure->
 				file.
 				bank_upload_file_list );
@@ -419,7 +419,7 @@ int load_bank_spreadsheet_transactions_only(
 			bank_upload_structure->file.bank_upload_file_list );
 
 		*transaction_count =
-			bank_upload_transaction_count(
+			bank_upload_feeder_phrase_match_transaction_count(
 				bank_upload_structure->
 				file.
 				bank_upload_file_list );
@@ -543,7 +543,7 @@ int load_bank_spreadsheet(
 				bank_upload_file_list );
 
 		*transaction_count =
-			bank_upload_transaction_count(
+			bank_upload_feeder_phrase_match_transaction_count(
 				bank_upload_structure->
 				file.
 				bank_upload_file_list );
@@ -619,7 +619,7 @@ int load_bank_spreadsheet(
 			bank_upload_structure->file.bank_upload_file_list );
 
 		*transaction_count =
-			bank_upload_transaction_count(
+			bank_upload_feeder_phrase_match_transaction_count(
 				bank_upload_structure->
 					file.
 					bank_upload_file_list );

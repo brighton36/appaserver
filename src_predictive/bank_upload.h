@@ -64,7 +64,7 @@ typedef struct
 	double bank_running_balance;
 	char *fund_name;
 	int check_number;
-	TRANSACTION *transaction;
+	TRANSACTION *feeder_phrase_match_new_transaction;
 	LIST *reconciled_transaction_list;
 	JOURNAL_LEDGER *cleared_journal_ledger;
 	enum bank_upload_status bank_upload_status;
@@ -272,7 +272,7 @@ void bank_upload_archive_insert(	char *application_name,
 					LIST *bank_upload_list,
 					char *bank_upload_date_time );
 
-int bank_upload_transaction_count(
+int bank_upload_feeder_phrase_match_transaction_count(
 					LIST *bank_upload_list );
 
 boolean bank_upload_transaction_exists(
@@ -356,17 +356,20 @@ char *bank_upload_bank_date_todo_subquery( void );
 char *bank_upload_full_name_todo_subquery( void );
 
 LIST *bank_upload_transaction_list_string_parse(
-					char *transaction_list_string,
-					char delimiter );
+	/* ------------------------------------------------------------ */
+	/* Format: full_name^street_address^transaction_date_time[|...] */
+	/* ------------------------------------------------------------ */
+	char *transaction_list_string,
+	char delimiter );
 
 void bank_upload_transaction_balance_propagate(
 					char *bank_date );
 
 char *bank_upload_get_account_html(
-				char *application_name,
-				enum bank_upload_status,
-				TRANSACTION *transaction,
-				JOURNAL_LEDGER *cleared_journal_ledger );
+			char *application_name,
+			enum bank_upload_status,
+			TRANSACTION *feeder_phrase_match_new_transaction,
+			JOURNAL_LEDGER *cleared_journal_ledger );
 
 char *bank_upload_description_crop(	char *bank_description );
 

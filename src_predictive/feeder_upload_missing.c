@@ -301,7 +301,6 @@ void feeder_upload_missing_execute(
 				bank_upload->bank_description
 					/* bank_description_file */,
 				bank_upload->fund_name,
-				bank_upload->bank_date,
 				bank_upload->bank_amount,
 				bank_upload->bank_running_balance,
 				bank_upload->check_number );

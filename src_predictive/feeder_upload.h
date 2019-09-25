@@ -31,7 +31,6 @@ char *feeder_upload_get_bank_description_original(
 LIST *feeder_upload_get_possible_description_list(
 					char *bank_description_file,
 					char *fund_name,
-					char *bank_date,
 					double bank_amount,
 					double bank_running_balance,
 					int check_number );
@@ -71,6 +70,16 @@ char *feeder_upload_get_like_where(	char *where,
 /* --------------------- */
 char *feeder_upload_trim_bank_date_from_description(
 					char *bank_description_file );
+
+TRANSACTION *feeder_phrase_match_new_transaction(
+					char *full_name,
+					char *street_address,
+					char *bank_date,
+					double bank_amount );
+
+JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger(
+				LIST *existing_cash_journal_ledger_list,
+				int check_number );
 
 #endif
 

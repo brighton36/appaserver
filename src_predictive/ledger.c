@@ -4882,6 +4882,43 @@ double ledger_get_account_credit_amount(LIST *journal_ledger_list,
 
 } /* ledger_get_account_credit_amount() */
 
+JOURNAL_LEDGER *ledger_seek_journal_ledger(
+				LIST *journal_ledger_list,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *account_name )
+{
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( journal_ledger_list ) )
+		return (JOURNAL_LEDGER *)0;
+
+	do {
+		journal_ledger = list_get_pointer( journal_ledger_list );
+
+		if ( timlib_strcmp(	journal_ledger->full_name,
+					full_name ) == 0
+		&&   timlib_strcmp(	journal_ledger->street_address,
+					street_address ) == 0
+		&&   timlib_strcmp(	journal_ledger->transaction_date_time,
+					transaction_date_time ) == 0 )
+		{
+			if ( !account_name ) return journal_ledger;
+
+			if ( strcmp(	account_name,
+					journal_ledger->account_name ) == 0 )
+			{
+				return journal_ledger;
+			}
+		}
+
+	} while( list_next( journal_ledger_list ) );
+
+	return (JOURNAL_LEDGER *)0;
+
+} /* ledger_seek_journal_ledger() */
+
 JOURNAL_LEDGER *ledger_check_number_seek_journal_ledger(
 				LIST *cash_journal_ledger_list,
 				int check_number )

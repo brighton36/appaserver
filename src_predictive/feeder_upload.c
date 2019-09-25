@@ -10,18 +10,17 @@
 #include "timlib.h"
 #include "sed.h"
 #include "piece.h"
+#include "bank_upload.h"
 #include "feeder_upload.h"
 
 LIST *feeder_upload_get_possible_description_list(
 				char *bank_description_file,
 				char *fund_name,
-				char *bank_date,
 				double bank_amount,
 				double bank_running_balance,
 				int check_number )
 {
 	LIST *possible_description_list = list_new();
-	char *trimmed_bank_description;
 
 	list_append_pointer(
 		possible_description_list,
@@ -238,7 +237,6 @@ char *feeder_upload_trim_bank_date_from_description(
 	static char sans_bank_date_description[ 512 ];
 	char *replace;
 	char *regular_expression;
-	char buffer[ 512 ];
 	SED *sed;
 
 	regular_expression = "[ ][0-9][0-9]/[0-9][0-9]$";
@@ -270,4 +268,160 @@ char *feeder_upload_trim_bank_date_from_description(
 	return timlib_rtrim( sans_bank_date_description );
 
 } /* feeder_upload_trim_bank_date_from_description() */
+
+TRANSACTION *feeder_phrase_match_new_transaction(
+				char *full_name,
+				char *street_address,
+				char *bank_date,
+				double bank_amount )
+{
+	TRANSACTION *transaction;
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			ledger_get_transaction_date_time(
+				bank_date /* transaction_date */ ),
+			(char *)0 /* memo */ );
+
+	transaction->transaction_amount =
+		float_abs( bank_amount );
+
+	return transaction;
+
+} /* feeder_phrase_match_new_transaction() */
+
+JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger(
+				LIST *existing_cash_journal_ledger_list,
+				int check_number )
+{
+	return ledger_check_number_seek_journal_ledger(
+			existing_cash_journal_ledger_list,
+			check_number );
+
+}
+
+LIST *feeder_cash_match_sum_existing_journal_ledger_list(
+				LIST *existing_cash_journal_ledger_list,
+				double abs_bank_amount,
+				boolean check_debit )
+{
+	FILE *output_pipe;
+	char temp_output_file[ 128 ];
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+	char *pipe_delimited_transaction_list_string;
+	LIST *name_string_list;
+	char *name_string;
+	LIST *return_list;
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char transaction_date_time [ 32 ];
+	char sys_string[ 512 ];
+
+	if ( !list_rewind( existing_cash_journal_ledger_list ) )
+		return (LIST *)0;
+
+	sprintf( temp_output_file,
+		 "/tmp/feeder_cash_%d",
+		 getpid() );
+
+	sprintf( sys_string,
+		 "keys_match_sum.e %.2lf > %s",
+		 abs_bank_amount,
+		 temp_output_file );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		journal_ledger =
+			list_get_pointer( 
+				existing_cash_journal_ledger_list );
+
+		fprintf( output_pipe,
+			 "%s^%s^%s|%.2lf\n",
+			 journal_ledger->full_name,
+			 journal_ledger->street_address,
+			 journal_ledger->transaction_date_time,
+			 (check_debit)	? journal_ledger->debit_amount
+					: journal_ledger->credit_amount );
+		
+	} while ( list_next( existing_cash_journal_ledger_list ) );
+
+	pclose( output_pipe );
+
+	if ( !timlib_file_populated( temp_output_file ) )
+	{
+		sprintf( sys_string, "rm %s", temp_output_file );
+		if ( system( sys_string ) ) {};
+
+		return (LIST *)0;
+	}
+
+	sprintf( sys_string,
+		 "cat %s",
+		 temp_output_file );
+
+	/* ------------------------------------------------------------ */
+	/* Format: full_name^street_address^transaction_date_time[|...] */
+	/* ------------------------------------------------------------ */
+	pipe_delimited_transaction_list_string = pipe2string( sys_string );
+
+	sprintf( sys_string, "rm %s", temp_output_file );
+	if ( system( sys_string ) ) {};
+
+	name_string_list =
+		list_string2list( 
+			pipe_delimited_transaction_list_string,
+			'|' );
+
+	if ( !list_rewind( name_string_list ) ) return (LIST *)0;
+
+	return_list = list_new();
+
+	do {
+		name_string = list_get_pointer( name_string_list );
+
+		if ( timlib_count_delimiters( '^', name_string ) != 2 )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: unexpected input = [%s]\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 name_string );
+			exit( 1 );
+		}
+
+		piece( full_name, '^', name_string, 0 );
+		piece( street_address, '^', name_string, 1 );
+		piece( transaction_date_time, '^', name_string, 2 );
+
+		if ( ! ( journal_ledger =
+				ledger_seek_journal_ledger(
+					existing_cash_journal_ledger_list,
+					full_name,
+					street_address,
+					transaction_date_time,
+					(char *)0 /* account_name */ ) ) )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: cannot seek %s/%s/%s\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 full_name,
+				 street_address,
+				 transaction_date_time );
+			exit( 1 );
+		}
+
+		list_append_pointer( return_list, journal_ledger );
+
+	} while ( list_next( name_string_list ) );
+
+	return return_list;
+
+} /* feeder_cash_match_sum_existing_journal_ledger_list() */
 

@@ -64,9 +64,10 @@ typedef struct
 	double bank_running_balance;
 	char *fund_name;
 	int check_number;
-	TRANSACTION *feeder_phrase_match_new_transaction;
+	TRANSACTION *feeder_phrase_match_build_transaction;
 	LIST *reconciled_transaction_list;
 	JOURNAL_LEDGER *cleared_journal_ledger;
+	LIST *feeder_match_sum_existing_journal_ledger_list;
 	enum bank_upload_status bank_upload_status;
 } BANK_UPLOAD;
 
@@ -368,8 +369,9 @@ void bank_upload_transaction_balance_propagate(
 char *bank_upload_get_account_html(
 			char *application_name,
 			enum bank_upload_status,
-			TRANSACTION *feeder_phrase_match_new_transaction,
-			JOURNAL_LEDGER *cleared_journal_ledger );
+			TRANSACTION *feeder_phrase_match_build_transaction,
+			JOURNAL_LEDGER *cleared_journal_ledger,
+			LIST *match_sum_existing_journal_ledger_list );
 
 char *bank_upload_description_crop(	char *bank_description );
 
@@ -427,6 +429,15 @@ void bank_upload_free(		BANK_UPLOAD *b );
 
 int bank_upload_get_file_row_count(
 				LIST *bank_upload_list );
+
+/* Returns strdup() */
+/* ---------------- */
+char *bank_upload_journal_ledger_list_html(
+			LIST *match_sum_existing_journal_ledger_list );
+
+void bank_upload_match_sum_existing_journal_ledger_list(
+			LIST *bank_upload_list,
+			LIST *existing_cash_journal_ledger_list );
 
 #endif
 

@@ -81,5 +81,16 @@ JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger(
 				LIST *existing_cash_journal_ledger_list,
 				int check_number );
 
+TRANSACTION *feeder_phrase_match_build_transaction(
+				LIST *reoccurring_transaction_list,
+				char *bank_date,
+				char *bank_description_embedded,
+				double abs_bank_amount );
+
+LIST *feeder_match_sum_existing_journal_ledger_list(
+				LIST *existing_cash_journal_ledger_list,
+				double abs_bank_amount,
+				boolean check_debit );
+
 #endif
 

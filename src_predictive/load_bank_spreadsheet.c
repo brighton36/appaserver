@@ -515,10 +515,11 @@ int load_bank_spreadsheet(
 
 	if ( !execute )
 	{
-		/* ------------------------------------ */
-		/* Sets bank_upload->transaction	*/
-		/* and  bank_upload->bank_upload_status */
-		/* ------------------------------------ */
+		/* -------------------------------------------- */
+		/* Sets bank_upload->				*/
+		/*	feeder_phrase_match_build_transaction	*/
+		/* and  bank_upload->bank_upload_status		*/
+		/* ------------------------------------------- */
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
 			application_name,
@@ -530,6 +531,11 @@ int load_bank_spreadsheet(
 				existing_cash_journal_ledger_list,
 			bank_upload_structure->
 				uncleared_checks_transaction_list );
+
+		bank_upload_match_sum_existing_journal_ledger_list(
+			bank_upload_structure->file.bank_upload_file_list,
+			bank_upload_structure->
+				existing_cash_journal_ledger_list );
 
 		bank_upload_table_display(
 			application_name,

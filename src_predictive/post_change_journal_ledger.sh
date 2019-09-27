@@ -51,14 +51,6 @@ then
 	exit 0
 fi
 
-# This is now executed via post_change_bank_upload_transaction.sh
-# ---------------------------------------------------------------
-#if [ "$hard_coded_account_key" = "cash_key" ]
-#then
-#	bank_upload_sequence_propagate.sh bank_date | sql.e
-#	bank_upload_balance_propagate.sh bank_date | sql.e
-#fi
-
 if [ "$preupdate_transaction_date_time" != "preupdate_transaction_date_time" ]
 then
 	sys_string="echo \"select account				\

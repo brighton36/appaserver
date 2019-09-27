@@ -99,8 +99,8 @@ done
 
 if [ "$first_bank_date" != "" ]
 then
-	bank_upload_balance_propagate.sh "$first_bank_date" | sql.e
 	bank_upload_sequence_propagate.sh "$first_bank_date" | sql.e
+	bank_upload_balance_propagate.sh "$first_bank_date" | sql.e
 fi
 
 if [ "$any_output" -eq 1 ]

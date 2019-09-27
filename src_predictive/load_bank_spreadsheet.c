@@ -28,28 +28,12 @@
 
 /* Prototypes */
 /* ---------- */
-void bank_upload_propagate(	char *minimum_bank_date );
-
 /* Returns either file_row_count or table_insert_count */
 /* --------------------------------------------------- */
 int load_bank_spreadsheet(	int *transaction_count,
 				char **minimum_bank_date,
 				char *application_name,
 				char *login_name,
-				char *fund_name,
-				char *feeder_account,
-				char *input_filename,
-				boolean reverse_order,
-				int date_piece_offset,
-				int description_piece_offset,
-				int debit_piece_offset,
-				int credit_piece_offset,
-				int balance_piece_offset,
-				boolean execute );
-
-int load_bank_spreadsheet_transactions_only(
-				int *transaction_count,
-				char *application_name,
 				char *fund_name,
 				char *feeder_account,
 				char *input_filename,
@@ -83,7 +67,6 @@ int main( int argc, char **argv )
 	int debit_piece_offset;
 	int credit_piece_offset;
 	int balance_piece_offset;
-	boolean transactions_only;
 	boolean reverse_order;
 	boolean execute;
 	DOCUMENT *document;
@@ -105,7 +88,7 @@ int main( int argc, char **argv )
 	if ( argc != 14 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name fund feeder_account filename date_column description_column debit_column credit_column balance_column transactions_only_yn reverse_order_yn execute_yn\n",
+"Usage: %s process_name login_name fund feeder_account filename date_column description_column debit_column credit_column balance_column ignored reverse_order_yn execute_yn\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -124,7 +107,7 @@ int main( int argc, char **argv )
 	debit_column_string = argv[ 8 ];
 	credit_column_string = argv[ 9 ];
 	balance_column_string = argv[ 10 ];
-	transactions_only = (*argv[ 11 ] == 'y');
+	/* transactions_only = (*argv[ 11 ] == 'y'); */
 	reverse_order = (*argv[ 12 ] == 'y' );
 	execute = (*argv[ 13 ] == 'y');
 
@@ -223,62 +206,22 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( transactions_only )
-	{
-		load_count =
-			load_bank_spreadsheet_transactions_only(
-				&transaction_count,
-				application_name,
-				fund_name,
-				feeder_account,
-				input_filename,
-				reverse_order,
-				date_piece_offset,
-				description_piece_offset,
-				debit_piece_offset,
-				credit_piece_offset,
-				balance_piece_offset,
-				execute );
-	}
-	else
-	/* ------------ */
-	/* If full load */
-	/* ------------ */
-	{
-		load_count =
-			load_bank_spreadsheet(
-				&transaction_count,
-				&minimum_bank_date,
-				application_name,
-				login_name,
-				fund_name,
-				feeder_account,
-				input_filename,
-				reverse_order,
-				date_piece_offset,
-				description_piece_offset,
-				debit_piece_offset,
-				credit_piece_offset,
-				balance_piece_offset,
-				execute );
-
-/*
-		if ( execute )
-		{
-			char sys_string[ 1024 ];
-
-			sprintf( sys_string,
-	"automatic_transaction_assign.sh all process_name '%s' 1>&2",
-				 (fund_name) 	? fund_name
-						: "" );
-
-			if ( system( sys_string ) ) {};
-		}
-*/
-		/* ------------ */
-		/* If full load */
-		/* ------------ */
-	}
+	load_count =
+		load_bank_spreadsheet(
+			&transaction_count,
+			&minimum_bank_date,
+			application_name,
+			login_name,
+			fund_name,
+			feeder_account,
+			input_filename,
+			reverse_order,
+			date_piece_offset,
+			description_piece_offset,
+			debit_piece_offset,
+			credit_piece_offset,
+			balance_piece_offset,
+			execute );
 
 	if ( execute )
 	{
@@ -293,9 +236,6 @@ int main( int argc, char **argv )
 		else
 		{
 			bank_upload_transaction_balance_propagate(
-				minimum_bank_date );
-
-			bank_upload_propagate(
 				minimum_bank_date );
 		}
 
@@ -322,142 +262,6 @@ int main( int argc, char **argv )
 	exit( 0 );
 
 } /* main() */
-
-int load_bank_spreadsheet_transactions_only(
-			int *transaction_count,
-			char *application_name,
-			char *fund_name,
-			char *feeder_account,
-			char *input_filename,
-			boolean reverse_order,
-			int date_piece_offset,
-			int description_piece_offset,
-			int debit_piece_offset,
-			int credit_piece_offset,
-			int balance_piece_offset,
-			boolean execute )
-{
-	BANK_UPLOAD_STRUCTURE *bank_upload_structure;
-
-	*transaction_count = 0;
-
-	bank_upload_structure =
-		bank_upload_structure_new(
-			application_name,
-			fund_name,
-			feeder_account,
-			input_filename,
-			reverse_order,
-			date_piece_offset,
-			description_piece_offset,
-			debit_piece_offset,
-			credit_piece_offset,
-			balance_piece_offset );
-
-	if ( !bank_upload_structure ) return 0;
-
-	if ( !execute )
-	{
-		/* ------------------------------------ */
-		/* Sets bank_upload->transaction	*/
-		/* and  bank_upload->bank_upload_status */
-		/* ------------------------------------ */
-		bank_upload_set_transaction(
-			bank_upload_structure->file.bank_upload_file_list,
-			application_name,
-			fund_name,
-			bank_upload_structure->
-				reoccurring_structure->
-				reoccurring_transaction_list,
-			bank_upload_structure->
-				existing_cash_journal_ledger_list,
-			bank_upload_structure->
-				uncleared_checks_transaction_list );
-
-		bank_upload_transaction_table_display(
-			bank_upload_structure->
-				file.
-				bank_upload_file_list );
-
-		*transaction_count =
-			bank_upload_feeder_phrase_match_transaction_count(
-				bank_upload_structure->
-				file.
-				bank_upload_file_list );
-	}
-	else
-	/* ------------ */
-	/* Else execute */
-	/* ------------ */
-	{
-		/* ------------------------------------ */
-		/* Sets bank_upload->transaction	*/
-		/* and  bank_upload->bank_upload_status */
-		/* ------------------------------------ */
-		bank_upload_set_transaction(
-			bank_upload_structure->file.bank_upload_file_list,
-			application_name,
-			fund_name,
-			bank_upload_structure->
-				reoccurring_structure->
-				reoccurring_transaction_list,
-			bank_upload_structure->
-				existing_cash_journal_ledger_list,
-			bank_upload_structure->
-				uncleared_checks_transaction_list );
-
-		/* ------------------------------------------ */
-		/* Insert into TRANSACTION and JOURNAL_LEDGER */
-		/* ------------------------------------------ */
-		/* Note: this is the bottleneck.	      */
-		/* ------------------------------------------ */
-		bank_upload_transaction_insert(
-			application_name,
-			bank_upload_structure->file.bank_upload_file_list );
-
-		bank_upload_transaction_table_display(
-			bank_upload_structure->file.bank_upload_file_list );
-
-		*transaction_count =
-			bank_upload_feeder_phrase_match_transaction_count(
-				bank_upload_structure->
-				file.
-				bank_upload_file_list );
-	}
-
-	if ( list_length( bank_upload_structure->file.error_line_list ) )
-	{
-		printf( "<h3>Errors:</h3>\n" );
-
-		list_display_lines(
-			bank_upload_structure->
-				file.
-				error_line_list );
-
-		printf( "\n" );
-	}
-
-	return 0;
-
-} /* load_bank_spreadsheet_transactions_only() */
-
-void bank_upload_propagate( char *minimum_bank_date )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		"bank_upload_sequence_propagate.sh \"%s\" | sql.e",
-		 minimum_bank_date );
-
-	if ( system( sys_string ) ) {};
-
-	sprintf( sys_string,
-		 "bank_upload_balance_propagate.sh \"%s\" | sql.e",
-		 minimum_bank_date );
-
-	if ( system( sys_string ) ) {};
-
-} /* bank_upload_propagate() */
 
 /* ---------------------------------------------------- */
 /* If display then it returns file_row_count.		*/
@@ -504,13 +308,16 @@ int load_bank_spreadsheet(
 	{
 		char *msg;
 
-		msg = "<h3>ERROR: duplicated file.</h3>";
+		if ( execute )
+			msg = "<h3>ERROR: duplicated file.</h3>";
+		else
+			msg = "<h3>Warning: duplicated file.</h3>";
 
 		printf( "%s\n", msg );
 
 		bank_upload_exception = duplicated_spreadsheet_file;
 
-		return 0;
+		execute = 0;
 	}
 
 	if ( !execute )
@@ -532,10 +339,16 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				uncleared_checks_transaction_list );
 
-		bank_upload_match_sum_existing_journal_ledger_list(
-			bank_upload_structure->file.bank_upload_file_list,
-			bank_upload_structure->
-				existing_cash_journal_ledger_list );
+		if ( list_length( 
+			bank_upload_structure->file.bank_upload_file_list ) )
+		{
+			bank_upload_match_sum_existing_journal_ledger_list(
+				bank_upload_structure->
+					file.
+					bank_upload_file_list,
+				bank_upload_structure->
+					existing_cash_journal_ledger_list );
+		}
 
 		bank_upload_table_display(
 			application_name,
@@ -612,6 +425,17 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				uncleared_checks_transaction_list );
 
+		if ( list_length( 
+			bank_upload_structure->file.bank_upload_file_list ) )
+		{
+			bank_upload_match_sum_existing_journal_ledger_list(
+				bank_upload_structure->
+					file.
+					bank_upload_file_list,
+				bank_upload_structure->
+					existing_cash_journal_ledger_list );
+		}
+
 		/* ------------------------------------------ */
 		/* Insert into TRANSACTION and JOURNAL_LEDGER */
 		/* ------------------------------------------ */
@@ -664,6 +488,9 @@ int load_bank_spreadsheet(
 			file.
 			minimum_bank_date;
 
+	if ( bank_upload_exception == duplicated_spreadsheet_file )
+		return 0;
+	else
 	if ( !execute )
 		return bank_upload_structure->file.file_row_count;
 	else

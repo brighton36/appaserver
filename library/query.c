@@ -269,7 +269,7 @@ QUERY *query_folder_new(	char *application_name,
 
 	query->login_name = login_name;
 	query->dictionary = dictionary;
-	query->max_rows = 0;
+	query->max_rows = QUERY_MAX_ROWS;
 
 	query->prompt_recursive =
 		prompt_recursive_new(

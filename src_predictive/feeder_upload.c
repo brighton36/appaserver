@@ -302,6 +302,74 @@ JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger(
 
 }
 
+TRANSACTION *feeder_phrase_match_build_transaction(
+				LIST *reoccurring_transaction_list,
+				char *bank_date,
+				char *bank_description_embedded,
+				double abs_bank_amount )
+{
+	REOCCURRING_TRANSACTION *reoccurring_transaction;
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( ! ( reoccurring_transaction =
+				reoccurring_seek_bank_upload_feeder_phrase(
+					reoccurring_transaction_list,
+					bank_description_embedded ) ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	transaction =
+		ledger_transaction_new(
+			reoccurring_transaction->full_name,
+			reoccurring_transaction->street_address,
+			ledger_get_transaction_date_time(
+				bank_date /* transaction_date */ ),
+			(char *)0 /* memo */ );
+
+	transaction->transaction_amount = abs_bank_amount;
+
+	transaction->journal_ledger_list = list_new();
+
+	/* Set the debit account */
+	/* --------------------- */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			reoccurring_transaction->debit_account );
+
+	journal_ledger->debit_amount = transaction->transaction_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	/* Set the credit account */
+	/* ---------------------- */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			reoccurring_transaction->credit_account );
+
+	journal_ledger->credit_amount =
+		transaction->transaction_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+
+	return transaction;
+
+} /* feeder_phrase_match_build_transaction() */
+
+/* Sets journal_ledger->match_sum_taken */
+/* ------------------------------------ */
 LIST *feeder_match_sum_existing_journal_ledger_list(
 				LIST *existing_cash_journal_ledger_list,
 				double abs_bank_amount,
@@ -339,13 +407,17 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 			list_get_pointer( 
 				existing_cash_journal_ledger_list );
 
-		fprintf( output_pipe,
-			 "%s^%s^%s|%.2lf\n",
-			 journal_ledger->full_name,
-			 journal_ledger->street_address,
-			 journal_ledger->transaction_date_time,
-			 (check_debit)	? journal_ledger->debit_amount
+		if ( !journal_ledger->match_sum_taken )
+		{
+			fprintf( output_pipe,
+			 	"%s^%s^%s|%.2lf\n",
+			 	journal_ledger->full_name,
+			 	journal_ledger->street_address,
+			 	journal_ledger->transaction_date_time,
+			 	(check_debit)
+					? journal_ledger->debit_amount
 					: journal_ledger->credit_amount );
+		}
 		
 	} while ( list_next( existing_cash_journal_ledger_list ) );
 
@@ -417,6 +489,8 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 			exit( 1 );
 		}
 
+		journal_ledger->match_sum_taken = 1;
+
 		list_append_pointer( return_list, journal_ledger );
 
 	} while ( list_next( name_string_list ) );
@@ -424,70 +498,4 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 	return return_list;
 
 } /* feeder_match_sum_existing_journal_ledger_list() */
-
-TRANSACTION *feeder_phrase_match_build_transaction(
-				LIST *reoccurring_transaction_list,
-				char *bank_date,
-				char *bank_description_embedded,
-				double abs_bank_amount )
-{
-	REOCCURRING_TRANSACTION *reoccurring_transaction;
-	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
-
-	if ( ! ( reoccurring_transaction =
-				reoccurring_seek_bank_upload_feeder_phrase(
-					reoccurring_transaction_list,
-					bank_description_embedded ) ) )
-	{
-		return (TRANSACTION *)0;
-	}
-
-	transaction =
-		ledger_transaction_new(
-			reoccurring_transaction->full_name,
-			reoccurring_transaction->street_address,
-			ledger_get_transaction_date_time(
-				bank_date /* transaction_date */ ),
-			(char *)0 /* memo */ );
-
-	transaction->transaction_amount = abs_bank_amount;
-
-	transaction->journal_ledger_list = list_new();
-
-	/* Set the debit account */
-	/* --------------------- */
-	journal_ledger =
-		journal_ledger_new(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			reoccurring_transaction->debit_account );
-
-	journal_ledger->debit_amount = transaction->transaction_amount;
-
-	list_append_pointer(
-		transaction->journal_ledger_list,
-		journal_ledger );
-
-	/* Set the credit account */
-	/* ---------------------- */
-	journal_ledger =
-		journal_ledger_new(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			reoccurring_transaction->credit_account );
-
-	journal_ledger->credit_amount =
-		transaction->transaction_amount;
-
-	list_append_pointer(
-		transaction->journal_ledger_list,
-		journal_ledger );
-
-
-	return transaction;
-
-} /* feeder_phrase_match_build_transaction() */
 

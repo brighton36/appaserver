@@ -92,6 +92,7 @@ typedef struct
 	char *memo;
 	char *property_street_address;
 	int check_number;
+	boolean match_sum_taken;
 } JOURNAL_LEDGER;
 
 typedef struct

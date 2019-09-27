@@ -2984,6 +2984,9 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 
 		bank_upload->
 			feeder_match_sum_existing_journal_ledger_list =
+			/* ------------------------------------ */
+			/* Sets journal_ledger->match_sum_taken */
+			/* ------------------------------------ */
 			feeder_match_sum_existing_journal_ledger_list(
 				existing_cash_journal_ledger_list,
 				float_abs( bank_upload->bank_amount ),
@@ -2998,6 +3001,9 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 
 		bank_upload->
 			feeder_match_sum_existing_journal_ledger_list =
+			/* ------------------------------------ */
+			/* Sets journal_ledger->match_sum_taken */
+			/* ------------------------------------ */
 			feeder_match_sum_existing_journal_ledger_list(
 				existing_cash_journal_ledger_list,
 				float_abs( bank_upload->bank_amount ),

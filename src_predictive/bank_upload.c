@@ -1170,8 +1170,12 @@ LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 
 } /* bank_upload_fetch_existing_cash_journal_ledger_list() */
 
-/* Sets bank_upload->transaction and bank_upload->bank_upload_status */
-/* ----------------------------------------------------------------- */
+/* ------------------------------------------------------------ */
+/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
+/*      bank_upload->feeder_check_number_existing_journal_ledger*/
+/*      bank_upload->bank_upload_status				*/
+/*      existing_cash_journal_ledger->match_sum_taken = 1	*/
+/* ------------------------------------------------------------ */
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
 				char *application_name,
@@ -1180,11 +1184,6 @@ void bank_upload_set_transaction(
 				LIST *existing_cash_journal_ledger_list,
 				LIST *uncleared_checks_transaction_list )
 {
-	bank_upload_set_reoccurring_transaction(
-		bank_upload_list,
-		reoccurring_transaction_list,
-		existing_cash_journal_ledger_list );
-
 	bank_upload_set_purchase_order_check(
 		bank_upload_list,
 		application_name,
@@ -1195,10 +1194,15 @@ void bank_upload_set_transaction(
 		bank_upload_list,
 		existing_cash_journal_ledger_list );
 
+	bank_upload_set_reoccurring_transaction(
+		bank_upload_list,
+		reoccurring_transaction_list,
+		existing_cash_journal_ledger_list );
+
 } /* bank_upload_set_transaction() */
 
 /* ----------------------------------------------------------------	*/
-/* Sets bank_upload->cleared_journal_ledger				*/
+/* Sets bank_upload->feeder_check_number_existing_journal_ledger	*/
 /* Sets bank_upload->bank_upload_status = bank_upload_cleared_check	*/
 /* ----------------------------------------------------------------	*/
 void bank_upload_set_purchase_order_check(
@@ -1254,15 +1258,19 @@ void bank_upload_set_purchase_order_check(
 
 		journal_ledger->account_name = cash_account;
 		bank_upload->bank_upload_status = bank_upload_cleared_check;
-		bank_upload->cleared_journal_ledger = journal_ledger;
+
+		bank_upload->
+			feeder_check_number_existing_journal_ledger =
+				journal_ledger;
 
 	} while( list_next( bank_upload_list ) );
 
 } /* bank_upload_set_purchase_order_check() */
 
 /* --------------------------------------------------------------------- */
-/* Sets bank_upload->cleared_journal_ledger				 */
+/* Sets bank_upload->feeder_check_number_existing_journal_ledger	 */
 /* Sets bank_upload->bank_upload_status = bank_upload_check_number_match */
+/* Sets existing_cash_journal_ledger->match_sum_taken = 1		 */
 /* --------------------------------------------------------------------- */
 void bank_upload_set_non_purchase_order_check(
 				LIST *bank_upload_list,
@@ -1283,10 +1291,14 @@ void bank_upload_set_non_purchase_order_check(
 					existing_cash_journal_ledger_list,
 					bank_upload->check_number ) ) )
 		{
-			bank_upload->cleared_journal_ledger = journal_ledger;
+			bank_upload->
+				feeder_check_number_existing_journal_ledger =
+					journal_ledger;
 
 			bank_upload->bank_upload_status =
 				bank_upload_check_number_match;
+
+			journal_ledger->match_sum_taken = 1;
 		}
 
 	} while( list_next( bank_upload_list ) );
@@ -1294,7 +1306,7 @@ void bank_upload_set_non_purchase_order_check(
 } /* bank_upload_set_non_purchase_order_check() */
 
 /* ----------------------------------------------------------------------- */
-/* Sets bank_upload->transaction					   */
+/* Sets bank_upload->feeder_phrase_match_build_transaction		   */
 /* Sets bank_upload->bank_upload_status = bank_upload_existing_transaction */
 /* Sets bank_upload->bank_upload_status = bank_upload_feeder_phrase_match  */
 /* ----------------------------------------------------------------------- */
@@ -1476,7 +1488,8 @@ void bank_upload_table_display(
 				bank_upload->bank_upload_status,
 				bank_upload->
 					feeder_phrase_match_build_transaction,
-				bank_upload->cleared_journal_ledger,
+				bank_upload->
+				    feeder_check_number_existing_journal_ledger,
 				match_sum_journal_ledger_list ),
 			 bank_upload->bank_date,
 			 bank_upload->bank_description_embedded,
@@ -1526,10 +1539,11 @@ void bank_upload_transaction_text_display( LIST *bank_upload_list )
 					journal_ledger_list );
 		}
 		else
-		if ( bank_upload->cleared_journal_ledger )
+		if ( bank_upload->feeder_check_number_existing_journal_ledger )
 		{
 			bank_upload_journal_ledger_text_display(
-				bank_upload->cleared_journal_ledger );
+				bank_upload->
+				  feeder_check_number_existing_journal_ledger );
 		}
 
 	} while( list_next( bank_upload_list ) );
@@ -2624,20 +2638,22 @@ void bank_upload_transaction_balance_propagate(
 } /* bank_upload_transaction_balance_propagate() */
 
 char *bank_upload_get_account_html(
-			char *application_name,
-			enum bank_upload_status bank_upload_status,
-			TRANSACTION *feeder_phrase_match_build_transaction,
-			JOURNAL_LEDGER *cleared_journal_ledger,
-			LIST *match_sum_existing_journal_ledger_list )
+		char *application_name,
+		enum bank_upload_status bank_upload_status,
+		TRANSACTION *feeder_phrase_match_build_transaction,
+		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger,
+		LIST *match_sum_existing_journal_ledger_list )
 {
-	if ( cleared_journal_ledger )
+	if ( feeder_check_number_existing_journal_ledger )
 	{
 		char buffer[ 256 ];
 
 		sprintf( buffer,
 			 "Check #%d %s",
-			 cleared_journal_ledger->check_number,
-			 cleared_journal_ledger->full_name );
+			 feeder_check_number_existing_journal_ledger->
+				check_number,
+			 feeder_check_number_existing_journal_ledger->
+				full_name );
 
 		return strdup( buffer );
 	}
@@ -2822,9 +2838,10 @@ void bank_upload_cleared_checks_update(
 	do {
 		bank_upload = list_get_pointer( bank_upload_table_list );
 
-		if ( bank_upload->cleared_journal_ledger )
+		if ( bank_upload->feeder_check_number_existing_journal_ledger )
 		{
-			a = bank_upload->cleared_journal_ledger;
+			a = bank_upload->
+				feeder_check_number_existing_journal_ledger;
 
 			fprintf( output_pipe,
 				 "%s^%s^%s^%s^account^%s\n",
@@ -2864,7 +2881,7 @@ void bank_upload_journal_ledger_text_display(
 	if ( !journal_ledger )
 	{
 		fprintf( stderr,
-"Error in %s/%s()/%d: empty cleared_journal_ledger.\n",
+			 "Error in %s/%s()/%d: empty journal_ledger.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -3060,21 +3077,21 @@ void bank_upload_direct_bank_upload_transaction_insert(
 					transaction_date_time );
 		}
 		else
-		if ( bank_upload->cleared_journal_ledger )
+		if ( bank_upload->feeder_check_number_existing_journal_ledger )
 		{
 			fprintf( output_pipe,
 			 	"%s^%s^%s^%s^%s\n",
 			 	bank_upload->bank_date,
 			 	bank_upload->bank_description_embedded,
 			 	bank_upload->
-					cleared_journal_ledger->
+				   feeder_check_number_existing_journal_ledger->
 					full_name,
 			 	bank_upload->
-					cleared_journal_ledger->
+				   feeder_check_number_existing_journal_ledger->
 					street_address,
 			 	bank_upload->
-					cleared_journal_ledger->
-						transaction_date_time );
+				   feeder_check_number_existing_journal_ledger->
+					transaction_date_time );
 		}
 		else
 		if ( list_rewind(

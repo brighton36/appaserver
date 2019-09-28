@@ -322,11 +322,12 @@ int load_bank_spreadsheet(
 
 	if ( !execute )
 	{
-		/* -------------------------------------------- */
-		/* Sets bank_upload->				*/
-		/*	feeder_phrase_match_build_transaction	*/
-		/* and  bank_upload->bank_upload_status		*/
-		/* ------------------------------------------- */
+	/* ------------------------------------------------------------ */
+	/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
+	/*      bank_upload->feeder_check_number_existing_journal_ledger*/
+	/*      bank_upload->bank_upload_status				*/
+	/*      existing_cash_journal_ledger->match_sum_taken = 1	*/
+	/* ------------------------------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
 			application_name,
@@ -409,10 +410,12 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				bank_upload_date_time );
 
-		/* ------------------------------------ */
-		/* Sets bank_upload->transaction	*/
-		/* and  bank_upload->bank_upload_status */
-		/* ------------------------------------ */
+	/* ------------------------------------------------------------ */
+	/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
+	/*      bank_upload->feeder_check_number_existing_journal_ledger*/
+	/*      bank_upload->bank_upload_status				*/
+	/*      existing_cash_journal_ledger->match_sum_taken = 1	*/
+	/* ------------------------------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
 			application_name,

@@ -66,8 +66,8 @@ typedef struct
 	int check_number;
 	TRANSACTION *feeder_phrase_match_build_transaction;
 	LIST *reconciled_transaction_list;
-	JOURNAL_LEDGER *cleared_journal_ledger;
 	LIST *feeder_match_sum_existing_journal_ledger_list;
+	JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger;
 	enum bank_upload_status bank_upload_status;
 } BANK_UPLOAD;
 
@@ -173,8 +173,12 @@ LIST *bank_upload_fetch_uncleared_checks_transaction_list(
 					char *minimum_transaction_date,
 					char *fund_name );
 
-/* Sets bank_upload->transaction and bank_upload->bank_upload_status */
-/* ----------------------------------------------------------------- */
+/* ------------------------------------------------------------ */
+/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
+/*      bank_upload->feeder_check_number_existing_journal_ledger*/
+/*      bank_upload->bank_upload_status				*/
+/*      existing_cash_journal_ledger->match_sum_taken = 1	*/
+/* ------------------------------------------------------------ */
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
 				char *application_name,
@@ -367,11 +371,11 @@ void bank_upload_transaction_balance_propagate(
 					char *bank_date );
 
 char *bank_upload_get_account_html(
-			char *application_name,
-			enum bank_upload_status,
-			TRANSACTION *feeder_phrase_match_build_transaction,
-			JOURNAL_LEDGER *cleared_journal_ledger,
-			LIST *match_sum_existing_journal_ledger_list );
+		char *application_name,
+		enum bank_upload_status,
+		TRANSACTION *feeder_phrase_match_build_transaction,
+		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger,
+		LIST *match_sum_existing_journal_ledger_list );
 
 char *bank_upload_description_crop(	char *bank_description );
 
@@ -411,7 +415,7 @@ void bank_upload_cleared_checks_update(
 				LIST *bank_upload_table_list );
 
 void bank_upload_cleared_journal_text_display(
-				JOURNAL_LEDGER *cleared_journal_ledger );
+		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger );
 
 char *bank_upload_get_insert_bank_upload_filename(
 				char *bank_upload_filename );

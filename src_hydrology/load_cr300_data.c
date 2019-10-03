@@ -247,7 +247,6 @@ int load_cr300_filespecification(
 			char *station,
 			char execute_yn )
 {
-	char *table_name;
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
 	FILE *output_pipe;
@@ -274,16 +273,11 @@ int load_cr300_filespecification(
 
 	if ( execute_yn == 'y' )
 	{
-		table_name =
-			get_table_name(
-				application_name,
-				"measurement" );
-
 		sprintf(sys_string,
 	"insert_statement.e table=%s field=%s del='^' replace=y	|"
 		 	"sql.e 2>&1				|"
 		 	"cat >> %s			 	 ",
-		 	table_name,
+		 	"measurement",
 		 	measurement_insert_field_list_string,
 			error_filespecification );
 

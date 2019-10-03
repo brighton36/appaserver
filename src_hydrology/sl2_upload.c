@@ -1,6 +1,7 @@
 /* --------------------------------------------------- 	*/
 /* $APPASERVER_HOME/src_hydrology/sl2_upload.c	       	*/
 /* --------------------------------------------------- 	*/
+/* Note: links to sl3_upload				*/
 /* 						       	*/
 /* Freely available software: see Appaserver.org	*/
 /* --------------------------------------------------- 	*/

@@ -126,15 +126,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-/*
-	if ( execute )
-	{
-		delete_measurement(	application_name,
-					input_filename,
-					station );
-	}
-*/
-
 	load_count =
 		load_measurement(
 			application_name,
@@ -180,7 +171,6 @@ int load_measurement(	char *application_name,
 	char *shef_code;
 	char measurement_value[ 128 ];
 	int value_piece;
-	char *measurement_table_name;
 	char measurement_date[ 128 ];
 	char measurement_time[ 128 ];
 	char error_filename[ 128 ];
@@ -209,11 +199,8 @@ int load_measurement(	char *application_name,
 	}
 
 	trim_index(	basename_filename,
-			basename_get_filename( input_filename ) );
-
-	measurement_table_name =
-		get_table_name(	application_name,
-				"measurement" );
+			basename_get_filename(
+				input_filename ) );
 
 	if ( execute )
 	{
@@ -222,7 +209,7 @@ int load_measurement(	char *application_name,
 		 "shef_upload_datatype_convert %d %d '%c'		  |"
 		 "count.e %d 'LT Load count'				  |"
 		 "piece_inverse.e %d '%c'				  |"
-		 "insert_statement table=%s field=%s del='%c' replace=n   |"
+		 "insert_statement.e table=%s field=%s del='%c' replace=y |"
 		 "sql.e 2>&1						  |"
 		 "html_paragraph_wrapper.e				   ",
 		 SHEF_CONVERT_STATION_PIECE,
@@ -231,7 +218,7 @@ int load_measurement(	char *application_name,
 		 STDERR_COUNT,
 		 SHEF_CONVERT_CODE_PIECE,
 		 SHEF_CONVERT_DELIMITER,
-		 measurement_table_name,
+		 "measurement",
 		 INSERT_MEASUREMENT,
 		 SHEF_CONVERT_DELIMITER );
 
@@ -365,120 +352,6 @@ int load_measurement(	char *application_name,
 	return load_count;
 
 } /* load_measurement() */
-
-#define DELETE_FIELD_LIST	\
-	"station,datatype,measurement_date,measurement_time"
-
-#ifdef NOT_DEFINED
-void delete_measurement(	char *application_name,
-				char *input_filename,
-				char *station )
-{
-
-	FILE *input_file;
-	FILE *collection_delete_pipe;
-	FILE *results_delete_pipe;
-	char sys_string[ 1024 ];
-	char input_string[ 4096 ];
-	char *table_name;
-	char station[ 128 ];
-	char collection_date_international[ 128 ];
-	char depth_meters[ 128 ];
-	char longitude[ 128 ];
-	char latitude[ 128 ];
-	char collection_time_without_colon[ 128 ];
-
-	/* Collection */
-	/* ---------- */
-	table_name =
-		get_table_name(
-			application_name, "collection" );
-
-	sprintf( sys_string,
-		 "sort -u						|"
-		 "delete_statement.e t=%s f=%s d='|'			|"
-		 "sql.e 2>&1						|"
-		 "html_paragraph_wrapper.e				 ",
-		 table_name,
-		 DELETE_FIELD_LIST );
-
-	collection_delete_pipe = popen( sys_string, "w" );
-
-	/* Results */
-	/* ------- */
-	table_name =
-		get_table_name(
-			application_name, "results" );
-
-	sprintf( sys_string,
-		 "sort -u						|"
-		 "delete_statement.e t=%s f=%s d='|'			|"
-		 "count.e %d 'WQ delete collection count'		|"
-		 "sql.e 2>&1						|"
-		 "html_paragraph_wrapper.e				 ",
-		 table_name,
-		 DELETE_FIELD_LIST,
-		 STDERR_COUNT );
-
-	results_delete_pipe = popen( sys_string, "w" );
-
-	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
-	{
-		pclose( collection_delete_pipe );
-		pclose( results_delete_pipe );
-		fprintf( stderr, "File open error: %s\n", input_filename );
-		exit( 1 );
-	}
-
-	/* Skip the header */
-	/* --------------- */
-	if ( !get_line( input_string, input_file ) )
-	{
-		pclose( collection_delete_pipe );
-		pclose( results_delete_pipe );
-		return;
-	}
-
-	while( get_line( input_string, input_file ) )
-	{
-		trim( input_string );
-		if ( !*input_string ) continue;
-
-		if ( !extract_station_collection_attributes(
-			(char **)0,
-			station,
-			collection_date_international,
-			collection_time_without_colon,
-			depth_meters,
-			longitude,
-			latitude,
-			input_string,
-			water_quality->load_column_list,
-			application_name ) )
-		{
-			continue;
-		}
-
-		fprintf( collection_delete_pipe,
-			 "%s|%s|%s\n",
-			 station,
-			 collection_date_international,
-			 collection_time_without_colon );
-
-		fprintf( results_delete_pipe,
-			 "%s|%s|%s\n",
-			 station,
-			 collection_date_international,
-			 collection_time_without_colon );
-	}
-
-	fclose( input_file );
-	pclose( collection_delete_pipe );
-	pclose( results_delete_pipe );
-
-
-} /* delete_measurement() */
-#endif
 
 boolean extract_static_attributes(
 			char **error_message,

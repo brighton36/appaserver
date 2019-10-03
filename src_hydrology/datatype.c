@@ -646,56 +646,6 @@ boolean datatype_get_bypass_data_collection_frequency(
 
 } /* datatype_get_bypass_data_collection_frequency() */
 
-#ifdef NOT_DEFINED
-DATATYPE *datatype_list_ysi_load_heading_seek(
-			LIST *datatype_list,
-			char *two_line_datatype_heading )
-{
-	DATATYPE *datatype;
-
-	if ( !list_rewind( datatype_list ) ) return (DATATYPE *)0;
-
-	do {
-		datatype = list_get_pointer( datatype_list );
-
-		if ( timlib_strcmp(
-			two_line_datatype_heading,
-			datatype->ysi_load_heading ) == 0 )
-		{
-			return datatype;
-		}
-
-	} while( list_next( datatype_list ) );
-
-	return (DATATYPE *)0;
-
-} /* datatype_list_ysi_load_heading_seek() */
-
-DATATYPE *datatype_list_exo_load_heading_seek(
-			LIST *datatype_list,
-			char *two_line_datatype_heading )
-{
-	DATATYPE *datatype;
-
-	if ( !list_rewind( datatype_list ) ) return (DATATYPE *)0;
-
-	do {
-		datatype = list_get_pointer( datatype_list );
-
-		if ( timlib_strcmp(
-			two_line_datatype_heading,
-			datatype->exo_load_heading ) == 0 )
-		{
-			return datatype;
-		}
-
-	} while( list_next( datatype_list ) );
-
-	return (DATATYPE *)0;
-
-} /* datatype_list_exo_load_heading_seek() */
-#endif
-
 LIST *datatype_list_get_unique_unit_list(
 			LIST *datatype_list )
 {

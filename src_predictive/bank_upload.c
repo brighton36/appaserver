@@ -2999,6 +2999,8 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
 
+		if ( bank_upload->check_number ) continue;
+
 		bank_upload->
 			feeder_match_sum_existing_journal_ledger_list =
 			/* ------------------------------------ */

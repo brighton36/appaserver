@@ -2988,6 +2988,10 @@ char *bank_upload_journal_ledger_list_html(
 
 } /* bank_upload_journal_ledger_list_html() */
 
+/* ---------------------------------------------------- */
+/* Checks feeder_phrase_match_build_transaction		*/
+/*    and feeder_check_number_existing_journal_ledger	*/
+/* ---------------------------------------------------- */
 void bank_upload_match_sum_existing_journal_ledger_list(
 			LIST *bank_upload_list,
 			LIST *existing_cash_journal_ledger_list )
@@ -2999,7 +3003,13 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
 
-		if ( bank_upload->check_number ) continue;
+		/* Ignore if check or feeder phrase match */
+		/* -------------------------------------- */
+		if ( bank_upload->feeder_check_number_existing_journal_ledger )
+			continue;
+
+		if ( bank_upload->feeder_phrase_match_build_transaction )
+			continue;
 
 		bank_upload->
 			feeder_match_sum_existing_journal_ledger_list =
@@ -3009,6 +3019,7 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 			feeder_match_sum_existing_journal_ledger_list(
 				existing_cash_journal_ledger_list,
 				float_abs( bank_upload->bank_amount ),
+				bank_upload->bank_date,
 				1 /* check_debit */ );
 
 		if ( list_length(
@@ -3026,6 +3037,7 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 			feeder_match_sum_existing_journal_ledger_list(
 				existing_cash_journal_ledger_list,
 				float_abs( bank_upload->bank_amount ),
+				bank_upload->bank_date,
 				0 /* not check_debit */ );
 
 	} while ( list_next( bank_upload_list ) );

@@ -439,6 +439,10 @@ int bank_upload_get_file_row_count(
 char *bank_upload_journal_ledger_list_html(
 			LIST *match_sum_existing_journal_ledger_list );
 
+/* ---------------------------------------------------- */
+/* Checks feeder_phrase_match_build_transaction		*/
+/*    and feeder_check_number_existing_journal_ledger	*/
+/* ---------------------------------------------------- */
 void bank_upload_match_sum_existing_journal_ledger_list(
 			LIST *bank_upload_list,
 			LIST *existing_cash_journal_ledger_list );

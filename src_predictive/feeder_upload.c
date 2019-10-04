@@ -373,6 +373,7 @@ TRANSACTION *feeder_phrase_match_build_transaction(
 LIST *feeder_match_sum_existing_journal_ledger_list(
 				LIST *existing_cash_journal_ledger_list,
 				double abs_bank_amount,
+				char *bank_date,
 				boolean check_debit )
 {
 	FILE *output_pipe;
@@ -407,17 +408,24 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 			list_get_pointer( 
 				existing_cash_journal_ledger_list );
 
-		if ( !journal_ledger->match_sum_taken )
+		if ( journal_ledger->match_sum_taken )
+			continue;
+
+		if ( timlib_strncmp( 
+			journal_ledger->transaction_date_time,
+			bank_date ) > 0 )
 		{
-			fprintf( output_pipe,
-			 	"%s^%s^%s|%.2lf\n",
-			 	journal_ledger->full_name,
-			 	journal_ledger->street_address,
-			 	journal_ledger->transaction_date_time,
-			 	(check_debit)
-					? journal_ledger->debit_amount
-					: journal_ledger->credit_amount );
+			continue;
 		}
+
+		fprintf(output_pipe,
+		 	"%s^%s^%s|%.2lf\n",
+			journal_ledger->full_name,
+			journal_ledger->street_address,
+			journal_ledger->transaction_date_time,
+			(check_debit)
+				? journal_ledger->debit_amount
+				: journal_ledger->credit_amount );
 		
 	} while ( list_next( existing_cash_journal_ledger_list ) );
 

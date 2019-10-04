@@ -3019,6 +3019,7 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 			feeder_match_sum_existing_journal_ledger_list(
 				existing_cash_journal_ledger_list,
 				float_abs( bank_upload->bank_amount ),
+				bank_upload->bank_date,
 				1 /* check_debit */ );
 
 		if ( list_length(
@@ -3036,6 +3037,7 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 			feeder_match_sum_existing_journal_ledger_list(
 				existing_cash_journal_ledger_list,
 				float_abs( bank_upload->bank_amount ),
+				bank_upload->bank_date,
 				0 /* not check_debit */ );
 
 	} while ( list_next( bank_upload_list ) );

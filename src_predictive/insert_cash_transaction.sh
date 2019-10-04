@@ -67,6 +67,25 @@ then
 	exit 1
 fi
 
+
+# Check for duplication
+# ---------------------
+full_name_escaped=`echo $full_name | escape_character.e "'"`
+
+from=transaction
+
+where="full_name = '$full_name_escaped' and street_address = '$street_address' and transaction_date_time like '$transaction_date %' and transaction_amount = $transaction_amount"
+
+results=`echo "select count(1) from $from where $where;" | sql.e`
+
+if [ "$results" -ge 1 ]
+then
+	echo "<h3>Duplication Error</h3>"
+	echo "</body>"
+	echo "</html>"
+	exit 0
+fi
+
 # Build transaction_date_time
 # ---------------------------
 transaction_date_time="${transaction_date} `now.sh seconds`"

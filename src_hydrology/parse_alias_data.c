@@ -212,6 +212,20 @@ void parse_alias_filespecification(
 				continue;
 			}
 
+			if ( !*measurement_value_string
+			||   timlib_strcmp(
+				measurement_value_string,
+				"nan" ) == 0 )
+			{
+				fprintf( stderr,
+			"Datatype %s has an empty value in line %d: %s\n",
+				 	 datatype->datatype_name,
+				 	 line_number,
+				 	 input_buffer );
+				fflush( stderr );
+				continue;
+			}
+
 			measurement_value = atof( measurement_value_string );
 
 			if ( datatype->set_negative_values_to_zero

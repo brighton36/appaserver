@@ -115,7 +115,7 @@ int main( int argc, char **argv )
 
 	printf( "<h2>%s\n", format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	printf( "</h2>\n" );
 	fflush( stdout );
 
@@ -204,12 +204,18 @@ int load_measurement(	char *application_name,
 
 	if ( execute )
 	{
+/*
+#define INSERT_MEASUREMENT		\
+	"station,measurement_date,measurement_time,measurement_value,datatype"
+*/
 		sprintf(
 		 sys_string,
 		 "shef_upload_datatype_convert %d %d '%c'		  |"
 		 "count.e %d 'LT Load count'				  |"
 		 "piece_inverse.e %d '%c'				  |"
-		 "insert_statement.e table=%s field=%s del='%c' replace=y |"
+		 "tr '%c' ','						  |"
+		 "measurement_insert_order ',' 0,4,1,2,3		  |"
+		 "measurement_insert %s realdata			  |"
 		 "sql.e 2>&1						  |"
 		 "html_paragraph_wrapper.e				   ",
 		 SHEF_CONVERT_STATION_PIECE,
@@ -218,9 +224,8 @@ int load_measurement(	char *application_name,
 		 STDERR_COUNT,
 		 SHEF_CONVERT_CODE_PIECE,
 		 SHEF_CONVERT_DELIMITER,
-		 "measurement",
-		 INSERT_MEASUREMENT,
-		 SHEF_CONVERT_DELIMITER );
+		 SHEF_CONVERT_DELIMITER,
+		 application_name );
 
 		output_pipe = popen( sys_string, "w" );
 
@@ -345,7 +350,7 @@ int load_measurement(	char *application_name,
 "cat %s | queue_top_bottom_lines.e %d | html_table.e 'Errors' '' '|'",
 			 error_filename,
 			 STDERR_COUNT );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	}
 
 	remove_error_file( error_filename );
@@ -464,6 +469,6 @@ void remove_error_file( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string, "rm %s", error_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 }
 

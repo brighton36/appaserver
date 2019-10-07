@@ -120,6 +120,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		output_hydroperiod					\
 		output_annual_comparison				\
 		calculate_hydroperiod					\
+		measurement_insert_order				\
 		calculate_oxygen_solubility				\
 		merged_datasets_remove_all_but_first_heading.e		\
 		get_date_time_slot_list					\
@@ -1595,6 +1596,16 @@ calculate_hydroperiod:  calculate_hydroperiod.c				\
 		${STANDARD_LIBRARY} 					\
 		calculate_hydroperiod.c					\
 		-o calculate_hydroperiod
+
+measurement_insert_order:  measurement_insert_order.c			\
+		${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		measurement_insert_order.c				\
+		-o measurement_insert_order
 
 calculate_oxygen_solubility:  calculate_oxygen_solubility.c		\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}

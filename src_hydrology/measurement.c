@@ -716,7 +716,7 @@ MEASUREMENT_UPDATE *measurement_update_new( void )
 MEASUREMENT *measurement_parse(		char *buffer,
 					char delimiter )
 {
-	MEASUREMENT *m = measurement_calloc();
+	MEASUREMENT *m;
 	char piece_buffer[ 128 ];
 	static boolean first_time = 0;
 	static double prior_value = 0.0;
@@ -726,6 +726,7 @@ MEASUREMENT *measurement_parse(		char *buffer,
 		return (MEASUREMENT *)0;
 	}
 
+	m = measurement_calloc();
 	m->station_name = strdup( piece( piece_buffer, delimiter, buffer, 0 ) );
 	m->datatype = strdup( piece( piece_buffer, delimiter, buffer, 1 ) );
 
@@ -757,25 +758,6 @@ MEASUREMENT *measurement_parse(		char *buffer,
 	return m;
 
 } /* measurement_parse() */
-
-#ifdef NOT_DEFINED
-boolean measurement_list_update(	char *application_name,
-					LIST *measurement_list )
-{
-	return 1;
-
-} /* measurement_list_update() */
-
-MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
-					char *datatype_name /* optional */,
-					char *measurement_date,
-					char *measurement_time,
-					LIST *measurement_list )
-{
-	return (MEASUREMENT *)0;
-
-} /* measurement_list_seek() */
-#endif
 
 void measurement_change_text_output(	LIST *measurement_list,
 					char delimiter )
@@ -815,4 +797,114 @@ void measurement_change_text_output(	LIST *measurement_list,
 	} while ( list_next( measurement_list ) );
 
 } /* measurement_change_text_output() */
+
+/*
+#define MEASUREMENT_INSERT_ORDER	 "station,datatype,measurement_date,measurement_time,measurement_value"
+*/
+MEASUREMENT *measurement_variable_parse(
+					char *buffer,
+					char delimiter,
+					LIST *order_integer_list )
+{
+	MEASUREMENT *m;
+	char piece_buffer[ 128 ];
+	int *piece_offset;
+	static boolean first_time = 0;
+	static double prior_value = 0.0;
+
+	if ( timlib_character_count( delimiter, buffer ) != 4 )
+	{
+		return (MEASUREMENT *)0;
+	}
+
+	if ( list_length( order_integer_list ) != 5 )
+	{
+		return (MEASUREMENT *)0;
+	}
+
+	list_rewind( order_integer_list );
+	m = measurement_calloc();
+
+	/* Parse station */
+	/* ------------- */
+	piece_offset = (int *)list_get_pointer( order_integer_list );
+
+	m->station_name = strdup( piece(
+					piece_buffer,
+					delimiter,
+					buffer,
+					*piece_offset ) );
+
+	/* Parse datatype */
+	/* -------------- */
+	list_next( order_integer_list );
+	piece_offset = (int *)list_get_pointer( order_integer_list );
+
+	m->datatype = strdup( piece(
+					piece_buffer,
+					delimiter,
+					buffer,
+					*piece_offset ) );
+
+	/* Parse measurement_date */
+	/* ---------------------- */
+	list_next( order_integer_list );
+	piece_offset = (int *)list_get_pointer( order_integer_list );
+
+	m->measurement_date = strdup( piece(
+					piece_buffer,
+					delimiter,
+					buffer,
+					*piece_offset ) );
+
+	/* Parse measurement_time */
+	/* ---------------------- */
+	list_next( order_integer_list );
+	piece_offset = (int *)list_get_pointer( order_integer_list );
+
+	m->measurement_time = strdup( piece(
+					piece_buffer,
+					delimiter,
+					buffer,
+					*piece_offset ) );
+
+	/* Parse measurement_value */
+	/* ----------------------- */
+	list_next( order_integer_list );
+	piece_offset = (int *)list_get_pointer( order_integer_list );
+
+	m->value_string = strdup( piece(
+					piece_buffer,
+					delimiter,
+					buffer,
+					*piece_offset ) );
+
+	if ( !*m->value_string )
+		m->null_value = 1;
+	else
+		m->measurement_value = atof( m->value_string );
+
+	if ( first_time )
+	{
+		first_time = 0;
+	}
+	else
+	{
+		m->delta_value = m->measurement_value - prior_value;
+	}
+
+	if ( first_time )
+	{
+		first_time = 0;
+	}
+	else
+	{
+		m->delta_value = m->measurement_value - prior_value;
+	}
+
+	prior_value = m->measurement_value;
+
+	return m;
+
+} /* measurement_variable_parse() */
 

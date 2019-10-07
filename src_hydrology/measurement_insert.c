@@ -34,42 +34,25 @@ int main( int argc, char **argv )
 	char *begin_measurement_date = {0};
 	FILE *input_pipe;
 
-	if ( argc != 4 )
-	{
-		fprintf(stderr,
-"Usage: echo \"station,datatype,date,time,value\" | %s application cr10|shef|realdata really_yn\n", 
-			argv[ 0 ] );
-		exit( 1 );
-	}
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
+	if ( argc != 4 )
+	{
+		fprintf(stderr,
+"Usage: echo \"station,datatype,date,time,value\" | %s ignored cr10|shef|realdata really_yn\n", 
+			argv[ 0 ] );
+		exit( 1 );
+	}
+
 	load_process = argv[ 2 ];
 	really_yn = *argv[ 3 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
 
 	m = measurement_structure_new( application_name );
 	measurement_frequency = measurement_frequency_new();

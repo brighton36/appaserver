@@ -197,4 +197,9 @@ MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
 void measurement_change_text_output(	LIST *measurement_list,
 					char delimiter );
 
+MEASUREMENT *measurement_variable_parse(
+					char *buffer,
+					char delimiter,
+					LIST *order_integer_list );
+
 #endif

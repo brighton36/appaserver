@@ -41,14 +41,16 @@ void measurement_open_input_process( 	MEASUREMENT_STRUCTURE *m,
 					char *load_process,
 					int really_yn )
 {
-	int delete_measurements_day;
+	int delete_measurements_day = 0;
 
 	m->load_process = load_process;
 
+/*
 	if ( strcmp( load_process, "realdata" ) == 0 )
 		delete_measurements_day = 1;
 	else
 		delete_measurements_day = 0;
+*/
 
 	m->insert_pipe = 
 		measurement_open_insert_pipe(	m->application_name,
@@ -333,15 +335,12 @@ FILE *measurement_open_insert_pipe(	char *application_name,
 	}
 
 	sprintf(sys_string,
-		"%s						|"
-		"insert_statement.e %s 'station,		 "
-		"			datatype,		 "
-		"			measurement_date,	 "
-		"			measurement_time,	 "
-		"			measurement_value'	|"
-		"sql.e 						 ",
+		"%s							|"
+		"insert_statement.e table=%s field=%s del='|' replace=y |"
+		"sql.e 						 	 ",
 		delete_measurements_day_process,
-		table_name );
+		table_name,
+		MEASUREMENT_INSERT_LIST );
 
 	return popen( sys_string, "w" );
 

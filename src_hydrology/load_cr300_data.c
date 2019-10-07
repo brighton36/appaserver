@@ -51,7 +51,6 @@ void load_cr300_datatype_list_display( LIST *datatype_list );
 /* ------------------------- */
 int load_cr300_filespecification(	char *error_filespecification,
 					LIST *datatype_list,
-					char *application_name,
 					char *input_filespecification,
 					char *station,
 					char execute_yn );
@@ -199,7 +198,6 @@ int main( int argc, char **argv )
 		load_cr300_filespecification(
 			error_filespecification,
 			datatype_list,
-			application_name,
 			input_filespecification,
 			station,
 			execute_yn );
@@ -242,7 +240,6 @@ int main( int argc, char **argv )
 int load_cr300_filespecification(
 			char *error_filespecification,
 			LIST *datatype_list,
-			char *application_name,
 			char *input_filespecification,
 			char *station,
 			char execute_yn )
@@ -250,7 +247,6 @@ int load_cr300_filespecification(
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
 	FILE *output_pipe;
-	char *measurement_insert_field_list_string;
 	int measurement_count;
 	char input_buffer[ 1024 ];
 	char datatype_name[ 128 ];
@@ -268,27 +264,21 @@ int load_cr300_filespecification(
 
 	/* Open output pipe */
 	/* ---------------- */
-	measurement_insert_field_list_string =
-"station,datatype,measurement_date,measurement_time,measurement_value";
-
 	if ( execute_yn == 'y' )
 	{
-		sprintf(sys_string,
-	"insert_statement.e table=%s field=%s del='^' replace=y	|"
-		 	"sql.e 2>&1				|"
-		 	"cat >> %s			 	 ",
-		 	"measurement",
-		 	measurement_insert_field_list_string,
-			error_filespecification );
-
+		 sprintf(sys_string,
+		 	 "tr '^' ','					  |"
+		 	 "measurement_insert ignored realdata n 1>&2	  |"
+		 	 "cat >>%s					   ",
+		 	 error_filespecification );
 	}
 	else
 	{
 		sprintf(sys_string,
-			"queue_top_bottom_lines.e %d		|"
-			"html_table.e '' '%s' '^' %s		 ",
+			"queue_top_bottom_lines.e %d			  |"
+			"html_table.e '' '%s' '^' %s		 	   ",
 			QUEUE_TOP_BOTTOM_LINES,
-		 	measurement_insert_field_list_string,
+		 	MEASUREMENT_INSERT_LIST,
 		 	"left,left,left,left,right" );
 	}
 

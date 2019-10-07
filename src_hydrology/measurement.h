@@ -13,6 +13,8 @@
 
 #define MEASUREMENT_SELECT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"
 
+#define MEASUREMENT_INSERT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"
+
 typedef struct
 {
 	double measurement_update;

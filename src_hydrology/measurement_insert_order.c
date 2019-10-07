@@ -81,6 +81,7 @@ int main( int argc, char **argv )
 				delimiter );
 		}
 
+		measurement_free( measurement );
 	}
 
 	return 0;

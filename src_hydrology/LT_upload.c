@@ -54,7 +54,7 @@ boolean extract_static_attributes(
 
 void remove_error_file(		char *error_filename );
 
-int load_measurement(		char *application_name,
+int load_measurement(		
 				char *input_filename,
 				char *station,
 				boolean execute );
@@ -128,7 +128,6 @@ int main( int argc, char **argv )
 
 	load_count =
 		load_measurement(
-			application_name,
 			input_filename,
 			station,
 			execute );
@@ -157,8 +156,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-int load_measurement(	char *application_name,
-			char *input_filename,
+int load_measurement(	char *input_filename,
 			char *station,
 			boolean execute )
 {
@@ -215,8 +213,7 @@ int load_measurement(	char *application_name,
 		 "piece_inverse.e %d '%c'				  |"
 		 "tr '%c' ','						  |"
 		 "measurement_insert_order ',' 0,4,1,2,3		  |"
-		 "measurement_insert %s realdata			  |"
-		 "sql.e 2>&1						  |"
+		 "measurement_insert ignored realdata y 2>&1		  |"
 		 "html_paragraph_wrapper.e				   ",
 		 SHEF_CONVERT_STATION_PIECE,
 		 SHEF_CONVERT_CODE_PIECE,
@@ -224,8 +221,7 @@ int load_measurement(	char *application_name,
 		 STDERR_COUNT,
 		 SHEF_CONVERT_CODE_PIECE,
 		 SHEF_CONVERT_DELIMITER,
-		 SHEF_CONVERT_DELIMITER,
-		 application_name );
+		 SHEF_CONVERT_DELIMITER );
 
 		output_pipe = popen( sys_string, "w" );
 

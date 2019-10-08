@@ -268,18 +268,24 @@ int load_cr300_filespecification(
 	{
 		 sprintf(sys_string,
 		 	 "tr '^' ','					  |"
-		 	 "measurement_insert ignored realdata n 1>&2	  |"
+		 	 "measurement_insert ignored realdata y 1>&2	  |"
 		 	 "cat >>%s					   ",
 		 	 error_filespecification );
 	}
 	else
 	{
+/*
 		sprintf(sys_string,
 			"queue_top_bottom_lines.e %d			  |"
 			"html_table.e '' '%s' '^' %s		 	   ",
 			QUEUE_TOP_BOTTOM_LINES,
 		 	MEASUREMENT_INSERT_LIST,
 		 	"left,left,left,left,right" );
+*/
+		 sprintf(sys_string,
+		 	 "tr '^' ','					  |"
+		 	 "measurement_insert ignored realdata n		  |"
+		 	 "cat						   " );
 	}
 
 	output_pipe = popen( sys_string, "w" );

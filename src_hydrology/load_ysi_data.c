@@ -405,7 +405,7 @@ int load_ysi_filespecification(
 				"measurement" );
 
 		sprintf(sys_string,
-	"insert_statement.e table=%s field=%s del='^' replace=y	|"
+	"insert_statement.e table=%s field=%s del='^' replace=n	|"
 		 	"sql.e 2>&1				|"
 		 	"cat >> %s			 	 ",
 		 	table_name,

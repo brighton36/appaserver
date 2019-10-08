@@ -54,7 +54,7 @@ boolean extract_static_attributes(
 
 void remove_error_file(		char *error_filename );
 
-int load_measurement(		
+int LT_upload(		
 				char *input_filename,
 				char *station,
 				boolean execute );
@@ -127,7 +127,7 @@ int main( int argc, char **argv )
 	}
 
 	load_count =
-		load_measurement(
+		LT_upload(
 			input_filename,
 			station,
 			execute );
@@ -156,7 +156,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-int load_measurement(	char *input_filename,
+int LT_upload(		char *input_filename,
 			char *station,
 			boolean execute )
 {
@@ -231,15 +231,15 @@ int load_measurement(	char *input_filename,
 		sprintf( sys_string,
 		"shef_upload_datatype_convert %d %d '%c'		|"
 		"piece_inverse.e %d '%c'				|"
-		"queue_top_bottom_lines.e 50				|"
-		"html_table.e 'Insert into MEASUREMENT' %s '%c'		 ",
+"tee -a /var/log/appaserver/appaserver_hydrology.err |"
+		"measurement_insert_order '^' 0,4,1,2,3		  	|"
+		"measurement_insert ignored realdata n 2>&1		|"
+		"cat							 ",
 		 	 SHEF_CONVERT_STATION_PIECE,
 		 	 SHEF_CONVERT_CODE_PIECE,
 		 	 SHEF_CONVERT_DELIMITER,
 		 	 SHEF_CONVERT_CODE_PIECE,
-		 	 SHEF_CONVERT_DELIMITER,
-			 INSERT_MEASUREMENT,
-			 SHEF_CONVERT_DELIMITER );
+		 	 SHEF_CONVERT_DELIMITER );
 
 		output_pipe = popen( sys_string, "w" );
 	}
@@ -352,7 +352,7 @@ int load_measurement(	char *input_filename,
 	remove_error_file( error_filename );
 	return load_count;
 
-} /* load_measurement() */
+} /* LT_upload() */
 
 boolean extract_static_attributes(
 			char **error_message,

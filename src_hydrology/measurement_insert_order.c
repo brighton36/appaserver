@@ -49,6 +49,17 @@ int main( int argc, char **argv )
 
 	while( timlib_get_line( input_buffer, stdin, 1024 ) )
 	{
+		if ( timlib_character_count( delimiter, input_buffer ) != 4 )
+		{
+			fprintf( stderr,
+			"Warning in %s/%s()/%d: Rejected record = [%s]\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_buffer );
+			continue;
+		}
+
 		measurement =
 			measurement_variable_parse(
 					input_buffer,

@@ -37,28 +37,7 @@ MEASUREMENT_STRUCTURE *measurement_structure_new(
 
 } /* measurement_structure_new() */
 
-void measurement_open_input_process( 	MEASUREMENT_STRUCTURE *m,
-					char *load_process,
-					int really_yn )
-{
-	int delete_measurements_day = 0;
-
-	m->load_process = load_process;
-
-/*
-	if ( strcmp( load_process, "realdata" ) == 0 )
-		delete_measurements_day = 1;
-	else
-		delete_measurements_day = 0;
-*/
-
-	m->insert_pipe = 
-		measurement_open_insert_pipe(	m->application_name,
-						delete_measurements_day,
-						really_yn  );
-} /* measurement_open_input_process() */
-
-void measurement_set_comma_delimited_record( 
+boolean measurement_set_comma_delimited_record( 
 					MEASUREMENT_STRUCTURE *m,
 					char *comma_delimited_record,
 					char *argv_0 )
@@ -83,18 +62,19 @@ void measurement_set_comma_delimited_record(
 					"" /* date */,
 					"" /* time */,
 					"" /* value_string */ );
+			return 1;
 		}
 		else
 		{
 			fprintf( stderr,
-		"WARNING in %s.%s/%s()/%d: not enough comma fields in (%s)\n",
+		"Warning in %s/%s/%s()/%d: not enough comma fields in [%s]\n",
 				argv_0,
 			 	__FILE__,
 			 	__FUNCTION__,
 				__LINE__,
 			 	comma_delimited_record );
+			return 1;
 		}
-		return;
 	}
 
 	piece( station, ',', comma_delimited_record, STATION_PIECE );
@@ -113,7 +93,7 @@ void measurement_set_comma_delimited_record(
 	||     timlib_exists_special_character( datatype ) ) )
 	{
 		fprintf( stderr, "Ignored: %s\n", comma_delimited_record );
-		return;
+		return 1;
 	}
 
 	piece( value_string, ',', comma_delimited_record, VALUE_PIECE );
@@ -132,6 +112,8 @@ void measurement_set_comma_delimited_record(
 			date,
 			time,
 			value_string );
+
+	return 1;
 
 } /* measurement_set_comma_delimited_record() */
 
@@ -188,7 +170,43 @@ void measurement_free( MEASUREMENT *m )
 }
 
 void measurement_insert(	MEASUREMENT_STRUCTURE *m,
-				int really_yn,
+				boolean execute,
+				FILE *html_table_pipe )
+{
+	if ( !m || !m->measurement )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: no record set.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !execute )
+	{
+		measurement_non_execute_display(
+				m,
+				html_table_pipe );
+		return;
+	}
+
+	if ( m->insert_pipe )
+	{
+		measurement_output_insert_pipe(
+				m->insert_pipe,
+				m->measurement->station_name,
+				m->measurement->datatype,
+				m->measurement->measurement_date,
+				m->measurement->measurement_time,
+				m->measurement->measurement_value,
+				m->measurement->null_value );
+	}
+
+} /* measurement_insert() */
+
+void measurement_non_execute_display(
+				MEASUREMENT_STRUCTURE *m,
 				FILE *html_table_pipe )
 {
 	if ( !m->measurement )
@@ -201,63 +219,50 @@ void measurement_insert(	MEASUREMENT_STRUCTURE *m,
 		exit( 1 );
 	}
 
-	if ( really_yn != 'y' )
+	if ( html_table_pipe )
 	{
-		if ( html_table_pipe )
+		if ( !m->measurement->null_value )
 		{
-			if ( !m->measurement->null_value )
-			{
-				fprintf(html_table_pipe,
-					"%s,%s,%s,%s,%lf\n",
-					m->measurement->station_name,
-					m->measurement->datatype,
-					m->measurement->measurement_date,
-					m->measurement->measurement_time,
-					m->measurement->measurement_value );
-			}
-			else
-			{
-				fprintf(html_table_pipe,
-					"%s,%s,%s,%s,null\n",
-					m->measurement->station_name,
-					m->measurement->datatype,
-					m->measurement->measurement_date,
-					m->measurement->measurement_time );
-			}
-		}
-		else
-		{
-			if ( !m->measurement->null_value )
-			{
-				printf( "Not inserting: %s,%s,%s,%s,%lf\n",
-					m->measurement->station_name,
-					m->measurement->datatype,
-					m->measurement->measurement_date,
-					m->measurement->measurement_time,
-					m->measurement->measurement_value );
-			}
-			else
-			{
-				printf( "Not inserting: %s,%s,%s,%s,null\n",
-					m->measurement->station_name,
-					m->measurement->datatype,
-					m->measurement->measurement_date,
-					m->measurement->measurement_time );
-			}
-		}
-		return;
-	}
-
-	measurement_output_insert_pipe(
-				m->insert_pipe,
+			fprintf(html_table_pipe,
+				"%s,%s,%s,%s,%lf\n",
 				m->measurement->station_name,
 				m->measurement->datatype,
 				m->measurement->measurement_date,
 				m->measurement->measurement_time,
-				m->measurement->measurement_value,
-				m->measurement->null_value );
+				m->measurement->measurement_value );
+		}
+		else
+		{
+			fprintf(html_table_pipe,
+				"%s,%s,%s,%s,null\n",
+				m->measurement->station_name,
+				m->measurement->datatype,
+				m->measurement->measurement_date,
+				m->measurement->measurement_time );
+		}
+	}
+	else
+	{
+		if ( !m->measurement->null_value )
+		{
+			printf( "Not inserting: %s,%s,%s,%s,%lf\n",
+				m->measurement->station_name,
+				m->measurement->datatype,
+				m->measurement->measurement_date,
+				m->measurement->measurement_time,
+				m->measurement->measurement_value );
+		}
+		else
+		{
+			printf( "Not inserting: %s,%s,%s,%s,null\n",
+				m->measurement->station_name,
+				m->measurement->datatype,
+				m->measurement->measurement_date,
+				m->measurement->measurement_time );
+		}
+	}
 
-} /* measurement_insert() */
+} /* measurement_non_execute_display() */
 
 void measurement_output_insert_pipe(	FILE *insert_pipe,
 					char *station,
@@ -310,8 +315,8 @@ FILE *measurement_open_html_table_pipe(	void )
 } /* measurement_open_html_table_pipe() */
 
 FILE *measurement_open_insert_pipe(	char *application_name,
-					int delete_measurements_day,
-					int really_yn  )
+					int delete_measurements_day )
+
 {
 	char sys_string[ 4096 ];
 	char delete_measurements_day_process[ 128 ];
@@ -322,12 +327,11 @@ FILE *measurement_open_insert_pipe(	char *application_name,
 	if ( delete_measurements_day )
 	{
 		sprintf( delete_measurements_day_process,
-			 "delete_measurements_day %s %d %d %d %c",
+			 "delete_measurements_day %s %d %d %d y",
 			 application_name,
 			 STATION_PIECE,
 			 DATATYPE_PIECE,
-			 DATE_PIECE,
-			 really_yn );
+			 DATE_PIECE );
 	}
 	else
 	{
@@ -336,7 +340,7 @@ FILE *measurement_open_insert_pipe(	char *application_name,
 
 	sprintf(sys_string,
 		"%s							|"
-		"insert_statement.e table=%s field=%s del='|' replace=y |"
+		"insert_statement.e table=%s field=%s del='|' replace=n |"
 		"sql.e 						 	 ",
 		delete_measurements_day_process,
 		table_name,
@@ -460,18 +464,17 @@ FILE *measurement_open_input_pipe(	char *application_name,
 
 } /* measurement_open_input_pipe() */
 
-int measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
+boolean measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
 					FILE *input_pipe )
 {
 	char buffer[ 1024 ];
 
-	if ( !get_line( buffer, input_pipe ) ) return 0;
+	if ( !timlib_get_line( buffer, input_pipe, 1024 ) ) return 0;
 
-	measurement_set_comma_delimited_record(
+	return measurement_set_comma_delimited_record(
 			m,
 			buffer,
 			m->argv_0 );
-	return 1;
 
 } /* measurement_structure_fetch() */
 

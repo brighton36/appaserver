@@ -24,10 +24,9 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *load_process;
 	char comma_delimited_record[ 1024 ];
-	int really_yn;
+	boolean execute;
 	MEASUREMENT_STRUCTURE *m;
 	int not_loaded_count = 0;
-	char *database_string = {0};
 	MEASUREMENT_FREQUENCY *measurement_frequency;
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_station_datatype;
@@ -46,32 +45,42 @@ int main( int argc, char **argv )
 	if ( argc != 4 )
 	{
 		fprintf(stderr,
-"Usage: echo \"station,datatype,date,time,value\" | %s ignored cr10|shef|realdata really_yn\n", 
+"Usage: echo \"station,datatype,date,time,value\" | %s ignored cr10|shef|realdata execute_yn\n", 
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
+	/* application_name = argv[ 1 ]; */
 	load_process = argv[ 2 ];
-	really_yn = *argv[ 3 ];
+	execute = (*argv[ 3 ] == 'y');
 
 	m = measurement_structure_new( application_name );
 	measurement_frequency = measurement_frequency_new();
 
-	if ( really_yn != 'y' )
+	if ( !execute )
 	{
 		m->html_table_pipe = measurement_open_html_table_pipe();
 	}
 
-	measurement_open_input_process( m, load_process, really_yn );
+	if ( execute )
+	{
+		m->insert_pipe = 
+			measurement_open_insert_pipe(
+				m->application_name,
+				0 /* delete_measurements_day */ );
+	}
 
 	input_pipe = popen( "sort", "r" );
 
 	while( get_line( comma_delimited_record, input_pipe ) )
 	{
-		measurement_set_comma_delimited_record(
+		if ( !measurement_set_comma_delimited_record(
 			m, 
 			comma_delimited_record,
-			argv[ 0 ] );
+			argv[ 0 ] ) )
+		{
+			continue;
+		}
 
 		if ( !begin_measurement_date )
 		{
@@ -105,14 +114,14 @@ int main( int argc, char **argv )
 		}
 
 		if ( strcmp( load_process, "cr10" ) == 0
-		&&   really_yn != 'y' )
+		&&   !execute )
 		{
 			not_loaded_count++;
 		}
 
 		measurement_insert(
 			m,
-			really_yn,
+			execute,
 			m->html_table_pipe );
 	}
 

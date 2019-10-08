@@ -97,13 +97,13 @@ MEASUREMENT *measurement_strdup_new(
 					char *time,
 					char *value_string );
 
-void measurement_set_comma_delimited_record(
+boolean measurement_set_comma_delimited_record(
 					MEASUREMENT_STRUCTURE *m, 
 					char *comma_delimited_record,
 					char *argv_0 );
 
 void measurement_insert( 		MEASUREMENT_STRUCTURE *m,
-					int really_yn,
+					boolean execute,
 					FILE *html_table_pipe );
 
 /*
@@ -125,8 +125,7 @@ void measurement_output_insert_pipe(	FILE *insert_pipe,
 					boolean null_value );
 
 FILE *measurement_open_insert_pipe(	char *application_name,
-					int delete_measurements_day,
-					int really_yn );
+					int delete_measurements_day );
 
 FILE *measurement_open_html_table_pipe(	void );
 
@@ -135,12 +134,12 @@ double measurement_get_value(		boolean *null_value,
 
 void measurement_set_load_process( 	MEASUREMENT *m,
 					char *load_process,
-					int really_yn );
+					boolean execute );
 
 void measurement_set_argv_0(		MEASUREMENT_STRUCTURE *m,
 					char *argv_0 );
 
-int measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
+boolean measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
 					FILE *input_pipe );
 
 FILE *measurement_open_delete_pipe(	char *application_name );
@@ -149,10 +148,6 @@ char *measurement_display(		MEASUREMENT *m );
 
 void measurement_delete(		FILE *delete_pipe,
 					MEASUREMENT *m );
-
-void measurement_open_input_process( 	MEASUREMENT_STRUCTURE *m,
-					char *load_process,
-					int really_yn );
 
 DICTIONARY *measurement_get_date_time_frequency_dictionary(
 					char *application_name,
@@ -203,5 +198,9 @@ MEASUREMENT *measurement_variable_parse(
 					char *buffer,
 					char delimiter,
 					LIST *order_integer_list );
+
+void measurement_non_execute_display(
+					MEASUREMENT_STRUCTURE *m,
+					FILE *html_table_pipe );
 
 #endif

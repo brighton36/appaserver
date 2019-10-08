@@ -60,7 +60,6 @@ void shef_upload(	LIST *file_list,
 			char *station_bad_file, 
 			char *shef_bad_file,
 			int with_file_trim_yn,
-			char *email_address,
 			int really_yn,
 			char *application_name );
 
@@ -75,7 +74,6 @@ int main( int argc, char **argv )
 	char *station_bad_file;
 	char *shef_bad_file;
 	LIST *file_list;
-	char *email_address;
 	char sys_string[ 4096 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *session;
@@ -96,7 +94,7 @@ int main( int argc, char **argv )
 	if ( argc != 10 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored session login_name role 'shef_file_specification' with_file_trim_yn email_address starting_filename really_yn\n",
+"Usage: %s ignored session login_name role 'shef_file_specification' with_file_trim_yn ignored starting_filename really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -107,7 +105,7 @@ int main( int argc, char **argv )
 	role_name = argv[ 4 ];
 	shef_file_specification = argv[ 5 ];
 	with_file_trim_yn = *argv[ 6 ];
-	email_address = argv[ 7 ];
+	/* email_address = argv[ 7 ]; */
 	starting_filename = argv[ 8 ];
 	really_yn = *argv[ 9 ];
 
@@ -204,41 +202,21 @@ int main( int argc, char **argv )
 			station_bad_file, 
 			shef_bad_file,
 			with_file_trim_yn,
-			email_address,
 			really_yn,
 			application_name );
 
-	if ( *email_address && strcmp( email_address, "email_address" ) != 0 )
+	if ( really_yn == 'y' )
 	{
-		if ( really_yn == 'y' )
-		{
-			printf( 
-		"<p>In progress. Check email for error messages.\n" );
-			process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
-		}
-		else
-		{
-			printf( 
-		"<p>Process NOT executed. Check email for SQL statements.\n" );
-		}
+		printf( "<p>Process complete.\n" );
+
+		process_increment_execution_count(
+			application_name,
+			PROCESS_NAME,
+			appaserver_parameter_file_get_dbms() );
 	}
 	else
 	{
-		if ( really_yn == 'y' )
-		{
-			printf( "<p>Process complete.\n" );
-			process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
-		}
-		else
-		{
-			printf( "<p>Process NOT executed.\n" );
-		}
+		printf( "<p>Process NOT executed.\n" );
 	}
 
 	document_close();
@@ -249,7 +227,6 @@ void shef_upload(	LIST *file_list,
 			char *station_bad_file, 
 			char *shef_bad_file,
 			int with_file_trim_yn,
-			char *email_address,
 			int really_yn,
 			char *application_name )
 {
@@ -280,30 +257,15 @@ void shef_upload(	LIST *file_list,
 	do {
 		file = list_get_string( file_list );
 
-		if ( *email_address 
-		&&   strcmp( email_address, "email_address" ) != 0 )
-		{
-			sprintf( insert_process, 
-"measurement_insert %s shef %c 2>&1 | mailx -s \"%s: Shef upload output\" %s",
-		 		application_name,
-				really_yn,
-				basename_get_base_name( file, 0 ),
-				email_address );
+		printf( "<p>Processing: %s\n", file );
+		fflush( stdout );
 
-			strcpy( background_process, "&" );
-		}
-		else
-		{
-			printf( "<p>Processing: %s\n", file );
-			fflush( stdout );
-
-			sprintf( insert_process,
+		sprintf( insert_process,
 	"measurement_insert %s shef %c 2>&1 | html_paragraph_wrapper",
-				 application_name,
-				 really_yn );
+			 application_name,
+			 really_yn );
 
-			*background_process = '\0';
-		}
+		*background_process = '\0';
 
 		if ( really_yn == 'y' && with_file_trim_yn == 'y' )
 		{

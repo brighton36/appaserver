@@ -23,11 +23,11 @@
 #include "process.h"
 #include "session.h"
 #include "application.h"
+#include "appaserver_error.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
-#define PROCESS_NAME		"shef_upload"
 #define STATION_FILENAME_STEM	"shef_upload_bad_station"
 #define SHEF_FILENAME_STEM	"shef_upload_bad_shef"
 
@@ -56,30 +56,23 @@
 
 /* Prototypes */
 /* ---------- */
-void shef_upload(	LIST *file_list, 
-			char *station_bad_file, 
+void shef_upload(	char *station_bad_file, 
 			char *shef_bad_file,
-			int with_file_trim_yn,
-			int really_yn,
-			char *application_name );
+			char *application_name,
+			char *shef_filename,
+			boolean execute );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *shef_file_specification;
-	char *starting_filename;
-	char with_file_trim_yn;
-	char really_yn;
+	char *process_name;
+	char *shef_filename;
+	boolean execute;
 	DOCUMENT *document;
 	char *station_bad_file;
 	char *shef_bad_file;
-	LIST *file_list;
-	char sys_string[ 4096 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *session;
-	char *login_name;
-	char *role_name;
-	char *database_string = {0};
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	/* Exits if failure. */
@@ -91,23 +84,18 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 10 )
+	if ( argc != 5 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored session login_name role 'shef_file_specification' with_file_trim_yn ignored starting_filename really_yn\n",
+		"Usage: %s process_name session shef_filename execute_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	/* application_name = argv[ 1 ]; */
+	process_name = argv[ 1 ];
 	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
-	shef_file_specification = argv[ 5 ];
-	with_file_trim_yn = *argv[ 6 ];
-	/* email_address = argv[ 7 ]; */
-	starting_filename = argv[ 8 ];
-	really_yn = *argv[ 9 ];
+	shef_filename = argv[ 3 ];
+	execute = (*argv[ 4 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -139,9 +127,9 @@ int main( int argc, char **argv )
 				document_root,
 			STATION_FILENAME_STEM,
 			application_name,
-			getpid(),
-			(char *)0 /* session */,
-			"dat" );
+			0 /* process_id */,
+			session,
+			"dat" /* extension */ );
 
 	station_bad_file =
 		appaserver_link_get_output_filename(
@@ -176,42 +164,19 @@ int main( int argc, char **argv )
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-	sprintf( sys_string, 
-		 "echo %s | tr ' ' '\012'",
-		 shef_file_specification );
-
-	file_list = pipe2list( sys_string );
-
-	if ( *starting_filename 
-	&&   strcmp( starting_filename, "starting_filename" ) != 0 )
-	{
-		if ( !list_search_string( file_list, starting_filename ) )
-		{
-			fprintf( stderr, 
-				 "ERROR: in %s: cannot find file = (%s)\n",
-				 argv[ 0 ],
-				 starting_filename );
-			fprintf( stderr, "Trying using the full path\n" );
-			exit( 1 );
-		}
-	}
-	else
-		list_rewind( file_list );
-
-	shef_upload(	file_list, 
-			station_bad_file, 
+	shef_upload(	station_bad_file, 
 			shef_bad_file,
-			with_file_trim_yn,
-			really_yn,
-			application_name );
+			application_name,
+			shef_filename,
+			execute );
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
 		printf( "<p>Process complete.\n" );
 
 		process_increment_execution_count(
 			application_name,
-			PROCESS_NAME,
+			process_name,
 			appaserver_parameter_file_get_dbms() );
 	}
 	else
@@ -220,28 +185,25 @@ int main( int argc, char **argv )
 	}
 
 	document_close();
-	exit( 0 );
+	return 0;
+
 } /* main() */
 
-void shef_upload(	LIST *file_list, 
-			char *station_bad_file, 
+void shef_upload(	char *station_bad_file, 
 			char *shef_bad_file,
-			int with_file_trim_yn,
-			int really_yn,
-			char *application_name )
+			char *application_name,
+			char *shef_filename,
+			boolean execute )
+
 {
-	char *file;
 	char insert_process[ 512 ];
 	char prune_process[ 512 ];
 	char remove_process[ 512 ];
 	char display_error_process[ 512 ];
-	char background_process[ 512 ];
 	char sys_string[ 4096 ];
 
-	sprintf(remove_process,
-		"/bin/rm -f %s 2>/dev/null; /bin/rm -f %s 2>/dev/null",
-		station_bad_file,
-		shef_bad_file );
+	strcpy( prune_process, "echo > /dev/null" );
+	strcpy( remove_process, "echo > /dev/null" );
 
 	sprintf(display_error_process,
 		"echo \"<br><th>Bad records:</th>\"		;"
@@ -250,45 +212,23 @@ void shef_upload(	LIST *file_list,
 		station_bad_file,
 		shef_bad_file );
 
-	/* -------------------------------------------------------------- */
-	/* Note: don't rewind list because of the possibility of a search */
-	/* -------------------------------------------------------------- */
+	printf( "<p>Processing: %s\n", shef_filename );
+	fflush( stdout );
 
-	do {
-		file = list_get_string( file_list );
-
-		printf( "<p>Processing: %s\n", file );
-		fflush( stdout );
-
-		sprintf( insert_process,
+	sprintf( insert_process,
 	"measurement_insert %s shef %c 2>&1 | html_paragraph_wrapper",
 			 application_name,
-			 really_yn );
+			 (execute) ? 'y' : 'n' );
 
-		*background_process = '\0';
-
-		if ( really_yn == 'y' && with_file_trim_yn == 'y' )
-		{
-			sprintf( prune_process,
-				 "> %s				;"
-				 "cat %s > %s			;"
-				 "cat %s >> %s			 ",
-				 file,
-				 station_bad_file, file,
-				 shef_bad_file, file );
-		}
-		else
-			strcpy( prune_process, "echo > /dev/null" );
-
-		sprintf( sys_string,
-	"(cat %s					      	     |"
+	sprintf( sys_string,
+	"cat %s					      	     	     |"
 	"station_alias_to_station %s 1 \'/\' 2>%s 		     |"
 	"shef_to_comma_delimited %s 2>%s		  	     |"
 	"%s 					      		     ;"
 	"%s							     ;"
 	"%s							     ;"
-	"%s) %s							      ",
-			 file,
+	"%s 							      ",
+			 shef_filename,
 			 application_name,
 			 station_bad_file,
 			 application_name,
@@ -296,11 +236,8 @@ void shef_upload(	LIST *file_list,
 			 insert_process,
 			 prune_process,
 			 display_error_process,
-			 remove_process,
-			 background_process );
+			 remove_process );
 
-		system( sys_string );
-
-	} while( list_next( file_list ) );
+	if ( system( sys_string ) ) {};
 
 } /* shef_upload() */

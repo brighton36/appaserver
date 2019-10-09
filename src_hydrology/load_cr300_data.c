@@ -45,13 +45,13 @@
 
 /* Prototypes */
 /* ---------- */
-void load_cr300_datatype_list_display( LIST *datatype_list );
+void load_cr300_datatype_summary_display( LIST *datatype_list );
 
 /* Returns measurement_count */
 /* ------------------------- */
 int load_cr300_filespecification(	char *error_filespecification,
 					LIST *datatype_list,
-					char *input_filespecification,
+					char *filename,
 					char *station,
 					char execute_yn );
 
@@ -59,7 +59,7 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char execute_yn;
-	char *input_filespecification;
+	char *filename;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *input_directory;
@@ -91,7 +91,7 @@ int main( int argc, char **argv )
 	}
 
 	process_name = argv[ 1 ];
-	input_filespecification = argv[ 2 ];
+	filename = argv[ 2 ];
 	station = argv[ 3 ];
 	execute_yn = *argv[ 4 ];
 
@@ -129,7 +129,7 @@ int main( int argc, char **argv )
 	printf( "</h2>\n" );
 	fflush( stdout );
 
-	input_directory = basename_get_directory( input_filespecification );
+	input_directory = basename_get_directory( filename );
 
 	if ( !input_directory || !*input_directory )
 	{
@@ -159,7 +159,7 @@ int main( int argc, char **argv )
 			application_name,
 			process_id,
 			(char *)0 /* session */,
-			"txt" );
+			"dat" );
 
 	error_filespecification =
 		appaserver_link_get_output_filename(
@@ -198,11 +198,11 @@ int main( int argc, char **argv )
 		load_cr300_filespecification(
 			error_filespecification,
 			datatype_list,
-			input_filespecification,
+			filename,
 			station,
 			execute_yn );
 
-	load_cr300_datatype_list_display( datatype_list );
+	load_cr300_datatype_summary_display( datatype_list );
 
 	if ( execute_yn == 'y' )
 		printf( "<p>Loaded %d measurements.\n",
@@ -240,7 +240,7 @@ int main( int argc, char **argv )
 int load_cr300_filespecification(
 			char *error_filespecification,
 			LIST *datatype_list,
-			char *input_filespecification,
+			char *filename,
 			char *station,
 			char execute_yn )
 {
@@ -256,7 +256,7 @@ int load_cr300_filespecification(
 	/* --------------- */
 	sprintf( sys_string,
 		 "parse_alias_data '%s' '%s' TIMESTAMP 2>%s",
-		 input_filespecification,
+		 filename,
 		 station,
 		 error_filespecification );
 
@@ -320,7 +320,7 @@ int load_cr300_filespecification(
 
 } /* load_cr300_filespecification() */
 
-void load_cr300_datatype_list_display( LIST *datatype_list )
+void load_cr300_datatype_summary_display( LIST *datatype_list )
 {
 	DATATYPE *datatype;
 	char sys_string[ 1024 ];
@@ -348,6 +348,6 @@ void load_cr300_datatype_list_display( LIST *datatype_list )
 	pclose( output_pipe );
 	fflush( stdout );
 
-} /* load_cr300_datatype_list_display() */
+} /* load_cr300_datatype_summary_display() */
 
 

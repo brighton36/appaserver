@@ -114,6 +114,8 @@ MEASUREMENT *hydrology_extract_measurement(
 
 void hydrology_set_measurement(
 				LIST *station_datatype_list,
+				LIST *frequency_station_datatype_list,
+				FILE *error_file,
 				char *input_filename,
 				int date_time_piece );
 

@@ -329,6 +329,8 @@ MEASUREMENT *hydrology_extract_measurement(
 
 void hydrology_set_measurement(
 			LIST *station_datatype_list,
+			LIST *frequency_station_datatype_list,
+			FILE *error_file,
 			char *input_filename,
 			int date_time_piece )
 {
@@ -341,6 +343,8 @@ void hydrology_set_measurement(
 	char measurement_date[ 32 ];
 	char measurement_time[ 32 ];
 	char *error_message = {0};
+	MEASUREMENT_FREQUENCY_STATION_DATATYPE *
+		measurement_frequency_station_datatype;
 
 	if ( !list_length( station_datatype_list ) ) return;
 
@@ -389,6 +393,30 @@ void hydrology_set_measurement(
 			if ( !station_datatype->datatype
 			||   (station_datatype->datatype->column_piece == -1 ) )
 			{
+				continue;
+			}
+
+			measurement_frequency_station_datatype =
+			measurement_frequency_get_or_set_station_datatype(
+					frequency_station_datatype_list,
+					station_datatype->station_name,
+					station_datatype->
+						datatype->
+						datatype_name );
+
+			if ( dictionary_length(
+				measurement_frequency_station_datatype->
+					date_time_frequency_dictionary )
+			&&   measurement_data_collection_frequency_reject(
+				measurement_frequency_station_datatype->
+					date_time_frequency_dictionary,
+				measurement_date,
+				measurement_time ) )
+			{
+				fprintf( error_file,
+			"Violates DATA_COLLECTION_FREQUENCY in row %d: %s\n",
+				 	line_number,
+				 	input_string );
 				continue;
 			}
 

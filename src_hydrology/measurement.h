@@ -97,10 +97,10 @@ MEASUREMENT *measurement_strdup_new(
 					char *time,
 					char *value_string );
 
-boolean measurement_set_comma_delimited_record(
+boolean measurement_set_delimited_record(
 					MEASUREMENT_STRUCTURE *m, 
 					char *comma_delimited_record,
-					char *argv_0 );
+					char delimiter );
 
 void measurement_insert( 		MEASUREMENT_STRUCTURE *m,
 					boolean execute,
@@ -156,7 +156,7 @@ DICTIONARY *measurement_get_date_time_frequency_dictionary(
 					char *begin_measurement_date_string,
 					char *end_measurement_date_string );
 
-boolean measurement_date_time_frequency_exists(
+boolean measurement_data_collection_frequency_reject(
 				DICTIONARY *date_time_frequency_dictionary,
 				char *measurement_date_string,
 				char *measurement_time_string );

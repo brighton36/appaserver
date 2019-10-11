@@ -37,10 +37,10 @@ MEASUREMENT_STRUCTURE *measurement_structure_new(
 
 } /* measurement_structure_new() */
 
-boolean measurement_set_comma_delimited_record( 
+boolean measurement_set_delimited_record( 
 					MEASUREMENT_STRUCTURE *m,
-					char *comma_delimited_record,
-					char *argv_0 )
+					char *delimited_record,
+					char delimiter )
 {
 	char station[ 128 ];
 	char datatype[ 128 ];
@@ -49,15 +49,15 @@ boolean measurement_set_comma_delimited_record(
 	char value_string[ 128 ];
 	int time_int;
 
-	if ( character_count( ',', comma_delimited_record ) != VALUE_PIECE )
+	if ( character_count( delimiter, delimited_record ) != VALUE_PIECE )
 	{
-		if ( timlib_strncmp( comma_delimited_record, "skipped" ) == 0 )
+		if ( timlib_strncmp( delimited_record, "skipped" ) == 0 )
 		{
-			/* This function does strdup() for the memory. */
-			/* ------------------------------------------- */
+			/* This function does strdup() for all the memory. */
+			/* ----------------------------------------------- */
 			m->measurement =
 				measurement_strdup_new(
-					comma_delimited_record,
+					delimited_record,
 					"" /* datatype */,
 					"" /* date */,
 					"" /* time */,
@@ -66,22 +66,14 @@ boolean measurement_set_comma_delimited_record(
 		}
 		else
 		{
-			fprintf( stderr,
-		"Warning in %s/%s/%s()/%d: not enough comma fields in [%s]\n",
-				argv_0,
-			 	__FILE__,
-			 	__FUNCTION__,
-				__LINE__,
-			 	comma_delimited_record );
-			return 1;
+			return 0;
 		}
 	}
 
-	piece( station, ',', comma_delimited_record, STATION_PIECE );
-	piece( datatype, ',', comma_delimited_record, DATATYPE_PIECE );
-	piece( date, ',', comma_delimited_record, DATE_PIECE );
-
-	piece( time, ',', comma_delimited_record, TIME_PIECE );
+	piece( station, delimiter, delimited_record, STATION_PIECE );
+	piece( datatype, delimiter, delimited_record, DATATYPE_PIECE );
+	piece( date, delimiter, delimited_record, DATE_PIECE );
+	piece( time, delimiter, delimited_record, TIME_PIECE );
 
 	time_int = atoi( time );
 
@@ -92,19 +84,18 @@ boolean measurement_set_comma_delimited_record(
 	||     timlib_exists_special_character( station )
 	||     timlib_exists_special_character( datatype ) ) )
 	{
-		fprintf( stderr, "Ignored: %s\n", comma_delimited_record );
-		return 1;
+		return 0;
 	}
 
-	piece( value_string, ',', comma_delimited_record, VALUE_PIECE );
+	piece( value_string, delimiter, delimited_record, VALUE_PIECE );
 
 	if ( m->measurement ) 
 	{
 		measurement_free( m->measurement );
 	}
 
-	/* This function does strdup() for the memory. */
-	/* ------------------------------------------- */
+	/* This function does strdup() for all the memory. */
+	/* ----------------------------------------------- */
 	m->measurement =
 		measurement_strdup_new(
 			station,
@@ -115,7 +106,7 @@ boolean measurement_set_comma_delimited_record(
 
 	return 1;
 
-} /* measurement_set_comma_delimited_record() */
+} /* measurement_set_delimited_record() */
 
 MEASUREMENT *measurement_calloc( void )
 {
@@ -135,8 +126,8 @@ MEASUREMENT *measurement_calloc( void )
 	return m;
 } /* measurement_calloc() */
 
-/* This function does strdup() for the memory. */
-/* ------------------------------------------- */
+/* This function does strdup() for all the memory. */
+/* ----------------------------------------------- */
 MEASUREMENT *measurement_strdup_new(	char *station_name,
 					char *datatype,
 					char *date,
@@ -471,10 +462,10 @@ boolean measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
 
 	if ( !timlib_get_line( buffer, input_pipe, 1024 ) ) return 0;
 
-	return measurement_set_comma_delimited_record(
+	return measurement_set_delimited_record(
 			m,
 			buffer,
-			m->argv_0 );
+			',' );
 
 } /* measurement_structure_fetch() */
 
@@ -572,7 +563,7 @@ DICTIONARY *measurement_get_date_time_frequency_dictionary(
 
 } /* measurement_get_date_time_frequency_dictionary() */
 
-boolean measurement_date_time_frequency_exists(
+boolean measurement_data_collection_frequency_reject(
 				DICTIONARY *date_time_frequency_dictionary,
 				char *measurement_date_string,
 				char *measurement_time_string )
@@ -580,13 +571,14 @@ boolean measurement_date_time_frequency_exists(
 	char key[ 128 ];
 
 	sprintf(key,
-		"%s^%s",
+		"%s%c%s",
 		measurement_date_string,
+		FOLDER_DATA_DELIMITER,
 		measurement_time_string );
 
-	return dictionary_exists_key( date_time_frequency_dictionary, key );
+	return !dictionary_exists_key( date_time_frequency_dictionary, key );
 
-} /* measurement_date_time_frequency_exists() */
+} /* measurement_data_collection_frequency_reject() */
 
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_station_datatype_new(

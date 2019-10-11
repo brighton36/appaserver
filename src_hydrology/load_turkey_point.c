@@ -139,6 +139,7 @@ int load_turkey_point_file(	char *application_name,
 	int load_count = 0;
 	HYDROLOGY *hydrology;
 	STATION *station;
+	MEASUREMENT_FREQUENCY *measurement_frequency;
 
 	hydrology = hydrology_new();
 
@@ -157,8 +158,12 @@ int load_turkey_point_file(	char *application_name,
 				input_filename,
 				TURKEY_POINT_FIRST_COLUMN_PIECE );
 
+	measurement_frequency = measurement_frequency_new();
+
 	hydrology_set_measurement(
 		station->station_datatype_list,
+		measurement_frequency->frequency_station_datatype_list,
+		stderr,
 		input_filename,
 		TURKEY_POINT_DATE_TIME_PIECE );
 

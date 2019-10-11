@@ -160,7 +160,7 @@ int load_turkey_point_file(	char *application_name,
 
 	measurement_frequency = measurement_frequency_new();
 
-	hydrology_set_measurement(
+	hydrology_parse_file(
 		station->station_datatype_list,
 		measurement_frequency->frequency_station_datatype_list,
 		stderr,

@@ -69,8 +69,7 @@ int main( int argc, char **argv )
 	{
 		m->insert_pipe = 
 			measurement_open_insert_pipe(
-				m->application_name,
-				0 /* delete_measurements_day */ );
+				m->application_name );
 	}
 
 	while( timlib_get_line( delimited_record, stdin, 1024 ) )

@@ -305,35 +305,17 @@ FILE *measurement_open_html_table_pipe(	void )
 
 } /* measurement_open_html_table_pipe() */
 
-FILE *measurement_open_insert_pipe(	char *application_name,
-					int delete_measurements_day )
+FILE *measurement_open_insert_pipe( char *application_name )
 
 {
 	char sys_string[ 4096 ];
-	char delete_measurements_day_process[ 128 ];
 	char *table_name;
 
 	table_name = get_table_name( application_name, "measurement" );
 
-	if ( delete_measurements_day )
-	{
-		sprintf( delete_measurements_day_process,
-			 "delete_measurements_day %s %d %d %d y",
-			 application_name,
-			 STATION_PIECE,
-			 DATATYPE_PIECE,
-			 DATE_PIECE );
-	}
-	else
-	{
-		strcpy( delete_measurements_day_process, "cat -" );
-	}
-
 	sprintf(sys_string,
-		"%s							|"
 		"insert_statement.e table=%s field=%s del='|' replace=n |"
 		"sql.e 						 	 ",
-		delete_measurements_day_process,
 		table_name,
 		MEASUREMENT_INSERT_LIST );
 

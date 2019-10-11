@@ -327,7 +327,7 @@ MEASUREMENT *hydrology_extract_measurement(
 
 } /* hydrology_extract_measurement() */
 
-void hydrology_set_measurement(
+void hydrology_parse_file(
 			LIST *station_datatype_list,
 			LIST *frequency_station_datatype_list,
 			FILE *error_file,
@@ -456,7 +456,7 @@ void hydrology_set_measurement(
 		printf( "<p>%s\n", error_message );
 	}
 
-} /* hydrology_set_measurement() */
+} /* hydrology_parse_file() */
 
 void hydrology_summary_table_display(
 				char *station_name,

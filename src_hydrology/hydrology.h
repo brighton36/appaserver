@@ -112,7 +112,7 @@ MEASUREMENT *hydrology_extract_measurement(
 				char *input_string,
 				int column_piece );
 
-void hydrology_set_measurement(
+void hydrology_parse_file(
 				LIST *station_datatype_list,
 				LIST *frequency_station_datatype_list,
 				FILE *error_file,

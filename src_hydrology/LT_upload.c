@@ -46,7 +46,7 @@ void delete_measurement(	char *application_name,
 				char *station );
 */
 
-boolean extract_static_attributes(
+boolean extract_date_time(
 				char **error_message,
 				char *measurement_date,
 				char *measurement_time,
@@ -83,7 +83,7 @@ int main( int argc, char **argv )
 	if ( argc != 5 )
 	{
 		fprintf( stderr, 
-"Usage: %s process_name station filename execute_yn\n",
+			 "Usage: %s process_name station filename execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -212,7 +212,7 @@ int LT_upload(		char *input_filename,
 		 "count.e %d 'LT Load count'				  |"
 		 "piece_inverse.e %d '%c'				  |"
 		 "tr '%c' ','						  |"
-		 "measurement_insert_order ',' 0,4,1,2,3		  |"
+		 "measurement_change_order ',' 0,4,1,2,3		  |"
 		 "measurement_insert ignored realdata y 2>&1		  |"
 		 "html_paragraph_wrapper.e				   ",
 		 SHEF_CONVERT_STATION_PIECE,
@@ -232,7 +232,7 @@ int LT_upload(		char *input_filename,
 		"shef_upload_datatype_convert %d %d '%c'		|"
 		"piece_inverse.e %d '%c'				|"
 "tee -a /var/log/appaserver/appaserver_hydrology.err |"
-		"measurement_insert_order '^' 0,4,1,2,3		  	|"
+		"measurement_change_order '^' 0,4,1,2,3		  	|"
 		"measurement_insert ignored realdata n 2>&1		|"
 		"cat							 ",
 		 	 SHEF_CONVERT_STATION_PIECE,
@@ -271,7 +271,7 @@ int LT_upload(		char *input_filename,
 		trim( input_buffer );
 		if ( !*input_buffer ) continue;
 
-		if ( !extract_static_attributes(
+		if ( !extract_date_time(
 			&error_message,
 			measurement_date,
 			measurement_time,
@@ -354,7 +354,7 @@ int LT_upload(		char *input_filename,
 
 } /* LT_upload() */
 
-boolean extract_static_attributes(
+boolean extract_date_time(
 			char **error_message,
 			char *measurement_date,
 			char *measurement_time,
@@ -458,7 +458,7 @@ boolean extract_static_attributes(
 
 	return 1;
 
-} /* extract_static_attributes() */
+} /* extract_date_time() */
 
 void remove_error_file( char *error_filename )
 {

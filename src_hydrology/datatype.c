@@ -60,6 +60,7 @@ DATATYPE *datatype_new( char *datatype_name )
 	DATATYPE *datatype = datatype_calloc();
 
 	datatype->datatype_name = datatype_name;
+	datatype->column_piece = -1;
 	return datatype;
 
 } /* datatype_new() */

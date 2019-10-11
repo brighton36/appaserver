@@ -314,6 +314,9 @@ LIST *parse_alias_data_get_datatype_list(
 
 } /* parse_alias_data_get_datatype_list() */
 
+/* --------------------------- */
+/* Sets datatype->column_piece */
+/* --------------------------- */
 LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *station_name,
 					char *input_buffer,

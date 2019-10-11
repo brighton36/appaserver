@@ -59,7 +59,7 @@ int main( int argc, char **argv )
 	if ( argc != 5 )
 	{
 		fprintf( stderr, 
-"Usage: %s process station filename execute_yn\n",
+			 "Usage: %s process station filename execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -148,6 +148,9 @@ int load_turkey_point_file(	char *application_name,
 			station_name );
 
 	hydrology->output.header_column_datatype_list =
+		/* --------------------------- */
+		/* Sets datatype->column_piece */
+		/* --------------------------- */
 		hydrology_get_header_column_datatype_list(
 				station->station_datatype_list,
 				station->station_name,

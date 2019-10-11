@@ -30,7 +30,6 @@ int main( int argc, char **argv )
 	MEASUREMENT_FREQUENCY *measurement_frequency;
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_station_datatype;
-	char *begin_measurement_date = {0};
 	FILE *input_pipe;
 
 	/* Exits if failure. */
@@ -70,7 +69,7 @@ int main( int argc, char **argv )
 				0 /* delete_measurements_day */ );
 	}
 
-	input_pipe = popen( "sort", "r" );
+	input_pipe = popen( "cat", "r" );
 
 	while( get_line( comma_delimited_record, input_pipe ) )
 	{
@@ -80,15 +79,6 @@ int main( int argc, char **argv )
 			argv[ 0 ] ) )
 		{
 			continue;
-		}
-
-		if ( !begin_measurement_date )
-		{
-			begin_measurement_date =
-				strdup(
-					m->
-					measurement->
-					measurement_date );
 		}
 
 		measurement_frequency_station_datatype =

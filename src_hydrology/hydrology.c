@@ -203,6 +203,9 @@ char *hydrology_translate_datatype_name(
 
 } /* hydrology_translate_datatype_name() */
 
+/* --------------------------- */
+/* Sets datatype->column_piece */
+/* --------------------------- */
 LIST *hydrology_get_header_column_datatype_list(
 				LIST *station_datatype_list,
 				char *station_name,
@@ -384,7 +387,7 @@ void hydrology_set_measurement(
 			station_datatype = list_get( station_datatype_list );
 
 			if ( !station_datatype->datatype
-			||   !station_datatype->datatype->column_piece )
+			||   (station_datatype->datatype->column_piece == -1 ) )
 			{
 				continue;
 			}
@@ -456,7 +459,7 @@ void hydrology_summary_table_display(
 		station_datatype = list_get( station_datatype_list );
 
 		if ( !station_datatype->datatype
-		||   !station_datatype->datatype->column_piece )
+		||   ( station_datatype->datatype->column_piece == -1 ) )
 		{
 			continue;
 		}

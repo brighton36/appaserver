@@ -112,6 +112,8 @@ MEASUREMENT *hydrology_extract_measurement(
 				char *input_string,
 				int column_piece );
 
+/* Sets station_datatype->measurement_list */
+/* --------------------------------------- */
 void hydrology_parse_file(
 				LIST *station_datatype_list,
 				LIST *frequency_station_datatype_list,

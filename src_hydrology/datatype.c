@@ -4,6 +4,8 @@
 /* ---------------------------------------------------	*/
 
 #include <stdlib.h>
+#include "hydrology.h"
+#include "station_datatype.h"
 #include "datatype.h"
 
 DATATYPE_ALIAS *datatype_alias_new( void )
@@ -815,4 +817,117 @@ LIST *datatype_fetch_alias_list(
 	return return_list;
 
 } /* datatype_fetch_alias_list() */
+
+char *datatype_alias_display(
+			char *application_name,
+			char *station_name,
+			char *datatype_alias )
+{
+	DATATYPE *datatype;
+	STATION *station;
+	LIST *station_list = list_new();
+
+	if ( ! ( station =
+			station_get_or_set_station(
+				station_list,
+				application_name,
+				station_name ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: station_get_or_set_station() failed.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( ( datatype =
+			datatype_seek_phrase(
+				station->station_datatype_list,
+				station->station_name,
+				datatype_alias ) ) )
+	{
+		return datatype->datatype_name;
+	}
+
+	return "";
+
+} /* datatype_alias_display() */
+
+DATATYPE *datatype_seek_phrase(
+				LIST *station_datatype_list,
+				char *station_name,
+				/* -----------------------	*/
+				/* Samples: Salinity (PSU)	*/
+				/*	    Salinity		*/
+				/* ----------------------- 	*/
+				char *datatype_units_seek_phrase )
+{
+	char *datatype_name;
+	STATION_DATATYPE *station_datatype;
+
+	if ( !datatype_units_seek_phrase
+	||   !*datatype_units_seek_phrase )
+	{
+		return (DATATYPE *)0;
+	}
+
+	if ( ! ( datatype_name =
+			hydrology_translate_datatype_name(
+				station_datatype_list,
+				datatype_units_seek_phrase ) ) )
+	{
+		char *decoded_datatype;
+
+		/* Special codes include [mu] and [deg] */
+		/* ------------------------------------ */
+		decoded_datatype =
+			units_search_replace_special_codes(
+				datatype_units_seek_phrase );
+
+		if ( ! ( datatype_name =
+				hydrology_translate_datatype_name(
+					station_datatype_list,
+					decoded_datatype ) ) )
+		{
+			return (DATATYPE *)0;
+		}
+	}
+
+	if ( ! ( station_datatype =
+			station_datatype_list_seek(
+				station_datatype_list,
+				station_name,
+				datatype_name ) ) )
+	{
+		return (DATATYPE *)0;
+	}
+
+	return station_datatype->datatype;
+
+} /* datatype_seek_phrase() */
+
+char *datatype_name_seek_phrase(
+				LIST *station_datatype_list,
+				char *station_name,
+				/* -----------------------	*/
+				/* Samples: Salinity (PSU)	*/
+				/*	    Salinity		*/
+				/* ----------------------- 	*/
+				char *datatype_units_seek_phrase )
+{
+	DATATYPE *datatype;
+
+	if ( ! ( datatype =
+			datatype_seek_phrase(
+				station_datatype_list,
+				station_name,
+				datatype_units_seek_phrase ) ) )
+	{
+		return (char *)0;
+	}
+
+	return datatype->datatype_name;
+
+} /* datatype_name_seek_phrase() */
 

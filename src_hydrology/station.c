@@ -758,3 +758,24 @@ STATION *station_fetch_new(	char *application_name,
 
 } /* station_fetch_new() */
 
+STATION *station_get_or_set_station(
+			LIST *input_station_list,
+			char *application_name,
+			char *station_name )
+{
+	STATION *station;
+
+	if ( ( station =
+		station_seek(
+			station_name,
+			input_station_list ) ) )
+	{
+		return station;
+	}
+
+	station = station_fetch_new( application_name, station_name );
+	list_append_pointer( input_station_list, station );
+	return station;
+
+} /* station_get_or_set_station() */
+

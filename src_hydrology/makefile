@@ -93,6 +93,8 @@ EXECUTABLES=	hydrology_verification_process				\
 		load_ysi_data						\
 		load_cr300_data						\
 		parse_alias_data					\
+		parse_alias_header					\
+		alias_datatype						\
 		get_aggregation_sum_yn					\
 		apply_position_translation_to_record			\
 		restore_measurement_backup				\
@@ -387,6 +389,26 @@ parse_alias_data: parse_alias_data.c					\
 		parse_alias_data.c					\
 		${SOURCE_LIBS}						\
 		-o parse_alias_data
+
+alias_datatype: alias_datatype.c					\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		alias_datatype.c					\
+		${SOURCE_LIBS}						\
+		-o alias_datatype
+
+parse_alias_header: parse_alias_header.c				\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		parse_alias_header.c					\
+		${SOURCE_LIBS}						\
+		-o parse_alias_header
 
 load_cr300_data: load_cr300_data.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}

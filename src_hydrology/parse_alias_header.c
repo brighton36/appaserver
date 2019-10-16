@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* $APPASERVER_HOME/src_hydrology/parse_alias_data.c	*/
+/* $APPASERVER_HOME/src_hydrology/parse_alias_header.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -70,11 +70,6 @@ int main( int argc, char **argv )
 	/* Exits if failure. */
 	/* ----------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	if ( argc != 4 )
 	{

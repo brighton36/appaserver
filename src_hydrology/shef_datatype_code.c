@@ -694,7 +694,7 @@ char *shef_datatype_code_get_upload_datatype(
 	}
 
 	station =
-		hydrology_get_or_set_station(
+		station_get_or_set_station(
 			hydrology->input.station_list,
 			application_name,
 			station_name );

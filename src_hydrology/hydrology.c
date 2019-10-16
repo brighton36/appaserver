@@ -34,38 +34,6 @@ HYDROLOGY *hydrology_new( void )
 
 } /* hydrology_new() */
 
-STATION *hydrology_set_or_get_station(
-			LIST *input_station_list,
-			char *application_name,
-			char *station_name )
-{
-	return hydrology_get_or_set_station(
-			input_station_list,
-			application_name,
-			station_name );
-}
-
-STATION *hydrology_get_or_set_station(
-			LIST *input_station_list,
-			char *application_name,
-			char *station_name )
-{
-	STATION *station;
-
-	if ( ( station =
-		station_seek(
-			station_name,
-			input_station_list ) ) )
-	{
-		return station;
-	}
-
-	station = station_fetch_new( application_name, station_name );
-	list_append_pointer( input_station_list, station );
-	return station;
-
-} /* hydrology_get_or_set_station() */
-
 char *hydrology_units_name_seek_phrase(
 				LIST *station_datatype_list,
 				/* -----------------------	*/
@@ -88,82 +56,6 @@ char *hydrology_units_name_seek_phrase(
 
 } /* hydrology_units_name_seek_phrase() */
 
-char *hydrology_datatype_name_seek_phrase(
-				LIST *station_datatype_list,
-				char *station_name,
-				/* -----------------------	*/
-				/* Samples: Salinity (PSU)	*/
-				/*	    Salinity		*/
-				/* ----------------------- 	*/
-				char *datatype_units_seek_phrase )
-{
-	DATATYPE *datatype;
-
-	if ( ! ( datatype =
-			hydrology_datatype_seek_phrase(
-				station_datatype_list,
-				station_name,
-				datatype_units_seek_phrase ) ) )
-	{
-		return (char *)0;
-	}
-
-	return datatype->datatype_name;
-
-} /* hydrology_datatype_name_seek_phrase() */
-
-DATATYPE *hydrology_datatype_seek_phrase(
-				LIST *station_datatype_list,
-				char *station_name,
-				/* -----------------------	*/
-				/* Samples: Salinity (PSU)	*/
-				/*	    Salinity		*/
-				/* ----------------------- 	*/
-				char *datatype_units_seek_phrase )
-{
-	char *datatype_name;
-	STATION_DATATYPE *station_datatype;
-
-	if ( ! ( datatype_name =
-			hydrology_translate_datatype_name(
-				station_datatype_list,
-				datatype_units_seek_phrase ) ) )
-	{
-		char *decoded_datatype;
-
-		/* Special codes include [mu] and [deg] */
-		/* ------------------------------------ */
-		decoded_datatype =
-			units_search_replace_special_codes(
-				datatype_units_seek_phrase );
-
-		if ( ! ( datatype_name =
-				hydrology_translate_datatype_name(
-					station_datatype_list,
-					decoded_datatype ) ) )
-		{
-			return (DATATYPE *)0;
-		}
-	}
-
-	if ( ! ( station_datatype =
-			station_datatype_list_seek(
-				station_datatype_list,
-				station_name,
-				datatype_name ) ) )
-	{
-		return (DATATYPE *)0;
-	}
-
-	if ( !station_datatype->datatype )
-	{
-		return (DATATYPE *)0;
-	}
-
-	return station_datatype->datatype;
-
-} /* hydrology_datatype_seek_phrase() */
-
 char *hydrology_translate_datatype_name(
 				LIST *station_datatype_list,
 				char *datatype_seek_phrase )
@@ -173,6 +65,12 @@ char *hydrology_translate_datatype_name(
 
 	if ( !list_rewind( station_datatype_list ) )
 		return (char *)0;
+
+	if ( !datatype_seek_phrase
+	||   !*datatype_seek_phrase )
+	{
+		return (char *)0;
+	}
 
 	do {
 		station_datatype = list_get( station_datatype_list );
@@ -243,7 +141,7 @@ LIST *hydrology_get_header_column_datatype_list(
 		column_piece++ )
 	{
 		if ( ( datatype =
-			hydrology_datatype_seek_phrase(
+			datatype_seek_phrase(
 				station_datatype_list,
 				station_name,
 				column_heading

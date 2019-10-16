@@ -416,7 +416,7 @@ LIST *station_datatype_fetch_list(
 	/* Note: delimiter is '|' */
 	/* ---------------------- */
 	sprintf(sys_string,
-	 	"station_datatype_list_all.sh %s",
+	 	"station_datatype_list_all.sh ignored %s",
 		station_name );
 
 	input_pipe = popen( sys_string, "r" );
@@ -504,11 +504,13 @@ STATION_DATATYPE *station_datatype_parse(
 	station_datatype->datatype->aggregation_sum =
 		(*piece_buffer == 'y');
 
+/* Retired.
 	piece( piece_buffer, '|', input_buffer, 6 );
 	station_datatype->datatype->ysi_load_heading = strdup( piece_buffer );
 
 	piece( piece_buffer, '|', input_buffer, 7 );
 	station_datatype->datatype->exo_load_heading = strdup( piece_buffer );
+*/
 
 	piece( piece_buffer, '|', input_buffer, 8 );
 	station_datatype->datatype->set_negative_values_to_zero =

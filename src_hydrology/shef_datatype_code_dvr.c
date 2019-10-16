@@ -38,7 +38,7 @@ int main( void )
 	/* Test 1 */
 	/* ------ */
 	station =
-		hydrology_get_or_set_station(
+		station_get_or_set_station(
 			hydrology->input.station_list,
 			APPLICATION_NAME,
 			"BA" );
@@ -57,7 +57,7 @@ int main( void )
 
 	printf( "Datatype='%s' should be salinity/ppt is (%s/%s)\n",
 		datatype_units_seek_phrase,
-		hydrology_datatype_name_seek_phrase(
+		datatype_name_seek_phrase(
 				station->station_datatype_list,
 				station->station_name,
 				datatype_units_seek_phrase ),
@@ -66,7 +66,7 @@ int main( void )
 				datatype_units_seek_phrase ) );
 
 	datatype =
-		hydrology_datatype_seek_phrase(
+		datatype_seek_phrase(
 				station->station_datatype_list,
 				station->station_name,
 				datatype_units_seek_phrase );
@@ -95,7 +95,7 @@ int main( void )
 	/* Test 2 */
 	/* ------ */
 	station =
-		hydrology_get_or_set_station(
+		station_get_or_set_station(
 			hydrology->input.station_list,
 			APPLICATION_NAME,
 			"BK" );
@@ -113,7 +113,7 @@ int main( void )
 	datatype_units_seek_phrase = "Chlorophyll [mu]g/L";
 
 	datatype =
-		hydrology_datatype_seek_phrase(
+		datatype_seek_phrase(
 				station->station_datatype_list,
 				station->station_name,
 				datatype_units_seek_phrase );
@@ -147,7 +147,7 @@ int main( void )
 	datatype_units_seek_phrase = "Chlorophyll µg/L";
 
 	if ( ! ( datatype =
-			hydrology_datatype_seek_phrase(
+			datatype_seek_phrase(
 				station->station_datatype_list,
 				station->station_name,
 				datatype_units_seek_phrase ) ) )
@@ -188,7 +188,7 @@ void test3( void )
 	hydrology = hydrology_new();
 
 	station =
-		hydrology_get_or_set_station(
+		station_get_or_set_station(
 			hydrology->input.station_list,
 			APPLICATION_NAME,
 			"BK" );
@@ -196,7 +196,7 @@ void test3( void )
 	datatype_units_seek_phrase = "Chlorophyll µg/L";
 
 	if ( ! ( datatype =
-			hydrology_datatype_seek_phrase(
+			datatype_seek_phrase(
 				station->station_datatype_list,
 				station->station_name,
 				datatype_units_seek_phrase ) ) )
@@ -234,7 +234,7 @@ void test4( void )
 	hydrology = hydrology_new();
 
 	station =
-		hydrology_get_or_set_station(
+		station_get_or_set_station(
 			hydrology->input.station_list,
 			APPLICATION_NAME,
 			"BK" );
@@ -242,7 +242,7 @@ void test4( void )
 	datatype_units_seek_phrase = "Salinity (PSU)";
 
 	if ( ! ( datatype =
-			hydrology_datatype_seek_phrase(
+			datatype_seek_phrase(
 				station->station_datatype_list,
 				station->station_name,
 				datatype_units_seek_phrase ) ) )

@@ -58,11 +58,6 @@ STATION *hydrology_set_or_get_station(
 				char *application_name,
 				char *station_name );
 
-STATION *hydrology_get_or_set_station(
-				LIST *input_station_list,
-				char *application_name,
-				char *station_name );
-
 char *hydrology_translate_units_name(
 				LIST *station_datatype_list,
 				char *units_phrase );
@@ -82,26 +77,8 @@ void hydrology_parse_datatype_units_phrase(
 				/* ----------------------- 	*/
 				char *datatype_units_seek_phrase );
 
-char *hydrology_datatype_name_seek_phrase(
-				LIST *station_datatype_list,
-				char *station_name,
-				/* -----------------------	*/
-				/* Samples: Salinity (PSU)	*/
-				/*	    Salinity		*/
-				/* ----------------------- 	*/
-				char *datatype_units_seek_phrase );
-
 char *hydrology_units_name_seek_phrase(
 				LIST *station_datatype_list,
-				/* -----------------------	*/
-				/* Samples: Salinity (PSU)	*/
-				/*	    Salinity		*/
-				/* ----------------------- 	*/
-				char *datatype_units_seek_phrase );
-
-DATATYPE *hydrology_datatype_seek_phrase(
-				LIST *station_datatype_list,
-				char *station_name,
 				/* -----------------------	*/
 				/* Samples: Salinity (PSU)	*/
 				/*	    Salinity		*/

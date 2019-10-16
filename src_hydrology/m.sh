@@ -1,6 +1,6 @@
 :
 
-make LT_upload measurement_insert measurement_insert_order
+make alias_datatype
 
 #cd - && make parse_alias_data
 

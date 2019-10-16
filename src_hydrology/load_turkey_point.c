@@ -143,7 +143,7 @@ int load_turkey_point_file(	char *application_name,
 
 	hydrology = hydrology_new();
 
-	station = hydrology_set_or_get_station(
+	station = station_get_or_set_station(
 			hydrology->input.station_list,
 			application_name,
 			station_name );

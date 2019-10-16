@@ -728,7 +728,7 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 	hydrology = hydrology_new();
 
 	station =
-		hydrology_get_or_set_station(
+		station_get_or_set_station(
 			hydrology->input.station_list,
 			application_name,
 			station_name );
@@ -781,7 +781,7 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 		trim( two_line_datatype_heading );
 
 		if ( ! ( datatype =
-				hydrology_datatype_seek_phrase(
+				datatype_seek_phrase(
 					station->station_datatype_list,
 					station->station_name,
 					two_line_datatype_heading ) ) )

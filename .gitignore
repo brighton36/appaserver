@@ -22,6 +22,8 @@ backup/
 # -------------
 # src_hydrology
 # -------------
+alias_datatype
+parse_alias_header
 measurement_change_order
 load_turkey_point
 shef_upload_datatype_convert

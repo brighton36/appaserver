@@ -127,4 +127,9 @@ STATION *station_fetch_new(
 			char *application_name,
 			char *station_name );
 
+STATION *station_get_or_set_station(
+			LIST *input_station_list,
+			char *application_name,
+			char *station_name );
+
 #endif

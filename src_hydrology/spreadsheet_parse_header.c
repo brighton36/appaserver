@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* $APPASERVER_HOME/src_hydrology/parse_alias_header.c	*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ---------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/spreadsheet_parse_header.c	*/
+/* ---------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* ---------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +31,7 @@
 #include "datatype.h"
 #include "units.h"
 #include "hydrology.h"
+#include "name_arg.h"
 
 /* Structures */
 /* ---------- */
@@ -40,7 +41,15 @@
 
 /* Prototypes */
 /* ---------- */
-void parse_alias_display(		LIST *datatype_list );
+void setup_arg(		NAME_ARG *arg, int argc, char **argv );
+
+void fetch_parameters(	char **filename,
+			char **station,
+			char **date_heading_label,
+			char **two_lines_yn,
+			NAME_ARG *arg );
+
+void spreadsheet_parse_display(		LIST *datatype_list );
 
 LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *station_name,
@@ -48,7 +57,7 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *second_line,
 					char *date_heading_label );
 
-LIST *parse_alias_data_get_datatype_list(
+LIST *spreadsheet_parse_data_get_datatype_list(
 					char *application_name,
 					char *station_name,
 					char *input_filespecification,
@@ -63,33 +72,35 @@ int main( int argc, char **argv )
 	char *station;
 	LIST *datatype_list;
 	boolean two_lines;
+	char *two_lines_yn;
+	NAME_ARG *arg;
 
 	/* Exits if failure. */
 	/* ----------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
 
-	if ( argc != 5 )
-	{
-		fprintf( stderr,
-		 "Usage: %s filename station date_heading_label two_lines_yn\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	arg = name_arg_new( argv[ 0 ] );
 
-	input_filespecification = argv[ 1 ];
-	station = argv[ 2 ];
-	date_heading_label = argv[ 3 ];
-	two_lines = (*argv[ 4 ] == 'y');
+	setup_arg( arg, argc, argv );
+
+	fetch_parameters(
+			&input_filespecification,
+			&station,
+			&date_heading_label,
+			&two_lines_yn,
+			arg );
+
+	two_lines = ( *two_lines_yn == 'y' );
 
 	if ( ( datatype_list =
-			parse_alias_data_get_datatype_list(
+			spreadsheet_parse_data_get_datatype_list(
 				application_name,
 				station,
 				input_filespecification,
 				date_heading_label,
 				two_lines ) ) )
 	{
-		parse_alias_display( datatype_list );
+		spreadsheet_parse_display( datatype_list );
 	}
 
 
@@ -97,7 +108,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void parse_alias_display( LIST *datatype_list )
+void spreadsheet_parse_display( LIST *datatype_list )
 {
 	DATATYPE *datatype;
 
@@ -112,9 +123,9 @@ void parse_alias_display( LIST *datatype_list )
 
 	} while ( list_next( datatype_list ) );
 
-} /* parse_alias_display() */
+} /* spreadsheet_parse_display() */
 
-LIST *parse_alias_data_get_datatype_list(
+LIST *spreadsheet_parse_data_get_datatype_list(
 				char *application_name,
 				char *station_name,
 				char *input_filespecification,
@@ -173,7 +184,7 @@ LIST *parse_alias_data_get_datatype_list(
 
 	return (LIST *)0;
 
-} /* parse_alias_data_get_datatype_list() */
+} /* spreadsheet_parse_data_get_datatype_list() */
 
 /* --------------------------- */
 /* Sets datatype->column_piece */
@@ -256,4 +267,36 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 	return datatype_list;
 
 } /* input_buffer_get_datatype_list() */
+
+void fetch_parameters(	char **filename,
+			char **station,
+			char **date_heading_label,
+			char **two_lines_yn,
+			NAME_ARG *arg )
+{
+	*filename = fetch_arg( arg, "filename" );
+	*station = fetch_arg( arg, "station" );
+	*date_heading_label = fetch_arg( arg, "date_heading_label" );
+	*two_lines_yn = fetch_arg( arg, "two_lines" );
+
+} /* fetch_parameters() */
+
+void setup_arg( NAME_ARG *arg, int argc, char **argv )
+{
+        int ticket;
+
+        ticket = add_valid_option( arg, "filename" );
+        ticket = add_valid_option( arg, "station" );
+
+        ticket = add_valid_option( arg, "date_heading_label" );
+        set_default_value( arg, ticket, "date" );
+
+        ticket = add_valid_option( arg, "two_lines" );
+	add_valid_value( arg, ticket, "yes" );
+	add_valid_value( arg, ticket, "no" );
+        set_default_value( arg, ticket, "no" );
+
+        ins_all( arg, argc, argv );
+
+} /* setup_arg() */
 

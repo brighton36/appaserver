@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* $APPASERVER_HOME/src_hydrology/parse_alias_data.c	*/
+/* $APPASERVER_HOME/src_hydrology/spreadsheet_parse.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -27,10 +27,12 @@
 #include "session.h"
 #include "application.h"
 #include "hydrology_library.h"
+#include "date_convert.h"
 #include "station.h"
 #include "datatype.h"
 #include "units.h"
 #include "hydrology.h"
+#include "name_arg.h"
 
 /* Structures */
 /* ---------- */
@@ -40,13 +42,23 @@
 
 /* Prototypes */
 /* ---------- */
-LIST *parse_alias_data_get_datatype_list(
+void setup_arg(		NAME_ARG *arg, int argc, char **argv );
+
+void fetch_parameters(	char **filename,
+			char **station,
+			char **date_heading_label,
+			char **two_lines_yn,
+			char **time_column_yn,
+			NAME_ARG *arg );
+
+LIST *spreadsheet_parse_get_datatype_list(
+					char *application_name,
 					char *station_name,
 					char *input_filespecification,
 					char *date_heading_label,
 					boolean two_lines );
 
-void parse_alias_display(
+void spreadsheet_parse_display(
 					char *station,
 					char *input_filespecification,
 					char *date_heading_label,
@@ -59,31 +71,41 @@ int main( int argc, char **argv )
 	char *date_heading_label;
 	char *station;
 	LIST *datatype_list;
+	char *two_lines_yn;
+	char *time_column_yn;
 	boolean two_lines;
 	boolean time_column;
+	NAME_ARG *arg;
+	char *application_name;
 
-	if ( argc != 6 )
-	{
-		fprintf( stderr,
-"Usage: %s filename station date_heading_label two_lines_yn time_column_yn\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	input_filespecification = argv[ 1 ];
-	station = argv[ 2 ];
-	date_heading_label = argv[ 3 ];
-	two_lines = ( *argv[ 4 ] == 'y' );
-	time_column = ( *argv[ 5 ] == 'y' );
+	arg = name_arg_new( argv[ 0 ] );
+
+	setup_arg( arg, argc, argv );
+
+	fetch_parameters(
+			&input_filespecification,
+			&station,
+			&date_heading_label,
+			&two_lines_yn,
+			&time_column_yn,
+			arg );
+
+	two_lines = ( *two_lines_yn == 'y' );
+	time_column = ( *time_column_yn == 'y' );
 
 	if ( ( datatype_list =
-			parse_alias_data_get_datatype_list(
+			spreadsheet_parse_get_datatype_list(
+				application_name,
 				station,
 				input_filespecification,
 				date_heading_label,
 				two_lines ) ) )
 	{
-		parse_alias_display(
+		spreadsheet_parse_display(
 			station,
 			input_filespecification,
 			date_heading_label,
@@ -95,7 +117,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void parse_alias_display(
+void spreadsheet_parse_display(
 			char *station,
 			char *input_filespecification,
 			char *date_heading_label,
@@ -111,24 +133,17 @@ void parse_alias_display(
 	char measurement_time_string[ 128 ];
 	char measurement_value_string[ 128 ];
 	boolean got_heading = 0;
+	JULIAN *measurement_date_time_julian;
+	DATE *measurement_date_time;
+	measurement_date_time_julian = julian_new_julian( 0.0 );
+	measurement_date_time = date_calloc();
 
 	if ( !list_length( datatype_list ) ) return;
 
 	input_file = fopen( input_filespecification, "r" );
 
-/*
-	JULIAN *measurement_date_time_julian;
-	DATE *measurement_date_time;
-	measurement_date_time_julian = julian_new_julian( 0.0 );
-	measurement_date_time = date_calloc();
-*/
-
 	*measurement_time_string = '\0';
 	timlib_reset_get_line_check_utf_16();
-
-/* Sample Input:
-"2017-12-01 11:00:00",0,2017,335,1100,14.21,0.1,0,0,0,5.182,23.33,23.42,23.25,24.51,24.72,24.3
-*/
 
 	while( timlib_get_line( input_buffer, input_file, 1024 ) )
 	{
@@ -183,13 +198,36 @@ void parse_alias_display(
 			column( measurement_time_string, 1, buffer );
 		}
 
-/*
-		if ( !date_set_yyyy_mm_dd_hh_mm_ss_colon(
+		if ( timlib_character_exists( measurement_date_string, '/' ) )
+		{
+			char buffer[ 128 ];
+
+			date_convert_source_american(
+				buffer,
+				international,
+				measurement_date_string );
+
+			strcpy( measurement_date_string, buffer );
+		}
+
+		if ( !date_set_yyyy_mm_dd(
 				measurement_date_time,
-				measurement_date_time_string ) )
+				measurement_date_string ) )
 		{
 			fprintf( stderr,
-				 "Ignoring bad date/time in line %d: %s\n",
+				 "Ignoring bad date in line %d: %s\n",
+				 line_number,
+				 input_buffer );
+			fflush( stderr );
+			continue;
+		}
+
+		if ( !date_set_time_hhmm(
+				measurement_date_time,
+				measurement_time_string ) )
+		{
+			fprintf( stderr,
+				 "Ignoring bad time in line %d: %s\n",
 				 line_number,
 				 input_buffer );
 			fflush( stderr );
@@ -205,12 +243,13 @@ void parse_alias_display(
 			hydrology_library_adjust_time_to_sequence(
 				measurement_date_time_julian,
 				VALID_FREQUENCY_TIME_SEQUENCE );
-*/
 
 		list_rewind( datatype_list );
 
 		do {
 			datatype = list_get_pointer( datatype_list );
+
+			if ( datatype->column_piece < 0 ) continue;
 
 			if ( !piece(	measurement_value_string,
 					',',
@@ -262,8 +301,12 @@ void parse_alias_display(
 			printf(		"%s^%s^%s^%s^%.3lf\n",
 					station,
 					datatype->datatype_name,
-					measurement_date_string,
-					measurement_time_string,
+					julian_display_yyyy_mm_dd(
+						measurement_date_time_julian->
+							current ),
+					julian_display_hhmm(
+						measurement_date_time_julian->
+							current ),
 					measurement_value );
 
 		} while( list_next( datatype_list ) );
@@ -272,9 +315,10 @@ void parse_alias_display(
 	fclose( input_file );
 	timlib_reset_get_line_check_utf_16();
 
-} /* parse_alias_display() */
+} /* spreadsheet_parse_display() */
 
-LIST *parse_alias_data_get_datatype_list(
+LIST *spreadsheet_parse_get_datatype_list(
+				char *application_name,
 				char *station_name,
 				char *input_filespecification,
 				char *date_heading_label,
@@ -283,13 +327,15 @@ LIST *parse_alias_data_get_datatype_list(
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
 	char input_buffer[ 1024 ];
-	LIST *datatype_list = list_new();
+	LIST *datatype_list;
 	char datatype_name[ 128 ];
 	char column_piece[ 128 ];
 	DATATYPE *datatype;
 
+	datatype_list = datatype_fetch_list( application_name );
+
 	sprintf( sys_string,
-		 "parse_alias_header \"%s\" \"%s\" \"%s\" %c",
+"spreadsheet_parse_header file=\"%s\" station=\"%s\" date_heading_label=\"%s\" two_lines=%c",
 		 input_filespecification,
 		 station_name,
 		 date_heading_label,
@@ -304,15 +350,64 @@ LIST *parse_alias_data_get_datatype_list(
 		piece( datatype_name, '^', input_buffer, 0 );
 		piece( column_piece, '^', input_buffer, 1 );
 
-		datatype = datatype_new( strdup( datatype_name ) );
+		if ( ! ( datatype = datatype_list_seek(
+				datatype_list,
+				datatype_name ) ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot seek datatype_name = [%s]\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 datatype_name );
+			exit( 1 );
+		}
+
 		datatype->column_piece = atoi( column_piece );
-		list_append_pointer( datatype_list, datatype );
 	}
 
 	pclose( input_pipe );
 
 	return datatype_list;
 
-} /* parse_alias_data_get_datatype_list() */
+} /* spreadsheet_parse_get_datatype_list() */
 
+void fetch_parameters(	char **filename,
+			char **station,
+			char **date_heading_label,
+			char **two_lines_yn,
+			char **time_column_yn,
+			NAME_ARG *arg )
+{
+	*filename = fetch_arg( arg, "filename" );
+	*station = fetch_arg( arg, "station" );
+	*date_heading_label = fetch_arg( arg, "date_heading_label" );
+	*two_lines_yn = fetch_arg( arg, "two_lines" );
+	*time_column_yn = fetch_arg( arg, "time_column" );
+
+} /* fetch_parameters() */
+
+void setup_arg( NAME_ARG *arg, int argc, char **argv )
+{
+        int ticket;
+
+        ticket = add_valid_option( arg, "filename" );
+        ticket = add_valid_option( arg, "station" );
+
+        ticket = add_valid_option( arg, "date_heading_label" );
+        set_default_value( arg, ticket, "date" );
+
+        ticket = add_valid_option( arg, "two_lines" );
+	add_valid_value( arg, ticket, "yes" );
+	add_valid_value( arg, ticket, "no" );
+        set_default_value( arg, ticket, "no" );
+
+        ticket = add_valid_option( arg, "time_column" );
+	add_valid_value( arg, ticket, "yes" );
+	add_valid_value( arg, ticket, "no" );
+        set_default_value( arg, ticket, "yes" );
+
+        ins_all( arg, argc, argv );
+
+} /* setup_arg() */
 

@@ -22,7 +22,6 @@
 #include "environ.h"
 #include "date.h"
 #include "process.h"
-#include "date_convert.h"
 #include "application.h"
 #include "basename.h"
 #include "hydrology.h"

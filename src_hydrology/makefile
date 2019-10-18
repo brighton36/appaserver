@@ -92,8 +92,8 @@ EXECUTABLES=	hydrology_verification_process				\
 		load_biscayne_ysi_data					\
 		load_ysi_data						\
 		load_cr300_data						\
-		parse_alias_data					\
-		parse_alias_header					\
+		spreadsheet_parse					\
+		spreadsheet_parse_header				\
 		alias_datatype						\
 		get_aggregation_sum_yn					\
 		apply_position_translation_to_record			\
@@ -380,15 +380,15 @@ load_sfwmd_breakpoint_data: load_sfwmd_breakpoint_data.c		\
 		sfwmd_station_datatype.o				\
 		-o load_sfwmd_breakpoint_data
 
-parse_alias_data: parse_alias_data.c					\
+spreadsheet_parse: spreadsheet_parse.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		parse_alias_data.c					\
+		spreadsheet_parse.c					\
 		${SOURCE_LIBS}						\
-		-o parse_alias_data
+		-o spreadsheet_parse
 
 alias_datatype: alias_datatype.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}
@@ -400,15 +400,15 @@ alias_datatype: alias_datatype.c					\
 		${SOURCE_LIBS}						\
 		-o alias_datatype
 
-parse_alias_header: parse_alias_header.c				\
+spreadsheet_parse_header: spreadsheet_parse_header.c			\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		parse_alias_header.c					\
+		spreadsheet_parse_header.c					\
 		${SOURCE_LIBS}						\
-		-o parse_alias_header
+		-o spreadsheet_parse_header
 
 load_cr300_data: load_cr300_data.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}

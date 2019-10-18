@@ -1087,6 +1087,11 @@ char *date_get_hhmm( char *destination, DATE *date )
 	return destination;
 }
 
+char *date_display_yyyymmdd( DATE *date )
+{
+	return date_display_yyyy_mm_dd( date );
+}
+
 char *date_display( DATE *date )
 {
 	return date_display_yyyy_mm_dd( date );

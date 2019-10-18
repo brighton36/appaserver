@@ -82,6 +82,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		adjust_measurement_time					\
 		delete_measurements_day					\
 		measurement_insert					\
+		measurement_frequency_reject				\
 		prepend_century_maybe					\
 		load_turkey_point					\
 		LT_upload						\
@@ -1365,7 +1366,7 @@ validate_midnight: validate_midnight.c ${SOURCE_LIBS}
 		validate_midnight.c					\
 		-o validate_midnight
 
-measurement_insert: measurement_insert.c measurement.o
+measurement_insert: measurement_insert.c
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-I${SOURCE_EVERGLADES}					\
@@ -1374,6 +1375,16 @@ measurement_insert: measurement_insert.c measurement.o
 		${STANDARD_LIBRARY} 					\
 		measurement_insert.c					\
 		-o measurement_insert
+
+measurement_frequency_reject: measurement_frequency_reject.c
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-I${SOURCE_EVERGLADES}					\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		measurement_frequency_reject.c				\
+		-o measurement_frequency_reject
 
 hydrology_statistics_report: hydrology_statistics_report.c		\
 		${LIBRARY}/query_attribute_statistics_list.o		\

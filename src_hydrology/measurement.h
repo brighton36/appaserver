@@ -76,8 +76,11 @@ MEASUREMENT_FREQUENCY *measurement_frequency_new(
 
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 				measurement_frequency_station_datatype_new(
+					char *application_name,
 					char *station_name,
-					char *datatype );
+					char *datatype,
+					char *begin_measurement_date,
+					char *end_measurement_date );
 
 MEASUREMENT_STRUCTURE *measurement_structure_new(
 					char *application_name );
@@ -143,7 +146,14 @@ boolean measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
 
 FILE *measurement_open_delete_pipe(	char *application_name );
 
+/* Returns static memory */
+/* --------------------- */
 char *measurement_display(		MEASUREMENT *m );
+
+/* Returns static memory */
+/* --------------------- */
+char *measurement_display_delimiter(	MEASUREMENT *m,
+					char delimiter );
 
 void measurement_delete(		FILE *delete_pipe,
 					MEASUREMENT *m );
@@ -163,8 +173,11 @@ boolean measurement_data_collection_frequency_reject(
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_get_or_set_station_datatype(
 					LIST *frequency_station_datatype_list,
+					char *application_name,
 					char *station_name,
-					char *datatype );
+					char *datatype,
+					char *begin_measurement_date,
+					char *end_measurement_date );
 
 void measurement_update(		char *application_name,
 					char *station_name,

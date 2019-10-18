@@ -308,6 +308,8 @@ void date_increment_weekly_ceiling(
 
 int date_get_day_of_week(	DATE *d );
 
+char *date_display_yyyymmdd(	DATE *date );
+
 char *date_display(		DATE *date );
 
 boolean date_same_day(		DATE *old_date,

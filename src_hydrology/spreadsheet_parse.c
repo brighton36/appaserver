@@ -58,12 +58,21 @@ LIST *spreadsheet_parse_get_datatype_list(
 					char *date_heading_label,
 					boolean two_lines );
 
+void spreadsheet_parse_get_begin_end_dates(
+					char **begin_measurement_date,
+					char **end_measurement_date,
+					char *input_filespecification,
+					char *date_heading_label,
+					boolean time_column );
+
 void spreadsheet_parse_display(
 					char *station,
 					char *input_filespecification,
 					char *date_heading_label,
 					LIST *datatype_list,
-					boolean time_column );
+					boolean time_column,
+					char *begin_measurement_date,
+					char *end_measurement_date );
 
 int main( int argc, char **argv )
 {
@@ -77,6 +86,8 @@ int main( int argc, char **argv )
 	boolean time_column;
 	NAME_ARG *arg;
 	char *application_name;
+	char *begin_measurement_date = {0};
+	char *end_measurement_date = {0};
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -97,7 +108,16 @@ int main( int argc, char **argv )
 	two_lines = ( *two_lines_yn == 'y' );
 	time_column = ( *time_column_yn == 'y' );
 
-	if ( ( datatype_list =
+	spreadsheet_parse_get_begin_end_dates(
+		&begin_measurement_date,
+		&end_measurement_date,
+		input_filespecification,
+		date_heading_label,
+		time_column );
+
+	if ( begin_measurement_date
+	&&   end_measurement_date
+	&&   ( datatype_list =
 			spreadsheet_parse_get_datatype_list(
 				application_name,
 				station,
@@ -110,7 +130,9 @@ int main( int argc, char **argv )
 			input_filespecification,
 			date_heading_label,
 			datatype_list,
-			time_column );
+			time_column,
+			begin_measurement_date,
+			end_measurement_date );
 	}
 
 	return 0;
@@ -122,9 +144,13 @@ void spreadsheet_parse_display(
 			char *input_filespecification,
 			char *date_heading_label,
 			LIST *datatype_list,
-			boolean time_column )
+			boolean time_column,
+			char *begin_measurement_date,
+			char *end_measurement_date )
 {
+	char sys_string[ 1024 ];
 	FILE *input_file;
+	FILE *output_pipe;
 	char input_buffer[ 2048 ];
 	int line_number = 0;
 	double measurement_value;
@@ -135,12 +161,30 @@ void spreadsheet_parse_display(
 	boolean got_heading = 0;
 	JULIAN *measurement_date_time_julian;
 	DATE *measurement_date_time;
+
 	measurement_date_time_julian = julian_new_julian( 0.0 );
 	measurement_date_time = date_calloc();
 
 	if ( !list_length( datatype_list ) ) return;
 
-	input_file = fopen( input_filespecification, "r" );
+	sprintf( sys_string,
+		 "measurement_frequency_reject %s %s '^'",
+		 begin_measurement_date,
+		 end_measurement_date );
+
+	output_pipe = popen( sys_string, "w" );
+
+	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_filespecification );
+		exit( 1 );
+	}
+
 
 	*measurement_time_string = '\0';
 	timlib_reset_get_line_check_utf_16();
@@ -286,19 +330,8 @@ void spreadsheet_parse_display(
 				measurement_value = 0.0;
 			}
 
-/*
-			printf(		"%s^%s^%s^%s^%.3lf\n",
-					station,
-					datatype->datatype_name,
-					julian_display_yyyy_mm_dd(
-						measurement_date_time_julian->
-							current ),
-					julian_display_hhmm(
-						measurement_date_time_julian->
-							current ),
-					measurement_value );
-*/
-			printf(		"%s^%s^%s^%s^%.3lf\n",
+			fprintf(	output_pipe,
+					"%s^%s^%s^%s^%.3lf\n",
 					station,
 					datatype->datatype_name,
 					julian_display_yyyy_mm_dd(
@@ -312,10 +345,133 @@ void spreadsheet_parse_display(
 		} while( list_next( datatype_list ) );
 	}
 
+	pclose( output_pipe );
 	fclose( input_file );
 	timlib_reset_get_line_check_utf_16();
 
 } /* spreadsheet_parse_display() */
+
+void spreadsheet_parse_get_begin_end_dates(
+					char **begin_measurement_date,
+					char **end_measurement_date,
+					char *input_filespecification,
+					char *date_heading_label,
+					boolean time_column )
+{
+	FILE *input_file;
+	char input_buffer[ 2048 ];
+	char measurement_date_string[ 128 ];
+	boolean got_heading = 0;
+	static char local_begin_measurement_date[ 32 ];
+	static char local_end_measurement_date[ 32 ];
+	DATE *measurement_date = date_calloc();
+
+	*begin_measurement_date = local_begin_measurement_date;
+	*end_measurement_date = local_end_measurement_date;
+	*local_begin_measurement_date = '\0';
+
+	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_filespecification );
+		exit( 1 );
+	}
+
+	timlib_reset_get_line_check_utf_16();
+
+	while( timlib_get_line( input_buffer, input_file, 1024 ) )
+	{
+		if ( !got_heading )
+		{
+			if ( instr(	date_heading_label,
+					input_buffer,
+					1 ) > -1 )
+			{
+				got_heading = 1;
+			}
+			continue;
+		}
+
+		/* Measurement Date */
+		/* ---------------- */
+		piece_quoted(	measurement_date_string,
+				',',
+				input_buffer,
+				0,
+				'"' );
+
+		if ( !isdigit( *measurement_date_string ) )
+			continue;
+
+		/* Measurement Time */
+		/* ---------------- */
+		if ( !time_column )
+		{
+			char buffer[ 128 ];
+
+			strcpy( buffer, measurement_date_string );
+			column( measurement_date_string, 0, buffer );
+		}
+
+		if ( timlib_character_exists( measurement_date_string, '/' ) )
+		{
+			char buffer[ 128 ];
+
+			date_convert_source_american(
+				buffer,
+				international,
+				measurement_date_string );
+
+			strcpy( measurement_date_string, buffer );
+		}
+
+		if ( !date_set_yyyy_mm_dd(
+				measurement_date,
+				measurement_date_string ) )
+		{
+			continue;
+		}
+
+		/* If first time. */
+		/* -------------- */
+		if ( !*local_begin_measurement_date )
+		{
+			strcpy( local_begin_measurement_date,
+				date_display_yyyymmdd(
+					measurement_date ) );
+
+			strcpy( local_end_measurement_date,
+				date_display_yyyymmdd(
+					measurement_date ) );
+			continue;
+		}
+
+		if ( strcmp(	date_display_yyyymmdd( measurement_date ),
+				local_begin_measurement_date ) < 0 )
+		{
+			strcpy( local_begin_measurement_date,
+				date_display_yyyymmdd(
+					measurement_date ) );
+		}
+		else
+		if ( strcmp(	date_display_yyyymmdd( measurement_date ),
+				local_end_measurement_date ) > 0 )
+		{
+			strcpy( local_end_measurement_date,
+				date_display_yyyymmdd(
+					measurement_date ) );
+		}
+
+	}
+
+	fclose( input_file );
+	timlib_reset_get_line_check_utf_16();
+
+} /* spreadsheet_parse_get_begin_end_dates() */
 
 LIST *spreadsheet_parse_get_datatype_list(
 				char *application_name,

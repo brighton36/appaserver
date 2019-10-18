@@ -469,14 +469,56 @@ FILE *measurement_open_delete_pipe( char *application_name )
 	return popen( sys_string, "w" );
 } /* measurement_open_delete_pipe() */
 
-char *measurement_display( MEASUREMENT *m )
+/* Returns static memory */
+/* --------------------- */
+char *measurement_display_delimiter(
+			MEASUREMENT *m,
+			char delimiter )
 {
 	static char buffer[ 1024 ];
 
 	if ( !m->null_value )
 	{
 		sprintf( buffer,
-		 	"%s,%s,%s,%s,%lf\n",
+		 	"%s%c%s%c%s%c%s%c%.3lf",
+		 	m->station_name,
+			delimiter,
+		 	m->datatype,
+			delimiter,
+		 	m->measurement_date,
+			delimiter,
+		 	m->measurement_time,
+			delimiter,
+		 	m->measurement_value );
+	}
+	else
+	{
+		sprintf( buffer,
+		 	"%s%c%s%c%s%c%s%c",
+		 	m->station_name,
+			delimiter,
+		 	m->datatype,
+			delimiter,
+		 	m->measurement_date,
+			delimiter,
+		 	m->measurement_time,
+			delimiter );
+	}
+
+	return buffer;
+
+} /* measurement_display_delimiter() */
+
+/* Returns static memory */
+/* --------------------- */
+char *measurement_display( MEASUREMENT *m )
+{
+	static char buffer[ 1024 ];
+
+	if ( !m->null_value )
+	{
+		sprintf(buffer,
+		 	"%s,%s,%s,%s,%.3lf",
 		 	m->station_name,
 		 	m->datatype,
 		 	m->measurement_date,
@@ -485,8 +527,8 @@ char *measurement_display( MEASUREMENT *m )
 	}
 	else
 	{
-		sprintf( buffer,
-		 	"%s,%s,%s,%s,\n",
+		sprintf(buffer,
+		 	"%s,%s,%s,%s,",
 		 	m->station_name,
 		 	m->datatype,
 		 	m->measurement_date,
@@ -494,6 +536,7 @@ char *measurement_display( MEASUREMENT *m )
 	}
 
 	return buffer;
+
 } /* measurement_display() */
 
 void measurement_delete( FILE *delete_pipe, MEASUREMENT *m )
@@ -564,8 +607,11 @@ boolean measurement_data_collection_frequency_reject(
 
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_station_datatype_new(
+					char *application_name,
 					char *station_name,
-					char *datatype )
+					char *datatype,
+					char *begin_measurement_date,
+					char *end_measurement_date )
 {
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *m;
 
@@ -586,6 +632,13 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 	m->station_name = station_name;
 	m->datatype = datatype;
 
+	m->date_time_frequency_dictionary =
+		measurement_get_date_time_frequency_dictionary(
+				application_name,
+				station_name,
+				datatype,
+				begin_measurement_date,
+				end_measurement_date );
 	return m;
 
 } /* measurement_frequency_station_datatype_new() */
@@ -593,8 +646,11 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_get_or_set_station_datatype(
 					LIST *frequency_station_datatype_list,
+					char *application_name,
 					char *station_name,
-					char *datatype )
+					char *datatype,
+					char *begin_measurement_date,
+					char *end_measurement_date )
 {
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *m;
 
@@ -610,9 +666,20 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 
 	if ( !list_rewind( frequency_station_datatype_list ) )
 	{
-		m = measurement_frequency_station_datatype_new(
-					station_name,
-					datatype );
+		if ( ! ( m = measurement_frequency_station_datatype_new(
+				application_name,
+				station_name,
+				datatype,
+				begin_measurement_date,
+				end_measurement_date ) ) )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: measurement_frequency_station_datatype_new() failed.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
 
 		list_append_pointer( frequency_station_datatype_list, m );
 		return m;
@@ -629,9 +696,20 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 
 	} while( list_next( frequency_station_datatype_list ) );
 
-	m = measurement_frequency_station_datatype_new(
-				station_name,
-				datatype );
+	if ( ! ( m = measurement_frequency_station_datatype_new(
+			application_name,
+			station_name,
+			datatype,
+			begin_measurement_date,
+			end_measurement_date ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: measurement_frequency_station_datatype_new() failed.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	list_append_pointer( frequency_station_datatype_list, m );
 

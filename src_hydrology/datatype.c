@@ -819,13 +819,13 @@ LIST *datatype_fetch_alias_list(
 } /* datatype_fetch_alias_list() */
 
 char *datatype_alias_display(
+			LIST *station_list,
 			char *application_name,
 			char *station_name,
 			char *datatype_alias )
 {
 	DATATYPE *datatype;
 	STATION *station;
-	LIST *station_list = list_new();
 
 	if ( ! ( station =
 			station_get_or_set_station(

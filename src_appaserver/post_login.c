@@ -198,10 +198,10 @@ int main( int argc, char **argv )
 "\n"
 "		<HTML>						\n"
 "		<HEAD>						\n"
-"			<TITLE>%s Login Denied</TITLE>   	\n"
+"			<TITLE>%s Please Try Again</TITLE>   	\n"
 "		</HEAD>						\n"
 "								\n"
-"		<p>Login denied					\n"
+"		<p>Please try again.				\n"
 "		</HTML>						\n",
 			application_name );
 		}

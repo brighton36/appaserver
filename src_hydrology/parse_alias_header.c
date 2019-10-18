@@ -40,23 +40,20 @@
 
 /* Prototypes */
 /* ---------- */
+void parse_alias_display(		LIST *datatype_list );
+
 LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *station_name,
-					char *input_buffer,
+					char *heading_buffer,
+					char *second_line,
 					char *date_heading_label );
 
 LIST *parse_alias_data_get_datatype_list(
-					char **error_message,
 					char *application_name,
 					char *station_name,
 					char *input_filespecification,
-					char *date_heading_label );
-
-void parse_alias_filespecification(
-					char *input_filespecification,
-					char *station,
-					LIST *datatype_list,
-					char *date_heading_label );
+					char *date_heading_label,
+					boolean two_lines );
 
 int main( int argc, char **argv )
 {
@@ -65,16 +62,16 @@ int main( int argc, char **argv )
 	char *date_heading_label;
 	char *station;
 	LIST *datatype_list;
-	char *error_message = {0};
+	boolean two_lines;
 
 	/* Exits if failure. */
 	/* ----------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
 
-	if ( argc != 4 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr,
-			 "Usage: %s filename station date_heading_label\n",
+		 "Usage: %s filename station date_heading_label two_lines_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -82,181 +79,51 @@ int main( int argc, char **argv )
 	input_filespecification = argv[ 1 ];
 	station = argv[ 2 ];
 	date_heading_label = argv[ 3 ];
+	two_lines = (*argv[ 4 ] == 'y');
 
-	if ( ! ( datatype_list =
+	if ( ( datatype_list =
 			parse_alias_data_get_datatype_list(
-				&error_message,
 				application_name,
 				station,
 				input_filespecification,
-				date_heading_label ) ) )
+				date_heading_label,
+				two_lines ) ) )
 	{
-		fprintf( stderr, "Error: %s\n", error_message );
-		fflush( stderr );
-		exit( 1 );
+		parse_alias_display( datatype_list );
 	}
 
-	parse_alias_filespecification(
-		input_filespecification,
-		station,
-		datatype_list,
-		date_heading_label );
 
 	return 0;
 
 } /* main() */
 
-void parse_alias_filespecification(
-			char *input_filespecification,
-			char *station,
-			LIST *datatype_list,
-			char *date_heading_label )
+void parse_alias_display( LIST *datatype_list )
 {
-	FILE *input_file;
-	char input_buffer[ 2048 ];
-	int line_number = 0;
-	double measurement_value;
 	DATATYPE *datatype;
-	char measurement_date_time_string[ 1024 ];
-	char measurement_value_string[ 32 ];
-	JULIAN *measurement_date_time_julian;
-	DATE *measurement_date_time;
 
-	if ( !list_length( datatype_list ) ) return;
+	if ( !list_rewind( datatype_list ) ) return;
 
-	input_file = fopen( input_filespecification, "r" );
+	do {
+		datatype = list_get_pointer( datatype_list );
 
-	timlib_reset_get_line_check_utf_16();
-	measurement_date_time_julian = julian_new_julian( 0.0 );
-	measurement_date_time = date_calloc();
+		printf( "%s^%d\n",
+			datatype->datatype_name,
+			datatype->column_piece );
 
-/* Sample Input:
-"2017-12-01 11:00:00",0,2017,335,1100,14.21,0.1,0,0,0,5.182,23.33,23.42,23.25,24.51,24.72,24.3
-*/
+	} while ( list_next( datatype_list ) );
 
-	while( timlib_get_line( input_buffer, input_file, 1024 ) )
-	{
-		line_number++;
-
-		if ( !*input_buffer || *input_buffer != '"' )
-		{
-			continue;
-		}
-
-		if ( instr( date_heading_label, input_buffer, 1 ) != -1 )
-		{
-			continue;
-		}
-
-		if ( !timlib_character_exists( input_buffer, ',' ) )
-		{
-			fprintf( stderr,
-				 "No comma in line %d: %s\n",
-				 line_number,
-				 input_buffer );
-			fflush( stderr );
-			continue;
-		}
-
-		/* Measurement date/time */
-		/* --------------------- */
-		piece_quoted(	measurement_date_time_string,
-				',',
-				input_buffer,
-				0,
-				'"' );
-
-		if ( !date_set_yyyy_mm_dd_hh_mm_ss_colon(
-				measurement_date_time,
-				measurement_date_time_string ) )
-		{
-			fprintf( stderr,
-				 "Ignoring bad date/time in line %d: %s\n",
-				 line_number,
-				 input_buffer );
-			fflush( stderr );
-			continue;
-		}
-
-		julian_set_yyyy_mm_dd_hhmm(
-			measurement_date_time_julian,
-			date_display_yyyy_mm_dd( measurement_date_time ),
-			date_display_hhmm( measurement_date_time ) );
-
-		measurement_date_time_julian =
-			hydrology_library_adjust_time_to_sequence(
-				measurement_date_time_julian,
-				VALID_FREQUENCY_TIME_SEQUENCE );
-
-		list_rewind( datatype_list );
-
-		do {
-			datatype = list_get_pointer( datatype_list );
-
-			if ( !piece(	measurement_value_string,
-					',',
-					input_buffer,
-					datatype->column_piece ) )
-			{
-				fprintf( stderr,
-				 "Cannot extract datatype %s in line %d: %s\n",
-				 	 datatype->datatype_name,
-				 	 line_number,
-				 	 input_buffer );
-				fflush( stderr );
-				continue;
-			}
-
-			if ( !*measurement_value_string
-			||   timlib_strcmp(
-				measurement_value_string,
-				"nan" ) == 0 )
-			{
-				fprintf( stderr,
-			"Datatype %s has an empty value in line %d: %s\n",
-				 	 datatype->datatype_name,
-				 	 line_number,
-				 	 input_buffer );
-				fflush( stderr );
-				continue;
-			}
-
-			measurement_value = atof( measurement_value_string );
-
-			if ( datatype->set_negative_values_to_zero
-			&&   measurement_value < 0.0 )
-			{
-				measurement_value = 0.0;
-			}
-
-			printf(		"%s^%s^%s^%s^%.3lf\n",
-					station,
-					datatype->datatype_name,
-					julian_display_yyyy_mm_dd(
-						measurement_date_time_julian->
-							current ),
-					julian_display_hhmm(
-						measurement_date_time_julian->
-							current ),
-					measurement_value );
-
-		} while( list_next( datatype_list ) );
-	}
-
-	fclose( input_file );
-	timlib_reset_get_line_check_utf_16();
-
-} /* parse_alias_filespecification() */
+} /* parse_alias_display() */
 
 LIST *parse_alias_data_get_datatype_list(
-				char **error_message,
 				char *application_name,
 				char *station_name,
 				char *input_filespecification,
-				char *date_heading_label )
+				char *date_heading_label,
+				boolean two_lines )
 {
 	FILE *input_file;
-	char input_buffer[ 1024 ];
+	char heading_buffer[ 1024 ];
+	char second_line[ 1024 ];
 	LIST *datatype_list = {0};
 
 	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
@@ -271,39 +138,38 @@ LIST *parse_alias_data_get_datatype_list(
 		exit( 1 );
 	}
 
+	*second_line = '\0';
 	timlib_reset_get_line_check_utf_16();
 
-	while( timlib_get_line( input_buffer, input_file, 1024 ) )
+	while( timlib_get_line( heading_buffer, input_file, 1024 ) )
 	{
-		if ( instr( date_heading_label, input_buffer, 1 ) != -1 )
+		if ( instr( date_heading_label, heading_buffer, 1 ) > -1 )
 		{
-			fclose( input_file );
+			if ( two_lines ) 
+			{
+				timlib_get_line(
+					second_line,
+					input_file,
+					1024 );
+			}
 
+			fclose( input_file );
 			timlib_reset_get_line_check_utf_16();
 
 			datatype_list =
 				input_buffer_get_datatype_list(
 					application_name,
 					station_name,
-					input_buffer,
+					heading_buffer,
+					second_line,
 					date_heading_label );
-
-			if ( !list_length( datatype_list ) )
-			{
-				*error_message =
-				"None of the headings matched a datatype.";
-				return (LIST *)0;
-			}
 
 			return datatype_list;
 		}
 	}
 
 	fclose( input_file );
-
 	timlib_reset_get_line_check_utf_16();
-
-	*error_message = "No date header found in input file.";
 
 	return (LIST *)0;
 
@@ -314,47 +180,71 @@ LIST *parse_alias_data_get_datatype_list(
 /* --------------------------- */
 LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *station_name,
-					char *input_buffer,
+					char *heading_buffer,
+					char *second_line,
 					char *date_heading_label )
 {
 	LIST *datatype_list;
 	DATATYPE *datatype;
-	char datatype_heading[ 128 ];
+	char datatype_heading_first_line[ 128 ];
+	char datatype_heading_second_line[ 128 ];
+	char two_line_datatype_heading[ 256 ];
 	int column_piece;
-	HYDROLOGY *hydrology;
 	STATION *station;
-
-	hydrology = hydrology_new();
 
 	station =
 		station_get_or_set_station(
-			hydrology->input.station_list,
+			list_new() /* station_list */,
 			application_name,
 			station_name );
 
 	datatype_list = list_new();
 
 	for(	column_piece = 0;
-		piece_quoted(	datatype_heading,
+		piece_quoted(	datatype_heading_first_line,
 				',',
-				input_buffer,
+				heading_buffer,
 				column_piece,
 				'"' );
 		column_piece++ )
 	{
-		if ( !*datatype_heading ) continue;
+		if ( !*datatype_heading_first_line ) continue;
 
-		if ( strcmp(	datatype_heading,
+		if ( strcasecmp(datatype_heading_first_line,
 				date_heading_label ) == 0 )
 		{
 			continue;
 		}
 
+		if ( *second_line )
+		{
+			piece_quoted(	datatype_heading_second_line,
+					',',
+					second_line,
+					column_piece,
+					'"' );
+		}
+
+		if ( *datatype_heading_second_line )
+		{
+			sprintf(two_line_datatype_heading,
+			 	"%s %s",
+			 	datatype_heading_first_line,
+			 	datatype_heading_second_line );
+		}
+		else
+		{
+			strcpy( two_line_datatype_heading,
+			 	datatype_heading_first_line );
+		}
+
+		trim( two_line_datatype_heading );
+
 		if ( ! ( datatype =
 				datatype_seek_phrase(
 					station->station_datatype_list,
 					station->station_name,
-					datatype_heading ) ) )
+					two_line_datatype_heading ) ) )
 		{
 			continue;
 		}

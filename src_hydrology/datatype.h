@@ -153,6 +153,7 @@ LIST *datatype_fetch_alias_list(
 				char *datatype_name );
 
 char *datatype_alias_display(
+				LIST *station_list,
 				char *application_name,
 				char *station_name,
 				char *datatype_alias );

@@ -1,6 +1,6 @@
 :
 
-make alias_datatype
+make parse_alias_data
 
 #cd - && make parse_alias_data
 

@@ -56,25 +56,42 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc < 2 )
+	if ( argc == 2 )
 	{
 		fprintf( stderr,
-			 "Usage: %s station [datatype_alias]\n",
+			 "Usage: %s [station datatype_alias]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	station_name = argv[ 1 ];
 
-	if ( argc == 2 )
+	if ( argc == 1 )
 	{
+		char input_buffer[ 1024 ];
+		char station_name[ 128 ];
 		char datatype_alias[ 128 ];
+		LIST *station_list = list_new();
 
-		while ( timlib_get_line( datatype_alias, stdin, 128 ) )
+		while ( timlib_get_line( input_buffer, stdin, 1024 ) )
 		{
-			printf( "%s:%s\n",
+			piece( station_name, '^', input_buffer, 0 );
+
+			if ( !piece( datatype_alias, '^', input_buffer, 1 ) )
+			{
+				fprintf( stderr,
+				"ERROR in %s/%s()/%d: delimiter is carrot.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
+			printf( "%s^%s^%s\n",
+				station_name,
 				datatype_alias,
 				datatype_alias_display(
+					station_list,
 					application_name,
 					station_name,
 					datatype_alias ) );
@@ -82,11 +99,14 @@ int main( int argc, char **argv )
 	}
 	else
 	{
+		station_name = argv[ 1 ];
 		datatype_alias = argv[ 2 ];
 
-		printf( "%s:%s\n",
+		printf( "%s^%s^%s\n",
+			station_name,
 			datatype_alias,
 			datatype_alias_display(
+				list_new() /* station_list */,
 				application_name,
 				station_name,
 				datatype_alias ) );

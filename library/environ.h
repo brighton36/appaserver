@@ -50,4 +50,6 @@ void environ_output_application_shell(	FILE *output_file );
 
 char *environ_get_shell_snippet(	void );
 
+void environ_display(			FILE *output_pipe );
+
 #endif

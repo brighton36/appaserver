@@ -22,6 +22,8 @@ char *resolve_environment_variables( char *return_string, char *s )
 	char looking_string[ 1024 ];
 	char looking_string_old[ 1024 ];
 
+	*return_string = '\0';
+
 	/* Work only with local memory */
 	/* --------------------------- */
 	strcpy( looking_string, s );
@@ -375,6 +377,21 @@ void add_library_to_python_path( void )
 		 appaserver_mount_point );
 	set_environment( "PYTHONPATH", python_library_path );
 }
+
+void environ_display( FILE *output_pipe )
+{
+	extern char **environ;
+	char **ptr;
+
+	ptr = environ;
+
+	while( *ptr )
+	{
+		fprintf( output_pipe, "%s\n", *ptr );
+		ptr++;
+	}
+
+} /* environ_display() */
 
 void add_appaserver_home_to_python_path( void )
 {

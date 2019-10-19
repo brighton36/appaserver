@@ -10,11 +10,10 @@
 #include "timlib.h"
 #include "dictionary.h"
 #include "document.h"
+#include "environ.h"
 #include "post2dictionary.h"
 
 #define TIMRILEY_EMAIL_ADDRESS	"timriley@appahost.com"
-#define RICK_DOCUMENT_ROOT	"/var/www/appahost"
-#define SUGAR_DOCUMENT_ROOT	"/home/timriley/public_html/appahost"
 #define APPAHOST_DOCUMENT_ROOT	"/var/www/html/appahost_com"
 
 int main( void )
@@ -25,13 +24,13 @@ int main( void )
 	char *message;
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
-	char *node_name;
 	char *document_root;
 	char output_process[ 128 ];
+	char *remote_IP_address;
+	char *https_on;
 
-	/* Place IP address in Apache's log. */
-	/* --------------------------------- */
-	if ( system( "env | grep REMOTE_ADDR= 1>&2" ) ) {};
+	remote_IP_address = environ_get_environment( "REMOTE_ADDR" );
+	https_on = environ_get_environment( "HTTPS" );
 
 	dictionary = post2dictionary(
 				stdin,
@@ -42,32 +41,28 @@ int main( void )
 	email_address = dictionary_get( dictionary, "email_address" );
 	message = dictionary_get( dictionary, "message" );
 
-	if ( reason && *reason
+	if ( timlib_strcmp( https_on, "on" ) == 0
+	&&   reason && *reason
 	&&   email_address && *email_address
 	&&   message && *message )
 	{
 		sprintf( sys_string,
-		 	"mailx -s \"Appahost message about %s from %s\" %s",
+		 	"mailx -s \"Appahost message about %s from %s/%s\" %s",
 		 	reason,
 		 	email_address,
+			remote_IP_address,
 		 	TIMRILEY_EMAIL_ADDRESS );
 
 		output_pipe = popen( sys_string, "w" );
 		fprintf( output_pipe, "%s\n", message );
+
+		environ_display( output_pipe );
 		pclose( output_pipe );
 	}
 
 	document_output_content_type();
 
-	node_name = pipe2string( "uname -n" );
-
-	if ( strcmp( node_name, "rick" ) == 0 )
-		document_root = RICK_DOCUMENT_ROOT;
-	else
-	if ( strcmp( node_name, "sugar.he.net" ) == 0 )
-		document_root = SUGAR_DOCUMENT_ROOT;
-	else
-		document_root = APPAHOST_DOCUMENT_ROOT;
+	document_root = APPAHOST_DOCUMENT_ROOT;
 
 	sprintf( output_process, "cat %s/message_sent.html", document_root );
 	if ( system( output_process ) ) {};

@@ -32,6 +32,8 @@ int main( int argc, char **argv )
 		measurement_frequency_station_datatype;
 	boolean bypass_reject;
 	boolean execute;
+	char sys_string[ 1024 ];
+	FILE *input_pipe;
 	int row_number = 0;
 
 	/* Exits if failure. */
@@ -76,7 +78,13 @@ int main( int argc, char **argv )
 				m->application_name );
 	}
 
-	while( timlib_get_line( delimited_record, stdin, 1024 ) )
+	sprintf( sys_string,
+		 "measurement_adjust_time_to_sequence delimiter='%c'",
+		 delimiter );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( timlib_get_line( delimited_record, input_pipe, 1024 ) )
 	{
 		row_number++;
 
@@ -131,8 +139,9 @@ int main( int argc, char **argv )
 		}
 	}
 
-	if ( m->insert_pipe ) pclose( m->insert_pipe );
+	pclose( input_pipe );
 
+	if ( m->insert_pipe ) pclose( m->insert_pipe );
 	if ( m->html_table_pipe ) pclose( m->html_table_pipe );
 
 	return 0;

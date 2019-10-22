@@ -96,6 +96,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		spreadsheet_parse					\
 		spreadsheet_parse_header				\
 		measurement_adjust_time_to_sequence			\
+		measurement_date_within_range				\
 		alias_datatype						\
 		get_aggregation_sum_yn					\
 		apply_position_translation_to_record			\
@@ -422,6 +423,17 @@ measurement_adjust_time_to_sequence:					\
 		measurement_adjust_time_to_sequence.c			\
 		${SOURCE_LIBS}						\
 		-o measurement_adjust_time_to_sequence
+
+measurement_date_within_range:						\
+	measurement_date_within_range.c					\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		measurement_date_within_range.c				\
+		${SOURCE_LIBS}						\
+		-o measurement_date_within_range
 
 load_cr300_data: load_cr300_data.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}

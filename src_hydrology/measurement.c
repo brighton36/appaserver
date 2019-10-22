@@ -205,10 +205,10 @@ void measurement_html_display( 		MEASUREMENT_STRUCTURE *m,
 
 } /* measurement_html_display() */
 
-void measurement_text_output(		MEASUREMENT *m,
+void measurement_text_output(		MEASUREMENT *measurement,
 					char delimiter )
 {
-	if ( !m || !m->measurement )
+	if ( !measurement )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: no record set.\n",
@@ -218,29 +218,29 @@ void measurement_text_output(		MEASUREMENT *m,
 		exit( 1 );
 	}
 
-	if ( !m->measurement->null_value )
+	if ( !measurement->null_value )
 	{
 		printf( "%s%c%s%c%s%c%s%c%lf\n",
-			m->measurement->station_name,
+			measurement->station_name,
 			delimiter,
-			m->measurement->datatype,
+			measurement->datatype,
 			delimiter,
-			m->measurement->measurement_date,
+			measurement->measurement_date,
 			delimiter,
-			m->measurement->measurement_time,
+			measurement->measurement_time,
 			delimiter,
-			m->measurement->measurement_value );
+			measurement->measurement_value );
 	}
 	else
 	{
 		printf("%s%c%s%c%s%c%s%c\n",
-			m->measurement->station_name,
+			measurement->station_name,
 			delimiter,
-			m->measurement->datatype,
+			measurement->datatype,
 			delimiter,
-			m->measurement->measurement_date,
+			measurement->measurement_date,
 			delimiter,
-			m->measurement->measurement_time,
+			measurement->measurement_time,
 			delimiter );
 	}
 

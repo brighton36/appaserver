@@ -224,7 +224,7 @@ JULIAN *measurement_adjust_time_to_sequence(
 					JULIAN *measurement_date_time,
 					char *sequence_list_string );
 
-void measurement_text_output(		MEASUREMENT *m,
+void measurement_text_output(		MEASUREMENT *measurement,
 					char delimiter );
 
 #endif

@@ -41,18 +41,15 @@
 
 /* Prototypes */
 /* ---------- */
-void execute(		char *date_piece,
-			char *delimiter );
+void execute(		char *delimiter );
 
 void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 
-void fetch_parameters(	char **date_piece,
-			char **delimiter,
+void fetch_parameters(	char **delimiter,
 			NAME_ARG *arg );
 
 int main( int argc, char **argv )
 {
-	char *date_piece;
 	char *delimiter;
 	NAME_ARG *arg;
 
@@ -61,27 +58,30 @@ int main( int argc, char **argv )
 	setup_arg( arg, argc, argv );
 
 	fetch_parameters(
-			&date_piece,
 			&delimiter,
 			arg );
 
-	execute( date_piece, delimiter );
+	execute( delimiter );
 
 	return 0;
 
 } /* main() */
 
-void execute(		char *date_piece,
-			char *delimiter )
+void execute( char *delimiter )
 {
 	char input_buffer[ 1024 ];
 	MEASUREMENT *measurement;
+	JULIAN *measurement_date_time_julian;
+	DATE *measurement_date_time;
+
+	measurement_date_time = date_calloc();
+	measurement_date_time_julian = julian_new_julian( 0.0 );
 
 	while ( timlib_get_line( input_buffer, stdin, 1024 ) )
 	{
 		if ( ! ( measurement = measurement_parse(
 						input_buffer,
-						delimiter ) ) )
+						*delimiter ) ) )
 		{
 			fprintf( stderr,
 				 "Error in %s/%s()/%d: cannot parse [%s].\n",
@@ -89,21 +89,19 @@ void execute(		char *date_piece,
 				 __FUNCTION__,
 				 __LINE__,
 				 input_buffer );
-
-			pclose( input_pipe );
 			exit( 1 );
 		}
 
 		if ( !date_set_yyyy_mm_dd(
 				measurement_date_time,
-				measurement_date_string ) )
+				measurement->measurement_date ) )
 		{
 			continue;
 		}
 
 		if ( !date_set_time_hhmm(
 				measurement_date_time,
-				measurement_time_string ) )
+				measurement->measurement_time ) )
 		{
 			continue;
 		}
@@ -119,18 +117,13 @@ void execute(		char *date_piece,
 				VALID_FREQUENCY_TIME_SEQUENCE );
 
 		measurement_text_output( measurement, *delimiter );
-
 	}
-
-	return measurement_list;
 
 } /* execute() */
 
-void fetch_parameters(	char **date_piece,
-			char **delimiter,
+void fetch_parameters(	char **delimiter,
 			NAME_ARG *arg )
 {
-	*date_piece = fetch_arg( arg, "date_piece" );
 	*delimiter = fetch_arg( arg, "delimiter" );
 
 } /* fetch_parameters() */
@@ -138,8 +131,6 @@ void fetch_parameters(	char **date_piece,
 void setup_arg( NAME_ARG *arg, int argc, char **argv )
 {
         int ticket;
-
-        ticket = add_valid_option( arg, "date_piece" );
 
         ticket = add_valid_option( arg, "delimiter" );
         set_default_value( arg, ticket, "^" );

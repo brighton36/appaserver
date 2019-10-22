@@ -15,9 +15,18 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "datatype.h"
+#include "name_arg.h"
 
 /* Prototypes */
 /* ---------- */
+void setup_arg(		NAME_ARG *arg, int argc, char **argv );
+
+void fetch_parameters(	char **begin_date,
+			char **end_date,
+			char **bypass_reject_yn,
+			char **delimiter,
+			char **execute_yn,
+			NAME_ARG *arg );
 
 int main( int argc, char **argv )
 {
@@ -25,7 +34,9 @@ int main( int argc, char **argv )
 	char *begin_measurement_date;
 	char *end_measurement_date;
 	char delimited_record[ 1024 ];
-	char delimiter;
+	char *delimiter;
+	char *bypass_reject_yn;
+	char *execute_yn;
 	MEASUREMENT_STRUCTURE *m;
 	MEASUREMENT_FREQUENCY *measurement_frequency = {0};
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *
@@ -35,6 +46,7 @@ int main( int argc, char **argv )
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
 	int row_number = 0;
+	NAME_ARG *arg;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -45,19 +57,20 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
-	{
-		fprintf(stderr,
-"Usage: %s delimiter bypass_data_collection_frequency_reject_yn begin_measurement_date end_measurement_date execute_yn\n", 
-			argv[ 0 ] );
-		exit( 1 );
-	}
+	arg = name_arg_new( argv[ 0 ] );
 
-	delimiter = *argv[ 1 ];
-	bypass_reject = (*argv[ 2 ] == 'y');
-	begin_measurement_date = argv[ 3 ];
-	end_measurement_date = argv[ 4 ];
-	execute = (*argv[ 5 ] == 'y');
+	setup_arg( arg, argc, argv );
+
+	fetch_parameters(
+		&begin_measurement_date,
+		&end_measurement_date,
+		&bypass_reject_yn,
+		&delimiter,
+		&execute_yn,
+		arg );
+
+	bypass_reject = ( *bypass_reject_yn == 'y' );
+	execute = ( *execute_yn == 'y' );
 
 	m = measurement_structure_new( application_name );
 
@@ -80,7 +93,7 @@ int main( int argc, char **argv )
 
 	sprintf( sys_string,
 		 "measurement_adjust_time_to_sequence delimiter='%c'",
-		 delimiter );
+		 *delimiter );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -91,7 +104,7 @@ int main( int argc, char **argv )
 		if ( !measurement_set_delimited_record(
 			m, 
 			delimited_record,
-			delimiter ) )
+			*delimiter ) )
 		{
 			fprintf( stderr,
 				 "Invalid data in row %d: %s\n",
@@ -147,4 +160,43 @@ int main( int argc, char **argv )
 	return 0;
 
 } /* main() */
+
+void fetch_parameters(	char **begin_date,
+			char **end_date,
+			char **bypass_reject_yn,
+			char **delimiter,
+			char **execute_yn,
+			NAME_ARG *arg )
+{
+	*begin_date = fetch_arg( arg, "begin_date" );
+	*end_date = fetch_arg( arg, "end_date" );
+	*bypass_reject_yn = fetch_arg( arg, "bypass_reject_yn" );
+	*delimiter = fetch_arg( arg, "delimiter" );
+	*execute_yn = fetch_arg( arg, "execute_yn" );
+
+} /* fetch_parameters() */
+
+void setup_arg( NAME_ARG *arg, int argc, char **argv )
+{
+        int ticket;
+
+        ticket = add_valid_option( arg, "begin_date" );
+        ticket = add_valid_option( arg, "end_date" );
+
+        ticket = add_valid_option( arg, "bypass_reject_yn" );
+        add_valid_value( arg, ticket, "yes" );
+        add_valid_value( arg, ticket, "no" );
+        set_default_value( arg, ticket, "no" );
+
+        ticket = add_valid_option( arg, "delimiter" );
+        set_default_value( arg, ticket, "^" );
+
+        ticket = add_valid_option( arg, "execute_yn" );
+        add_valid_value( arg, ticket, "yes" );
+        add_valid_value( arg, ticket, "no" );
+        set_default_value( arg, ticket, "no" );
+
+        ins_all( arg, argc, argv );
+
+} /* setup_arg() */
 

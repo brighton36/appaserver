@@ -516,7 +516,7 @@ int load_ysi_filespecification(
 					measurement_time );
 
 		measurement_date_time =
-			hydrology_library_adjust_time_to_sequence(
+			measurement_adjust_time_to_sequence(
 				measurement_date_time,
 				VALID_FREQUENCY_TIME_SEQUENCE );
 

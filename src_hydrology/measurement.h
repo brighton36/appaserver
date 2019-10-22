@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "dictionary.h"
+#include "julian.h"
 #include "boolean.h"
 
 #define MEASUREMENT_QUEUE_TOP_BOTTOM_LINES	50000
@@ -105,9 +106,10 @@ boolean measurement_set_delimited_record(
 					char *comma_delimited_record,
 					char delimiter );
 
-void measurement_insert( 		MEASUREMENT_STRUCTURE *m,
-					boolean execute,
+void measurement_html_display( 		MEASUREMENT_STRUCTURE *m,
 					FILE *html_table_pipe );
+
+void measurement_insert( 		MEASUREMENT_STRUCTURE *m );
 
 /*
 double measurement_get_value_from_db(	int *record_exists,
@@ -214,5 +216,9 @@ MEASUREMENT *measurement_variable_parse(
 void measurement_non_execute_display(
 					MEASUREMENT_STRUCTURE *m,
 					FILE *html_table_pipe );
+
+JULIAN *measurement_adjust_time_to_sequence(
+					JULIAN *measurement_date_time,
+					char *sequence_list_string );
 
 #endif

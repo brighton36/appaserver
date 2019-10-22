@@ -139,6 +139,14 @@ int load_turkey_point_file(	char *application_name,
 	HYDROLOGY *hydrology;
 	STATION *station;
 	MEASUREMENT_FREQUENCY *measurement_frequency;
+	char *begin_measurement_date = {0};
+	char *end_measurement_date = {0};
+
+	hydrology_parse_begin_end_dates(
+					&begin_measurement_date,
+					&end_measurement_date,
+					input_filename,
+					"date" /* date_heading_label */ );
 
 	hydrology = hydrology_new();
 
@@ -164,9 +172,12 @@ int load_turkey_point_file(	char *application_name,
 	hydrology_parse_file(
 		station->station_datatype_list,
 		measurement_frequency->frequency_station_datatype_list,
+		application_name,
 		stderr,
 		input_filename,
-		TURKEY_POINT_DATE_TIME_PIECE );
+		TURKEY_POINT_DATE_TIME_PIECE,
+		begin_measurement_date,
+		end_measurement_date );
 
 	if ( execute )
 	{

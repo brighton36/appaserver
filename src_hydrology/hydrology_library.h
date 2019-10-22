@@ -188,10 +188,6 @@ void hydrology_library_get_clean_begin_end_time(
 					char **begin_time_string,
 					char **end_time_string );
 
-JULIAN *hydrology_library_adjust_time_to_sequence(
-					JULIAN *measurement_date_time,
-					char *sequence_list_string );
-
 boolean hydrology_library_get_drift_ratio_variables(
 					DICTIONARY *parameter_dictionary,
 					double *first_multiplier_double,

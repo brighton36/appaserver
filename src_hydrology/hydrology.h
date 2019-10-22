@@ -94,9 +94,12 @@ MEASUREMENT *hydrology_extract_measurement(
 void hydrology_parse_file(
 				LIST *station_datatype_list,
 				LIST *frequency_station_datatype_list,
+				char *application_name,
 				FILE *error_file,
 				char *input_filename,
-				int date_time_piece );
+				int date_time_piece,
+				char *begin_measurement_date,
+				char *end_measurement_date );
 
 int hydrology_measurement_table_display(
 				char *station_name,
@@ -109,5 +112,47 @@ void hydrology_summary_table_display(
 int hydrology_measurement_insert(
 				char *station_name,
 				LIST *station_datatype_list );
+
+void hydrology_parse_begin_end_dates(
+				char **begin_measurement_date,
+				char **end_measurement_date,
+				char *input_filespecification,
+				char *date_heading_label );
+
+/* Returns static memory */
+/* --------------------- */
+char *hydrology_format_measurement_date(
+				/* ------------------------ */
+				/* Out: assume stack memory */
+				/* ------------------------ */
+				char *measurement_time_string,
+				/* -- */
+				/* In */
+				/* -- */
+				char *measurement_date_time_string );
+
+boolean hydrology_extract_zulu_date_time(
+				/* --- */
+				/* Out */
+				/* --- */
+				char *measurement_date_string,
+				/* --- */
+				/* Out */
+				/* --- */
+				char *measurement_time_string,
+				/* ----------------------------------- */
+				/* In: looks like 2018-08-31T14:30:22Z */
+				/* ----------------------------------- */
+				char *measurement_date_time_string );
+
+char *hydrology_trim_time(	char *measurement_time_string );
+
+/* Returns static */
+/* -------------- */
+char *hydrology_extract_hour(	char *measurement_time_string );
+
+/* Returns static */
+/* -------------- */
+char *hydrology_extract_minute(	char *measurement_time_string );
 
 #endif

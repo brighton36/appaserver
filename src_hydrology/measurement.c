@@ -160,9 +160,8 @@ void measurement_free( MEASUREMENT *m )
 	free( m );
 }
 
-void measurement_insert(	MEASUREMENT_STRUCTURE *m,
-				boolean execute,
-				FILE *html_table_pipe )
+void measurement_html_display( 		MEASUREMENT_STRUCTURE *m,
+					FILE *html_table_pipe )
 {
 	if ( !m || !m->measurement )
 	{
@@ -174,25 +173,68 @@ void measurement_insert(	MEASUREMENT_STRUCTURE *m,
 		exit( 1 );
 	}
 
-	if ( !execute )
+	if ( !html_table_pipe )
 	{
-		measurement_non_execute_display(
-				m,
-				html_table_pipe );
-		return;
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: html_table_pipe not set.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
-	if ( m->insert_pipe )
+	if ( !m->measurement->null_value )
 	{
-		measurement_output_insert_pipe(
-				m->insert_pipe,
-				m->measurement->station_name,
-				m->measurement->datatype,
-				m->measurement->measurement_date,
-				m->measurement->measurement_time,
-				m->measurement->measurement_value,
-				m->measurement->null_value );
+		fprintf(html_table_pipe,
+			"%s,%s,%s,%s,%lf\n",
+			m->measurement->station_name,
+			m->measurement->datatype,
+			m->measurement->measurement_date,
+			m->measurement->measurement_time,
+			m->measurement->measurement_value );
 	}
+	else
+	{
+		fprintf(html_table_pipe,
+			"%s,%s,%s,%s,null\n",
+			m->measurement->station_name,
+			m->measurement->datatype,
+			m->measurement->measurement_date,
+			m->measurement->measurement_time );
+	}
+
+} /* measurement_html_display() */
+
+void measurement_insert( MEASUREMENT_STRUCTURE *m )
+{
+	if ( !m || !m->measurement )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: no record set.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !m->insert_pipe )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: insert_pipe not set.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	measurement_output_insert_pipe(
+			m->insert_pipe,
+			m->measurement->station_name,
+			m->measurement->datatype,
+			m->measurement->measurement_date,
+			m->measurement->measurement_time,
+			m->measurement->measurement_value,
+			m->measurement->null_value );
 
 } /* measurement_insert() */
 
@@ -961,4 +1003,86 @@ MEASUREMENT *measurement_variable_parse(
 	return m;
 
 } /* measurement_variable_parse() */
+
+JULIAN *measurement_adjust_time_to_sequence(
+				JULIAN *measurement_date_time,
+				char *sequence_list_string )
+{
+	int time_integer;
+	int sequence_integer;
+	int minute_earlier;
+	int minute_later;
+	static LIST *sequence_list = {0};
+	char *hhmm_string;
+	char last_two_digits[ 3 ];
+
+	if ( !sequence_list )
+	{
+		sequence_list = 
+			list_delimiter_string_to_list(
+				sequence_list_string,
+				',' );
+
+		if ( !list_length( sequence_list ) )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty sequence list.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
+
+	hhmm_string = julian_get_hhmm_string( measurement_date_time->current );
+
+	if ( strlen( hhmm_string ) != 4 )
+	{
+		fprintf( stderr,
+"Warning in %s/%s()/%d: expecting time of 4 digits but got (%s) instead. Continuing...\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 hhmm_string );
+		return measurement_date_time;
+	}
+
+	*last_two_digits = *(hhmm_string + 2);
+	*(last_two_digits + 1) = *(hhmm_string + 3);
+	*(last_two_digits + 2) = '\0';
+
+	time_integer = atoi( last_two_digits );
+
+	list_rewind( sequence_list );
+	do {
+		sequence_integer =
+			atoi( list_get_pointer( sequence_list ) );
+
+		minute_earlier = sequence_integer - 1;
+		if ( minute_earlier == -1 ) minute_earlier = 59;
+
+		minute_later = sequence_integer + 1;
+
+		if ( time_integer == minute_earlier )
+		{
+			measurement_date_time->current =
+				julian_increment_minutes(
+					measurement_date_time->current,
+					1.0 );
+			return measurement_date_time;
+		}
+		else
+		if ( time_integer == minute_later )
+		{
+			measurement_date_time->current =
+				julian_increment_minutes(
+					measurement_date_time->current,
+					-1.0 );
+			return measurement_date_time;
+		}
+	} while( list_next( sequence_list ) );
+
+	return measurement_date_time;
+
+} /* measurement_adjust_time_to_sequence() */
 

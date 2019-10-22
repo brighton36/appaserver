@@ -12,7 +12,9 @@
 #include "hydrology.h"
 #include "timlib.h"
 #include "piece.h"
+#include "column.h"
 #include "date.h"
+#include "date_convert.h"
 #include "appaserver_library.h"
 
 HYDROLOGY *hydrology_new( void )
@@ -230,9 +232,12 @@ MEASUREMENT *hydrology_extract_measurement(
 void hydrology_parse_file(
 			LIST *station_datatype_list,
 			LIST *frequency_station_datatype_list,
+			char *application_name,
 			FILE *error_file,
 			char *input_filename,
-			int date_time_piece )
+			int date_time_piece,
+			char *begin_measurement_date,
+			char *end_measurement_date )
 {
 	FILE *input_file;
 	char input_string[ 4096 ];
@@ -299,10 +304,13 @@ void hydrology_parse_file(
 			measurement_frequency_station_datatype =
 			measurement_frequency_get_or_set_station_datatype(
 					frequency_station_datatype_list,
+					application_name,
 					station_datatype->station_name,
 					station_datatype->
 						datatype->
-						datatype_name );
+						datatype_name,
+					begin_measurement_date,
+					end_measurement_date );
 
 			if ( dictionary_length(
 				measurement_frequency_station_datatype->
@@ -531,4 +539,317 @@ int hydrology_measurement_table_display(
 	return load_count;
 
 } /* hydrology_measurement_table_display() */
+
+void hydrology_parse_begin_end_dates(
+					char **begin_measurement_date,
+					char **end_measurement_date,
+					char *input_filespecification,
+					char *date_heading_label )
+{
+	FILE *input_file;
+	char input_buffer[ 2048 ];
+	char measurement_date_string[ 128 ];
+	char measurement_time_string[ 128 ];
+	boolean got_heading = 0;
+	static char local_begin_measurement_date[ 32 ];
+	static char local_end_measurement_date[ 32 ];
+	DATE *measurement_date = date_calloc();
+
+	*begin_measurement_date = local_begin_measurement_date;
+	*end_measurement_date = local_end_measurement_date;
+	*local_begin_measurement_date = '\0';
+
+	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_filespecification );
+		exit( 1 );
+	}
+
+	timlib_reset_get_line_check_utf_16();
+
+	while( timlib_get_line( input_buffer, input_file, 1024 ) )
+	{
+		if ( !got_heading )
+		{
+			if ( instr(	date_heading_label,
+					input_buffer,
+					1 ) > -1 )
+			{
+				got_heading = 1;
+			}
+			continue;
+		}
+
+		/* Measurement Date */
+		/* ---------------- */
+		piece_quoted(	measurement_date_string,
+				',',
+				input_buffer,
+				0,
+				'"' );
+
+		if ( !isdigit( *measurement_date_string ) )
+			continue;
+
+		strcpy(	measurement_date_string,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			hydrology_format_measurement_date(
+				/* ------------------------ */
+				/* Out: assume stack memory */
+				/* ------------------------ */
+				measurement_time_string,
+				/* -- */
+				/* In */
+				/* -- */
+				measurement_date_string ) );
+
+		if ( !date_set_yyyy_mm_dd(
+				measurement_date,
+				measurement_date_string ) )
+		{
+			continue;
+		}
+
+		/* If first time. */
+		/* -------------- */
+		if ( !*local_begin_measurement_date )
+		{
+			strcpy( local_begin_measurement_date,
+				date_display_yyyymmdd(
+					measurement_date ) );
+
+			strcpy( local_end_measurement_date,
+				date_display_yyyymmdd(
+					measurement_date ) );
+			continue;
+		}
+
+		if ( strcmp(	date_display_yyyymmdd( measurement_date ),
+				local_begin_measurement_date ) < 0 )
+		{
+			strcpy( local_begin_measurement_date,
+				date_display_yyyymmdd(
+					measurement_date ) );
+		}
+		else
+		if ( strcmp(	date_display_yyyymmdd( measurement_date ),
+				local_end_measurement_date ) > 0 )
+		{
+			strcpy( local_end_measurement_date,
+				date_display_yyyymmdd(
+					measurement_date ) );
+		}
+
+	}
+
+	fclose( input_file );
+	timlib_reset_get_line_check_utf_16();
+
+} /* hydrology_parse_begin_end_dates() */
+
+/* Returns static memory */
+/* --------------------- */
+char *hydrology_format_measurement_date(
+				/* ------------------------ */
+				/* Out: assume stack memory */
+				/* ------------------------ */
+				char *measurement_time_string,
+				/* -- */
+				/* In */
+				/* -- */
+				char *measurement_date_time_string )
+{
+	static char measurement_date_string[ 128 ];
+
+	*measurement_date_string = '\0';
+
+	/* -------------------------------- */
+	/* Looks like: 2018-08-31T14:30:22Z */
+	/* -------------------------------- */
+	if ( timlib_character_exists( measurement_date_time_string, 'T' ) )
+	{
+		if ( !hydrology_extract_zulu_date_time(
+			/* --- */
+			/* Out */
+			/* --- */
+			measurement_date_string,
+			/* --- */
+			/* Out */
+			/* --- */
+			measurement_time_string,
+			/* ----------------------------------- */
+			/* In: looks like 2018-08-31T14:30:22Z */
+			/* ----------------------------------- */
+			measurement_date_time_string ) )
+		{
+			return measurement_date_string;
+		}
+	}
+
+	if ( timlib_character_exists( measurement_date_time_string, ' ' ) )
+	{
+		char buffer[ 128 ];
+
+		column( buffer, 0, measurement_date_time_string );
+
+		column(	measurement_time_string,
+			1,
+			measurement_date_time_string );
+
+		strcpy( measurement_date_time_string, buffer );
+	}
+
+	if ( timlib_character_exists( measurement_date_string, '/' ) )
+	{
+		char buffer[ 128 ];
+
+		date_convert_source_american(
+			buffer,
+			international,
+			measurement_date_string );
+
+		strcpy( measurement_date_string, buffer );
+	}
+
+	return measurement_date_string;
+
+} /* hydrology_format_measurement_date() */
+
+boolean hydrology_extract_zulu_date_time(
+			/* --- */
+			/* Out */
+			/* --- */
+			char *measurement_date_string,
+			/* --- */
+			/* Out */
+			/* --- */
+			char *measurement_time_string,
+			/* ----------------------------------- */
+			/* In: looks like 2018-08-31T14:30:22Z */
+			/* ----------------------------------- */
+			char *measurement_date_time_string )
+{
+	char date_buffer[ 64 ];
+	char time_buffer[ 64 ];
+	char *hour_buffer;
+	char *minute_buffer;
+	static DATE *date = {0};
+
+	if ( !timlib_character_exists( measurement_date_time_string, 'T' ) )
+		return 0;
+
+	if ( !date )
+	{
+		date = date_calloc();
+	}
+
+	piece( date_buffer, 'T', measurement_date_time_string, 0 );
+
+	if ( !date_set_yyyy_mm_dd(
+			date,
+			date_buffer ) )
+	{
+		return 0;
+	}
+
+	/* --------------------- */
+	/* Looks like: 14:30:22Z */
+	/* --------------------- */
+	hydrology_trim_time( measurement_time_string );
+
+	/* Returns static */
+	/* -------------- */
+	hour_buffer = hydrology_extract_hour( measurement_time_string );
+
+	/* Returns static */
+	/* -------------- */
+	minute_buffer = hydrology_extract_minute( measurement_time_string );
+
+	sprintf( time_buffer, "%s%s", hour_buffer, minute_buffer );
+
+	if ( !date_set_time_hhmm(
+			date,
+			time_buffer /* hhmm */ ) )
+	{
+		return 0;
+	}
+
+	/* Convert from zulu */
+	/* ----------------- */
+	date_increment_hours( date, date_get_utc_offset() );
+
+	date_get_yyyy_mm_dd( measurement_date_string, date );
+	date_get_hhmm( measurement_time_string, date );
+
+	return 1;
+
+} /* hydrology_extract_zulu_date_time() */
+
+char *hydrology_trim_time( char *measurement_time_string )
+{
+	char buffer[ 128 ];
+
+	strcpy( buffer, measurement_time_string );
+
+	trim_character( measurement_time_string, ':', buffer );
+
+	if ( strlen( measurement_time_string ) == 3 )
+	{
+		strcpy( buffer, measurement_time_string );
+
+		sprintf(	measurement_time_string,
+				"0%s",
+				measurement_time_string );
+	}
+
+	return measurement_time_string;
+
+} /* hydrology_trim_time() */
+
+/* Returns static */
+/* -------------- */
+char *hydrology_extract_hour( char *measurement_time_string )
+{
+	static char hour[ 3 ];
+
+	*hour = '\0';
+
+	if ( strlen( measurement_time_string ) != 4 )
+		return hour;
+
+	*hour = *measurement_time_string;
+	*(hour + 1) = *( measurement_time_string + 1 );
+
+	*(hour + 2) = '\0';
+
+	return hour;
+
+} /* hydrology_extract_hour() */
+
+/* Returns static */
+/* -------------- */
+char *hydrology_extract_minute( char *measurement_time_string )
+{
+	static char minute[ 3 ];
+
+	*minute = '\0';
+
+	if ( strlen( measurement_time_string ) != 4 )
+		return minute;
+
+	*minute = *( measurement_time_string + 2 );
+	*(minute + 1) = *( measurement_time_string + 3 );
+
+	*(minute + 2) = '\0';
+
+	return minute;
+
+} /* hydrology_extract_minute() */
 

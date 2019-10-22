@@ -51,19 +51,12 @@ void fetch_parameters(	char **filename,
 			char **time_column_yn,
 			NAME_ARG *arg );
 
-LIST *spreadsheet_parse_get_datatype_list(
+LIST *spreadsheet_parse_datatype_list(
 					char *application_name,
 					char *station_name,
 					char *input_filespecification,
 					char *date_heading_label,
 					boolean two_lines );
-
-void spreadsheet_parse_get_begin_end_dates(
-					char **begin_measurement_date,
-					char **end_measurement_date,
-					char *input_filespecification,
-					char *date_heading_label,
-					boolean time_column );
 
 void spreadsheet_parse_display(
 					char *station,
@@ -108,17 +101,16 @@ int main( int argc, char **argv )
 	two_lines = ( *two_lines_yn == 'y' );
 	time_column = ( *time_column_yn == 'y' );
 
-	spreadsheet_parse_get_begin_end_dates(
+	hydrology_parse_begin_end_dates(
 		&begin_measurement_date,
 		&end_measurement_date,
 		input_filespecification,
-		date_heading_label,
-		time_column );
+		date_heading_label );
 
 	if ( begin_measurement_date
 	&&   end_measurement_date
 	&&   ( datatype_list =
-			spreadsheet_parse_get_datatype_list(
+			spreadsheet_parse_datatype_list(
 				application_name,
 				station,
 				input_filespecification,
@@ -222,6 +214,21 @@ void spreadsheet_parse_display(
 		if ( !isdigit( *measurement_date_string ) )
 			continue;
 
+		strcpy( measurement_date_string,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			hydrology_format_measurement_date(
+				/* ------------------------ */
+				/* Out: assume stack memory */
+				/* ------------------------ */
+				measurement_time_string,
+				/* -- */
+				/* In */
+				/* -- */
+				measurement_date_string
+					/* measurement_date_time_string */ ) );
+
 		/* Measurement Time */
 		/* ---------------- */
 		if ( time_column )
@@ -232,26 +239,6 @@ void spreadsheet_parse_display(
 					1,
 					'"' );
 
-		}
-		else
-		{
-			char buffer[ 128 ];
-
-			strcpy( buffer, measurement_date_string );
-			column( measurement_date_string, 0, buffer );
-			column( measurement_time_string, 1, buffer );
-		}
-
-		if ( timlib_character_exists( measurement_date_string, '/' ) )
-		{
-			char buffer[ 128 ];
-
-			date_convert_source_american(
-				buffer,
-				international,
-				measurement_date_string );
-
-			strcpy( measurement_date_string, buffer );
 		}
 
 		if ( !date_set_yyyy_mm_dd(
@@ -284,7 +271,7 @@ void spreadsheet_parse_display(
 			date_display_hhmm( measurement_date_time ) );
 
 		measurement_date_time_julian =
-			hydrology_library_adjust_time_to_sequence(
+			measurement_adjust_time_to_sequence(
 				measurement_date_time_julian,
 				VALID_FREQUENCY_TIME_SEQUENCE );
 
@@ -351,129 +338,7 @@ void spreadsheet_parse_display(
 
 } /* spreadsheet_parse_display() */
 
-void spreadsheet_parse_get_begin_end_dates(
-					char **begin_measurement_date,
-					char **end_measurement_date,
-					char *input_filespecification,
-					char *date_heading_label,
-					boolean time_column )
-{
-	FILE *input_file;
-	char input_buffer[ 2048 ];
-	char measurement_date_string[ 128 ];
-	boolean got_heading = 0;
-	static char local_begin_measurement_date[ 32 ];
-	static char local_end_measurement_date[ 32 ];
-	DATE *measurement_date = date_calloc();
-
-	*begin_measurement_date = local_begin_measurement_date;
-	*end_measurement_date = local_end_measurement_date;
-	*local_begin_measurement_date = '\0';
-
-	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 input_filespecification );
-		exit( 1 );
-	}
-
-	timlib_reset_get_line_check_utf_16();
-
-	while( timlib_get_line( input_buffer, input_file, 1024 ) )
-	{
-		if ( !got_heading )
-		{
-			if ( instr(	date_heading_label,
-					input_buffer,
-					1 ) > -1 )
-			{
-				got_heading = 1;
-			}
-			continue;
-		}
-
-		/* Measurement Date */
-		/* ---------------- */
-		piece_quoted(	measurement_date_string,
-				',',
-				input_buffer,
-				0,
-				'"' );
-
-		if ( !isdigit( *measurement_date_string ) )
-			continue;
-
-		/* Measurement Time */
-		/* ---------------- */
-		if ( !time_column )
-		{
-			char buffer[ 128 ];
-
-			strcpy( buffer, measurement_date_string );
-			column( measurement_date_string, 0, buffer );
-		}
-
-		if ( timlib_character_exists( measurement_date_string, '/' ) )
-		{
-			char buffer[ 128 ];
-
-			date_convert_source_american(
-				buffer,
-				international,
-				measurement_date_string );
-
-			strcpy( measurement_date_string, buffer );
-		}
-
-		if ( !date_set_yyyy_mm_dd(
-				measurement_date,
-				measurement_date_string ) )
-		{
-			continue;
-		}
-
-		/* If first time. */
-		/* -------------- */
-		if ( !*local_begin_measurement_date )
-		{
-			strcpy( local_begin_measurement_date,
-				date_display_yyyymmdd(
-					measurement_date ) );
-
-			strcpy( local_end_measurement_date,
-				date_display_yyyymmdd(
-					measurement_date ) );
-			continue;
-		}
-
-		if ( strcmp(	date_display_yyyymmdd( measurement_date ),
-				local_begin_measurement_date ) < 0 )
-		{
-			strcpy( local_begin_measurement_date,
-				date_display_yyyymmdd(
-					measurement_date ) );
-		}
-		else
-		if ( strcmp(	date_display_yyyymmdd( measurement_date ),
-				local_end_measurement_date ) > 0 )
-		{
-			strcpy( local_end_measurement_date,
-				date_display_yyyymmdd(
-					measurement_date ) );
-		}
-
-	}
-
-	fclose( input_file );
-	timlib_reset_get_line_check_utf_16();
-
-} /* spreadsheet_parse_get_begin_end_dates() */
-
-LIST *spreadsheet_parse_get_datatype_list(
+LIST *spreadsheet_parse_datatype_list(
 				char *application_name,
 				char *station_name,
 				char *input_filespecification,
@@ -526,7 +391,7 @@ LIST *spreadsheet_parse_get_datatype_list(
 
 	return datatype_list;
 
-} /* spreadsheet_parse_get_datatype_list() */
+} /* spreadsheet_parse_datatype_list() */
 
 void fetch_parameters(	char **filename,
 			char **station,

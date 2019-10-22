@@ -524,7 +524,7 @@ int load_ysi_filespecification(
 					measurement_time );
 
 		measurement_date_time =
-			hydrology_library_adjust_time_to_sequence(
+			measurement_adjust_time_to_sequence(
 				measurement_date_time,
 				VALID_FREQUENCY_TIME_SEQUENCE );
 
@@ -924,7 +924,7 @@ boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 			}
 
 			*file_begin_date =
-				hydrology_library_adjust_time_to_sequence(
+				measurement_adjust_time_to_sequence(
 					*file_begin_date,
 					VALID_FREQUENCY_TIME_SEQUENCE );
 		}
@@ -957,7 +957,7 @@ boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 			}
 
 			*file_end_date =
-				hydrology_library_adjust_time_to_sequence(
+				measurement_adjust_time_to_sequence(
 					*file_end_date,
 					VALID_FREQUENCY_TIME_SEQUENCE );
 

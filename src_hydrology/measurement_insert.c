@@ -22,6 +22,8 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *begin_measurement_date;
+	char *end_measurement_date;
 	char delimited_record[ 1024 ];
 	char delimiter;
 	MEASUREMENT_STRUCTURE *m;
@@ -41,17 +43,19 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 4 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s delimiter bypass_data_collection_frequency_reject_yn execute_yn\n", 
+"Usage: %s delimiter bypass_data_collection_frequency_reject_yn begin_measurement_date end_measurement_date execute_yn\n", 
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	delimiter = *argv[ 1 ];
 	bypass_reject = (*argv[ 2 ] == 'y');
-	execute = (*argv[ 3 ] == 'y');
+	begin_measurement_date = argv[ 3 ];
+	end_measurement_date = argv[ 4 ];
+	execute = (*argv[ 5 ] == 'y');
 
 	m = measurement_structure_new( application_name );
 
@@ -94,8 +98,11 @@ int main( int argc, char **argv )
 			measurement_frequency_get_or_set_station_datatype(
 					measurement_frequency->
 						frequency_station_datatype_list,
+					application_name,
 					m->measurement->station_name,
-					m->measurement->datatype );
+					m->measurement->datatype,
+					begin_measurement_date,
+					end_measurement_date );
 
 			if ( dictionary_length(
 				measurement_frequency_station_datatype->
@@ -114,10 +121,14 @@ int main( int argc, char **argv )
 			}
 		}
 
-		measurement_insert(
-			m,
-			execute,
-			m->html_table_pipe );
+		if ( execute )
+		{
+			measurement_insert( m );
+		}
+		else
+		{
+			measurement_html_display( m, m->html_table_pipe );
+		}
 	}
 
 	if ( m->insert_pipe ) pclose( m->insert_pipe );

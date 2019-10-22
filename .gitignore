@@ -22,6 +22,7 @@ backup/
 # -------------
 # src_hydrology
 # -------------
+measurement_adjust_time_to_sequence
 measurement_frequency_reject
 alias_datatype
 spreadsheet_parse_header

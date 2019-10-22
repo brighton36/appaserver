@@ -205,6 +205,9 @@ MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
 					char *measurement_time,
 					LIST *measurement_list );
 
+void measurement_text_output(		MEASUREMENT *m,
+					char delimiter );
+
 void measurement_change_text_output(	LIST *measurement_list,
 					char delimiter );
 
@@ -220,5 +223,8 @@ void measurement_non_execute_display(
 JULIAN *measurement_adjust_time_to_sequence(
 					JULIAN *measurement_date_time,
 					char *sequence_list_string );
+
+void measurement_text_output(		MEASUREMENT *m,
+					char delimiter );
 
 #endif

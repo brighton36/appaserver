@@ -205,6 +205,47 @@ void measurement_html_display( 		MEASUREMENT_STRUCTURE *m,
 
 } /* measurement_html_display() */
 
+void measurement_text_output(		MEASUREMENT *m,
+					char delimiter )
+{
+	if ( !m || !m->measurement )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: no record set.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !m->measurement->null_value )
+	{
+		printf( "%s%c%s%c%s%c%s%c%lf\n",
+			m->measurement->station_name,
+			delimiter,
+			m->measurement->datatype,
+			delimiter,
+			m->measurement->measurement_date,
+			delimiter,
+			m->measurement->measurement_time,
+			delimiter,
+			m->measurement->measurement_value );
+	}
+	else
+	{
+		printf("%s%c%s%c%s%c%s%c\n",
+			m->measurement->station_name,
+			delimiter,
+			m->measurement->datatype,
+			delimiter,
+			m->measurement->measurement_date,
+			delimiter,
+			m->measurement->measurement_time,
+			delimiter );
+	}
+
+} /* measurement_text_output() */
+
 void measurement_insert( MEASUREMENT_STRUCTURE *m )
 {
 	if ( !m || !m->measurement )

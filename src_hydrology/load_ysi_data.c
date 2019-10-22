@@ -48,11 +48,13 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
+					JULIAN **file_end_date,
+					char *input_filespecification );
 
 /* Returns measurement_count */
 /* ------------------------- */
 int load_ysi_filespecification(
-					char *application_name,
 					char *input_filespecification,
 					char *station,
 					char execute_yn,
@@ -61,6 +63,8 @@ int load_ysi_filespecification(
 					char *begin_time_string,
 					char *end_date_string,
 					char *end_time_string,
+					JULIAN *file_begin_date,
+					JULIAN *file_end_date,
 					char *appaserver_data_directory );
 
 char *station_fetch(			char *application_name,
@@ -84,21 +88,15 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *input_directory;
 	char *station;
-	char *error_filespecification;
-	char *error_ftp_filename;
-	int line_count = 0;
 	int measurement_count = 0;
 	char *process_name;
-	int process_id = getpid();
-	char format_buffer[ 128 ];
+	char format_buffer[ 256 ];
 	char *begin_date_string;
 	char *begin_time_string;
 	char *end_date_string;
 	char *end_time_string;
 	JULIAN *file_begin_date = {0};
 	JULIAN *file_end_date = {0};
-	JULIAN *input_begin_date = {0};
-	JULIAN *input_end_date = {0};
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -196,9 +194,17 @@ int main( int argc, char **argv )
 
 	if ( !isdigit( *end_time_string ) ) end_time_string = "2359";
 
+	if ( !get_file_begin_end_dates(	&file_begin_date,
+					&file_end_date,
+					input_filespecification ) )
+	{
+		printf( "<h3>Error: invalid YSI file format.</h3>\n" );
+		document_close();
+		exit( 1 );
+	}
+
 	measurement_count =
 		load_ysi_filespecification(
-			application_name,
 			input_filespecification,
 			station,
 			execute_yn,
@@ -207,6 +213,8 @@ int main( int argc, char **argv )
 			begin_time_string,
 			end_date_string,
 			end_time_string,
+			file_begin_date,
+			file_end_date,
 			appaserver_parameter_file->
 				appaserver_data_directory );
 
@@ -234,7 +242,6 @@ int main( int argc, char **argv )
 /* Returns measurement_count */
 /* ------------------------- */
 int load_ysi_filespecification(
-			char *application_name,
 			char *input_filespecification,
 			char *station,
 			char execute_yn,
@@ -243,9 +250,11 @@ int load_ysi_filespecification(
 			char *begin_time_string,
 			char *end_date_string,
 			char *end_time_string,
+			JULIAN *file_begin_date,
+			JULIAN *file_end_date,
 			char *appaserver_data_directory )
 {
-	char sys_string[ 1024 ];
+	char sys_string[ 2048 ];
 	char bad_parse[ 128 ];
 	char bad_time[ 128 ];
 	char bad_range[ 128 ];
@@ -257,13 +266,13 @@ int load_ysi_filespecification(
 
 	pid = getpid();
 
-	sprintf( bad_parse, "%s/parse_%d.dat", appaserver_data_directory );
-	sprintf( bad_time, "%s/time_%d.dat", appaserver_data_directory );
-	sprintf( bad_range, "%s/range_%d.dat", appaserver_data_directory );
-	sprintf( bad_frequency, "%s/reject_%d.dat", appaserver_data_directory );
-	sprintf( bad_insert, "%s/insert_%d.dat", appaserver_data_directory );
+	sprintf( bad_parse, "%s/parse_%d.dat", appaserver_data_directory, pid );
+	sprintf( bad_time, "%s/time_%d.dat", appaserver_data_directory, pid );
+	sprintf( bad_range, "%s/range_%d.dat", appaserver_data_directory, pid );
+	sprintf( bad_frequency, "%s/reject_%d.dat", appaserver_data_directory, pid );
+	sprintf( bad_insert, "%s/insert_%d.dat", appaserver_data_directory, pid );
 
-	if ( *is_exo_yn != 'y' )
+	if ( is_exo_yn != 'y' )
 		two_lines = "yes";
 	else
 		two_lines = "no";
@@ -277,7 +286,9 @@ int load_ysi_filespecification(
 "				begin_time=%s					 "
 "				end_date=%s					 "
 "				end_time=%s 2>%s				|"
-"measurement_frequency_reject 
+"measurement_frequency_reject begin=%s end=%s 2>%s				|"
+"measurement_insert '^' y %s %s %c 2>%s						|"
+"cat										 ",
 		 input_filespecification,
 		 station,
 		 date_heading_label,
@@ -288,9 +299,16 @@ int load_ysi_filespecification(
 		 begin_time_string,
 		 end_date_string,
 		 end_time_string,
-		 bad_range );
+		 bad_range,
+		 julian_display_yyyy_mm_dd( file_begin_date->current ),
+		 julian_display_yyyy_mm_dd( file_end_date->current ),
+		 bad_frequency,
+		 julian_display_yyyy_mm_dd( file_begin_date->current ),
+		 julian_display_yyyy_mm_dd( file_end_date->current ),
+		 execute_yn,
+		 bad_insert );
 
-Usage: measurement_frequency_reject begin_date end_date delimiter
+	if ( system( sys_string ) ) {};
 
 	return 0;
 
@@ -451,4 +469,174 @@ char *station_label_fetch(	char *application_name,
 	return (char *)0;
 
 } /* station_label_fetch() */
+
+boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
+					JULIAN **file_end_date,
+					char *input_filespecification )
+{
+	char measurement_date_american[ 128 ];
+	char measurement_time[ 16 ];
+	char measurement_date_international[ 128 ];
+	FILE *input_file;
+	FILE *output_pipe;
+	char input_buffer[ 1024 ];
+	char tmp_filename[ 128 ];
+	char sys_string[ 1024 ];
+	int return_value = 0;
+	char input_label[ 128 ];
+
+	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_filespecification );
+		return 0;
+	}
+
+	sprintf( tmp_filename, "/tmp/load_ysi_data_%d.tmp", getpid() );
+	sprintf( sys_string,
+		 "date_min_max.e 0 ',' mysql > %s",
+		 tmp_filename);
+	output_pipe = popen( sys_string, "w" );
+
+	while( get_line( input_buffer, input_file ) )
+	{
+		if ( isdigit( *input_buffer ) )
+		{
+			/* Measurement time */
+			/* ---------------- */
+			piece(	measurement_date_american,
+				',',
+				input_buffer,
+				0 );
+
+			date_convert_source_american(
+					measurement_date_international,
+					international,
+					measurement_date_american );
+
+			if ( !date_convert_is_valid_international(
+					measurement_date_international ) )
+			{
+				continue;
+			}
+	
+			/* Measurement time */
+			/* ---------------- */
+			if ( !piece( measurement_time, ',', input_buffer, 1 ) )
+			{
+				continue;
+			}
+	
+			piece_inverse( measurement_time, ':', 2 );
+			trim_character(	measurement_time,
+					':',
+					measurement_time );
+	
+			if ( strlen( measurement_time ) != 4 )
+			{
+				continue;
+			}
+
+			fprintf(	output_pipe,
+					"%s:%s\n",
+					measurement_date_international,
+					measurement_time );
+		}
+	}
+
+	fclose( input_file );
+
+	timlib_reset_get_line_check_utf_16();
+
+	pclose( output_pipe );
+
+	if ( ! ( input_file = fopen( tmp_filename, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 tmp_filename );
+		return 0;
+	}
+
+	while( get_line( input_buffer, input_file ) )
+	{
+		piece( input_label, ':', input_buffer, 0 );
+
+		if ( strcmp( input_label, DATE_MINIMUM ) == 0 )
+		{
+			piece(	measurement_date_international,
+				':',
+				input_buffer,
+				1 );
+
+			if ( !*measurement_date_international )
+			{
+				*file_begin_date =
+					julian_yyyy_mm_dd_hhmm_new(
+						"0000-00-00",
+						"0000" );
+			}
+			else
+			{
+				piece(	measurement_time,
+					':',
+					input_buffer,
+					2 );
+
+				*file_begin_date =
+					julian_yyyy_mm_dd_hhmm_new(
+						measurement_date_international,
+						measurement_time );
+			}
+		}
+
+		if ( strcmp( input_label, DATE_MAXIMUM ) == 0 )
+		{
+			piece(	measurement_date_international,
+				':',
+				input_buffer,
+				1 );
+
+			if ( !*measurement_date_international )
+			{
+				*file_end_date =
+					julian_yyyy_mm_dd_hhmm_new(
+						"2999-12-31",
+						"0000" );
+			}
+			else
+			{
+				piece(	measurement_time,
+					':',
+					input_buffer,
+					2 );
+
+				*file_end_date =
+					julian_yyyy_mm_dd_hhmm_new(
+						measurement_date_international,
+						measurement_time );
+			}
+
+			return_value = 1;
+			break;
+		}
+	}
+
+	fclose( input_file );
+
+	timlib_reset_get_line_check_utf_16();
+
+	sprintf( sys_string, "rm -f %s", tmp_filename );
+	if ( system( sys_string ) ) {};
+
+	return return_value;
+
+} /* get_file_begin_end_dates() */
 

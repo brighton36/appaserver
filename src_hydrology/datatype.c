@@ -931,3 +931,27 @@ char *datatype_name_seek_phrase(
 
 } /* datatype_name_seek_phrase() */
 
+LIST *datatype_column_piece_datatype_list(
+				LIST *datatype_list )
+{
+	LIST *return_list;
+	DATATYPE *datatype;
+
+	if ( !list_rewind( datatype_list ) ) return (LIST *)0;
+
+	return_list = list_new();
+
+	do {
+		datatype = list_get( datatype_list );
+
+		if ( datatype->column_piece > -1 )
+		{
+			list_append_pointer( return_list, datatype );
+		}
+
+	} while ( list_next( datatype_list ) );
+
+	return return_list;
+
+} /* datatype_column_piece_datatype_list() */
+

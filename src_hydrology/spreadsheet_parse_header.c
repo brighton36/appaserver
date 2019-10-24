@@ -41,6 +41,10 @@
 
 /* Prototypes */
 /* ---------- */
+boolean spreadsheet_parse_got_heading_label(
+			char *date_heading_label,
+			char *heading_buffer );
+
 void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 
 void fetch_parameters(	char **filename,
@@ -54,10 +58,9 @@ void spreadsheet_parse_display(		LIST *datatype_list );
 LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *station_name,
 					char *heading_buffer,
-					char *second_line,
-					char *date_heading_label );
+					char *second_line );
 
-LIST *spreadsheet_parse_data_get_datatype_list(
+LIST *spreadsheet_parse_get_datatype_list(
 					char *application_name,
 					char *station_name,
 					char *input_filespecification,
@@ -79,6 +82,11 @@ int main( int argc, char **argv )
 	/* ----------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
 
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	arg = name_arg_new( argv[ 0 ] );
 
 	setup_arg( arg, argc, argv );
@@ -93,7 +101,7 @@ int main( int argc, char **argv )
 	two_lines = ( *two_lines_yn == 'y' );
 
 	if ( ( datatype_list =
-			spreadsheet_parse_data_get_datatype_list(
+			spreadsheet_parse_get_datatype_list(
 				application_name,
 				station,
 				input_filespecification,
@@ -125,7 +133,7 @@ void spreadsheet_parse_display( LIST *datatype_list )
 
 } /* spreadsheet_parse_display() */
 
-LIST *spreadsheet_parse_data_get_datatype_list(
+LIST *spreadsheet_parse_get_datatype_list(
 				char *application_name,
 				char *station_name,
 				char *input_filespecification,
@@ -154,7 +162,9 @@ LIST *spreadsheet_parse_data_get_datatype_list(
 
 	while( timlib_get_line( heading_buffer, input_file, 1024 ) )
 	{
-		if ( instr( date_heading_label, heading_buffer, 1 ) > -1 )
+		if ( spreadsheet_parse_got_heading_label(
+			date_heading_label,
+			heading_buffer ) )
 		{
 			if ( two_lines ) 
 			{
@@ -172,8 +182,7 @@ LIST *spreadsheet_parse_data_get_datatype_list(
 					application_name,
 					station_name,
 					heading_buffer,
-					second_line,
-					date_heading_label );
+					second_line );
 
 			return datatype_list;
 		}
@@ -184,89 +193,7 @@ LIST *spreadsheet_parse_data_get_datatype_list(
 
 	return (LIST *)0;
 
-} /* spreadsheet_parse_data_get_datatype_list() */
-
-/* --------------------------- */
-/* Sets datatype->column_piece */
-/* --------------------------- */
-LIST *input_buffer_get_datatype_list(	char *application_name,
-					char *station_name,
-					char *heading_buffer,
-					char *second_line,
-					char *date_heading_label )
-{
-	LIST *datatype_list;
-	DATATYPE *datatype;
-	char datatype_heading_first_line[ 128 ];
-	char datatype_heading_second_line[ 128 ];
-	char two_line_datatype_heading[ 256 ];
-	int column_piece;
-	STATION *station;
-
-	station =
-		station_get_or_set_station(
-			list_new() /* station_list */,
-			application_name,
-			station_name );
-
-	datatype_list = list_new();
-
-	for(	column_piece = 0;
-		piece_quoted(	datatype_heading_first_line,
-				',',
-				heading_buffer,
-				column_piece,
-				'"' );
-		column_piece++ )
-	{
-		if ( !*datatype_heading_first_line ) continue;
-
-		if ( strcasecmp(datatype_heading_first_line,
-				date_heading_label ) == 0 )
-		{
-			continue;
-		}
-
-		if ( *second_line )
-		{
-			piece_quoted(	datatype_heading_second_line,
-					',',
-					second_line,
-					column_piece,
-					'"' );
-		}
-
-		if ( *datatype_heading_second_line )
-		{
-			sprintf(two_line_datatype_heading,
-			 	"%s %s",
-			 	datatype_heading_first_line,
-			 	datatype_heading_second_line );
-		}
-		else
-		{
-			strcpy( two_line_datatype_heading,
-			 	datatype_heading_first_line );
-		}
-
-		trim( two_line_datatype_heading );
-
-		if ( ! ( datatype =
-				datatype_seek_phrase(
-					station->station_datatype_list,
-					station->station_name,
-					two_line_datatype_heading ) ) )
-		{
-			continue;
-		}
-
-		datatype->column_piece = column_piece;
-		list_append_pointer( datatype_list, datatype );
-	}
-
-	return datatype_list;
-
-} /* input_buffer_get_datatype_list() */
+} /* spreadsheet_parse_get_datatype_list() */
 
 void fetch_parameters(	char **filename,
 			char **station,
@@ -299,4 +226,91 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         ins_all( arg, argc, argv );
 
 } /* setup_arg() */
+
+boolean spreadsheet_parse_got_heading_label(
+				char *date_heading_label,
+				char *heading_buffer )
+{
+	if ( instr( date_heading_label, heading_buffer, 1 ) > -1 )
+		return 1;
+	else
+		return 0;
+
+} /* spreadsheet_parse_got_heading_label() */
+
+/* --------------------------- */
+/* Sets datatype->column_piece */
+/* --------------------------- */
+LIST *input_buffer_get_datatype_list(	char *application_name,
+					char *station_name,
+					char *heading_buffer,
+					char *second_line )
+{
+	LIST *datatype_list;
+	DATATYPE *datatype;
+	char datatype_heading_first_line[ 128 ];
+	char datatype_heading_second_line[ 128 ];
+	char datatype_units_seek_phrase[ 256 ];
+	int column_piece;
+	STATION *station;
+
+	station =
+		station_get_or_set_station(
+			list_new() /* station_list */,
+			application_name,
+			station_name );
+
+	datatype_list = list_new();
+	*datatype_heading_second_line = '\0';
+
+	for(	column_piece = 0;
+		piece_quoted(	datatype_heading_first_line,
+				',',
+				heading_buffer,
+				column_piece,
+				'"' );
+		column_piece++ )
+	{
+		if ( !*datatype_heading_first_line ) continue;
+
+		if ( *second_line )
+		{
+			piece_quoted(	datatype_heading_second_line,
+					',',
+					second_line,
+					column_piece,
+					'"' );
+		}
+
+		if ( *datatype_heading_second_line )
+		{
+			sprintf(datatype_units_seek_phrase,
+			 	"%s %s",
+			 	datatype_heading_first_line,
+			 	datatype_heading_second_line );
+		}
+		else
+		{
+			strcpy( datatype_units_seek_phrase,
+			 	datatype_heading_first_line );
+		}
+
+		trim( datatype_units_seek_phrase );
+
+		if ( ! ( datatype =
+				datatype_seek_phrase(
+					station->station_datatype_list,
+					station->station_name,
+					datatype_units_seek_phrase ) ) )
+		{
+			continue;
+		}
+
+		datatype->column_piece = column_piece;
+		list_append_pointer( datatype_list, datatype );
+	}
+
+	return datatype_column_piece_datatype_list( datatype_list ); 
+
+} /* input_buffer_get_datatype_list() */
 

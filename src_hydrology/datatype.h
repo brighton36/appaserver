@@ -176,4 +176,7 @@ char *datatype_name_seek_phrase(
 				/* ----------------------- 	*/
 				char *datatype_units_seek_phrase );
 
+LIST *datatype_column_piece_datatype_list(
+				LIST *datatype_list );
+
 #endif

@@ -42,6 +42,10 @@
 
 /* Prototypes */
 /* ---------- */
+boolean spreadsheet_parse_got_heading_label(
+			char *date_heading_label,
+			char *heading_buffer );
+
 void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 
 void fetch_parameters(	char **filename,
@@ -70,7 +74,7 @@ int main( int argc, char **argv )
 	char *input_filespecification;
 	char *date_heading_label;
 	char *station;
-	LIST *datatype_list;
+	LIST *datatype_list = {0};
 	char *two_lines_yn;
 	char *time_column_yn;
 	boolean two_lines;
@@ -83,6 +87,11 @@ int main( int argc, char **argv )
 	/* Exits if failure. */
 	/* ----------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	arg = name_arg_new( argv[ 0 ] );
 
@@ -179,12 +188,13 @@ void spreadsheet_parse_display(
 
 		if ( !got_heading )
 		{
-			if ( instr(	date_heading_label,
-					input_buffer,
-					1 ) > -1 )
+			if ( spreadsheet_parse_got_heading_label(
+				date_heading_label,
+				input_buffer ) )
 			{
 				got_heading = 1;
 			}
+
 			continue;
 		}
 
@@ -372,7 +382,7 @@ LIST *spreadsheet_parse_datatype_list(
 
 	pclose( input_pipe );
 
-	return datatype_list;
+	return datatype_column_piece_datatype_list( datatype_list );
 
 } /* spreadsheet_parse_datatype_list() */
 
@@ -414,4 +424,15 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         ins_all( arg, argc, argv );
 
 } /* setup_arg() */
+
+boolean spreadsheet_parse_got_heading_label(
+				char *date_heading_label,
+				char *heading_buffer )
+{
+	if ( instr( date_heading_label, heading_buffer, 1 ) > -1 )
+		return 1;
+	else
+		return 0;
+
+} /* spreadsheet_parse_got_heading_label() */
 

@@ -55,9 +55,7 @@ void output_bad_records(
 		 		char *bad_frequency_file,
 		 		char *bad_insert_file );
 
-/* Returns measurement_count */
-/* ------------------------- */
-int load_ysi_filespecification(
+void load_ysi_filespecification(
 					char *input_filespecification,
 					char *station,
 					char execute_yn,
@@ -89,7 +87,6 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *input_directory;
 	char *station;
-	int measurement_count = 0;
 	char *process_name;
 	char format_buffer[ 256 ];
 	char *begin_date_string;
@@ -146,6 +143,10 @@ int main( int argc, char **argv )
 
 	printf( "<h1>%s</h1>\n",
 	 	format_initial_capital( format_buffer, process_name ) );
+	printf( "<h2>" );
+	fflush( stdout );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
+	printf( "</h2>\n" );
 	fflush( stdout );
 
 	input_directory = basename_get_directory( input_filespecification );
@@ -194,8 +195,7 @@ int main( int argc, char **argv )
 
 	if ( !isdigit( *end_time_string ) ) end_time_string = "2359";
 
-	measurement_count =
-		load_ysi_filespecification(
+	load_ysi_filespecification(
 			input_filespecification,
 			station,
 			execute_yn,
@@ -207,14 +207,10 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->
 				appaserver_data_directory );
 
-/*
 	if ( execute_yn == 'y' )
-		printf( "<p>Inserted %d measurements.\n",
-			measurement_count );
+		printf( "<h3>Insert complete.</h3>\n" );
 	else
-		printf( "<p>Did not insert %d measurements.\n",
-			measurement_count );
-*/
+		printf( "<h3>Insert not executed.</h3>\n" );
 
 	if ( execute_yn == 'y' )
 	{
@@ -230,9 +226,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-/* Returns measurement_count */
-/* ------------------------- */
-int load_ysi_filespecification(
+void load_ysi_filespecification(
 			char *input_filespecification,
 			char *station,
 			char execute_yn,
@@ -307,8 +301,6 @@ int load_ysi_filespecification(
 		 bad_range,
 		 bad_frequency,
 		 bad_insert );
-
-	return 0;
 
 } /* load_ysi_filespecification() */
 

@@ -42,10 +42,6 @@
 
 /* Prototypes */
 /* ---------- */
-boolean spreadsheet_parse_got_heading_label(
-			char *date_heading_label,
-			char *heading_buffer );
-
 void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 
 void fetch_parameters(	char **filename,
@@ -53,6 +49,7 @@ void fetch_parameters(	char **filename,
 			char **date_heading_label,
 			char **two_lines_yn,
 			char **time_column_yn,
+			char **date_piece,
 			NAME_ARG *arg );
 
 LIST *spreadsheet_parse_datatype_list(
@@ -67,7 +64,8 @@ void spreadsheet_parse_display(
 					char *input_filespecification,
 					char *date_heading_label,
 					LIST *datatype_list,
-					boolean time_column );
+					boolean time_column,
+					int date_piece );
 
 int main( int argc, char **argv )
 {
@@ -79,6 +77,7 @@ int main( int argc, char **argv )
 	char *time_column_yn;
 	boolean two_lines;
 	boolean time_column;
+	char *date_piece;
 	NAME_ARG *arg;
 	char *application_name;
 	char *begin_measurement_date = {0};
@@ -103,6 +102,7 @@ int main( int argc, char **argv )
 			&date_heading_label,
 			&two_lines_yn,
 			&time_column_yn,
+			&date_piece,
 			arg );
 
 	two_lines = ( *two_lines_yn == 'y' );
@@ -112,7 +112,8 @@ int main( int argc, char **argv )
 		&begin_measurement_date,
 		&end_measurement_date,
 		input_filespecification,
-		date_heading_label );
+		date_heading_label,
+		atoi( date_piece ) );
 
 	if ( begin_measurement_date
 	&&   end_measurement_date
@@ -129,7 +130,8 @@ int main( int argc, char **argv )
 			input_filespecification,
 			date_heading_label,
 			datatype_list,
-			time_column );
+			time_column,
+			atoi( date_piece ) );
 	}
 
 	return 0;
@@ -141,7 +143,8 @@ void spreadsheet_parse_display(
 			char *input_filespecification,
 			char *date_heading_label,
 			LIST *datatype_list,
-			boolean time_column )
+			boolean time_column,
+			int date_piece )
 {
 	FILE *input_file;
 	char input_buffer[ 2048 ];
@@ -171,7 +174,6 @@ void spreadsheet_parse_display(
 		exit( 1 );
 	}
 
-
 	*measurement_time_string = '\0';
 	timlib_reset_get_line_check_utf_16();
 
@@ -179,22 +181,8 @@ void spreadsheet_parse_display(
 	{
 		line_number++;
 
-		if ( !*input_buffer ) continue;
-
 		if ( !timlib_character_exists( input_buffer, ',' ) )
 		{
-			continue;
-		}
-
-		if ( !got_heading )
-		{
-			if ( spreadsheet_parse_got_heading_label(
-				date_heading_label,
-				input_buffer ) )
-			{
-				got_heading = 1;
-			}
-
 			continue;
 		}
 
@@ -203,8 +191,20 @@ void spreadsheet_parse_display(
 		piece_quoted(	measurement_date_string,
 				',',
 				input_buffer,
-				0,
+				date_piece,
 				'"' );
+
+		if ( !got_heading )
+		{
+			if ( hydrology_got_heading_label(
+				date_heading_label,
+				measurement_date_string ) )
+			{
+				got_heading = 1;
+			}
+
+			continue;
+		}
 
 		if ( !isdigit( *measurement_date_string ) )
 			continue;
@@ -311,8 +311,7 @@ void spreadsheet_parse_display(
 				measurement_value = 0.0;
 			}
 
-			fprintf(	stdout,
-					"%s^%s^%s^%s^%.3lf\n",
+			printf(		"%s^%s^%s^%s^%.3lf\n",
 					station,
 					datatype->datatype_name,
 					julian_display_yyyy_mm_dd(
@@ -391,6 +390,7 @@ void fetch_parameters(	char **filename,
 			char **date_heading_label,
 			char **two_lines_yn,
 			char **time_column_yn,
+			char **date_piece,
 			NAME_ARG *arg )
 {
 	*filename = fetch_arg( arg, "filename" );
@@ -398,6 +398,7 @@ void fetch_parameters(	char **filename,
 	*date_heading_label = fetch_arg( arg, "date_heading_label" );
 	*two_lines_yn = fetch_arg( arg, "two_lines" );
 	*time_column_yn = fetch_arg( arg, "time_column" );
+	*date_piece = fetch_arg( arg, "date_piece" );
 
 } /* fetch_parameters() */
 
@@ -421,18 +422,10 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 	add_valid_value( arg, ticket, "no" );
         set_default_value( arg, ticket, "yes" );
 
+        ticket = add_valid_option( arg, "date_piece" );
+        set_default_value( arg, ticket, "0" );
+
         ins_all( arg, argc, argv );
 
 } /* setup_arg() */
-
-boolean spreadsheet_parse_got_heading_label(
-				char *date_heading_label,
-				char *heading_buffer )
-{
-	if ( instr( date_heading_label, heading_buffer, 1 ) > -1 )
-		return 1;
-	else
-		return 0;
-
-} /* spreadsheet_parse_got_heading_label() */
 

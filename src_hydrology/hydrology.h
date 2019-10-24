@@ -117,7 +117,8 @@ void hydrology_parse_begin_end_dates(
 				char **begin_measurement_date,
 				char **end_measurement_date,
 				char *input_filespecification,
-				char *date_heading_label );
+				char *date_heading_label,
+				int date_piece );
 
 /* Returns static memory */
 /* --------------------- */
@@ -154,5 +155,9 @@ char *hydrology_extract_hour(	char *measurement_time_string );
 /* Returns static */
 /* -------------- */
 char *hydrology_extract_minute(	char *measurement_time_string );
+
+boolean hydrology_got_heading_label(
+				char *date_heading_label,
+				char *heading_buffer );
 
 #endif

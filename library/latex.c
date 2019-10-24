@@ -169,7 +169,7 @@ void latex_output_longtable_document_heading(
 		fprintf( output_stream,
 "\\pagestyle{fancy}\n"
 "\\fancyhf{}\n"
-"\\cfoot{%s}\n"
+"\\cfoot{%s (PB)}\n"
 "\\rfoot{Page \\thepage}\n",
 			 footline );
 	}

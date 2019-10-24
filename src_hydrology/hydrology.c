@@ -544,7 +544,8 @@ void hydrology_parse_begin_end_dates(
 					char **begin_measurement_date,
 					char **end_measurement_date,
 					char *input_filespecification,
-					char *date_heading_label )
+					char *date_heading_label,
+					int date_piece )
 {
 	FILE *input_file;
 	char input_buffer[ 2048 ];
@@ -574,24 +575,24 @@ void hydrology_parse_begin_end_dates(
 
 	while( timlib_get_line( input_buffer, input_file, 1024 ) )
 	{
-		if ( !got_heading )
-		{
-			if ( instr(	date_heading_label,
-					input_buffer,
-					1 ) > -1 )
-			{
-				got_heading = 1;
-			}
-			continue;
-		}
-
 		/* Measurement Date */
 		/* ---------------- */
 		piece_quoted(	measurement_date_string,
 				',',
 				input_buffer,
-				0,
+				date_piece,
 				'"' );
+
+		if ( !got_heading )
+		{
+			if ( hydrology_got_heading_label(
+				date_heading_label,
+				measurement_date ) )
+			{
+				got_heading = 1;
+			}
+			continue;
+		}
 
 		if ( !isdigit( *measurement_date_string ) )
 			continue;
@@ -855,4 +856,15 @@ char *hydrology_extract_minute( char *measurement_time_string )
 	return minute;
 
 } /* hydrology_extract_minute() */
+
+boolean hydrology_got_heading_label(
+				char *date_heading_label,
+				char *heading_buffer )
+{
+	if ( instr( date_heading_label, heading_buffer, 1 ) > -1 )
+		return 1;
+	else
+		return 0;
+
+} /* hydrology_got_heading_label() */
 

@@ -695,15 +695,18 @@ char *hydrology_format_measurement_date(
 
 	if ( timlib_character_exists( measurement_date_time_string, ' ' ) )
 	{
-		char buffer[ 128 ];
-
-		column( buffer, 0, measurement_date_time_string );
+		column(	measurement_date_string,
+			0,
+			measurement_date_time_string );
 
 		column(	measurement_time_string,
 			1,
 			measurement_date_time_string );
-
-		strcpy( measurement_date_time_string, buffer );
+	}
+	else
+	{
+		strcpy(	measurement_date_string,
+			measurement_date_time_string );
 	}
 
 	if ( timlib_character_exists( measurement_date_string, '/' ) )

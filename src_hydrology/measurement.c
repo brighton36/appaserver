@@ -186,7 +186,7 @@ void measurement_html_display( 		MEASUREMENT_STRUCTURE *m,
 	if ( !m->measurement->null_value )
 	{
 		fprintf(html_table_pipe,
-			"%s,%s,%s,%s,%lf\n",
+			"%s,%s,%s,%s,%.3lf\n",
 			m->measurement->station_name,
 			m->measurement->datatype,
 			m->measurement->measurement_date,
@@ -298,7 +298,7 @@ void measurement_non_execute_display(
 		if ( !m->measurement->null_value )
 		{
 			fprintf(html_table_pipe,
-				"%s,%s,%s,%s,%lf\n",
+				"%s,%s,%s,%s,%.3lf\n",
 				m->measurement->station_name,
 				m->measurement->datatype,
 				m->measurement->measurement_date,
@@ -319,7 +319,7 @@ void measurement_non_execute_display(
 	{
 		if ( !m->measurement->null_value )
 		{
-			printf( "Not inserting: %s,%s,%s,%s,%lf\n",
+			printf( "Not inserting: %s,%s,%s,%s,%.3lf\n",
 				m->measurement->station_name,
 				m->measurement->datatype,
 				m->measurement->measurement_date,
@@ -795,6 +795,16 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 	}
 
 	list_append_pointer( frequency_station_datatype_list, m );
+
+{
+char msg[ 65536 ];
+sprintf( msg, "\n%s/%s()/%d: got length is now = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_length( frequency_station_datatype_list ) );
+m2( "hydrology", msg );
+}
 
 	return m;
 

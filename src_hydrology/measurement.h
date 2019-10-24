@@ -10,7 +10,7 @@
 #include "julian.h"
 #include "boolean.h"
 
-#define MEASUREMENT_QUEUE_TOP_BOTTOM_LINES	50000
+#define MEASUREMENT_QUEUE_TOP_BOTTOM_LINES	50
 
 #define MEASUREMENT_SELECT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"
 

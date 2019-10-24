@@ -1,6 +1,6 @@
 :
 
-make parse_alias_data
+make spreadsheet_parse
 
 #cd - && make parse_alias_data
 

@@ -559,3 +559,99 @@ LIST *station_datatype_fetch_measurement_list(
 
 } /* station_datatype_fetch_measurement_list() */
 
+STATION_DATATYPE *station_datatype_seek(
+			LIST *station_datatype_list,
+			char *station_name,
+			char *datatype_name )
+{
+	STATION_DATATYPE *station_datatype;
+
+	if ( !list_rewind( station_datatype_list ) )
+		return (STATION_DATATYPE *)0;
+
+	do {
+		station_datatype =
+			list_get_pointer(
+				station_datatype_list );
+
+		if ( timlib_strcmp(	station_name,
+					station_datatype->station_name ) == 0
+		&&   timlib_strcmp(	datatype_name,
+					station_datatype->
+						datatype->
+						datatype_name ) == 0 )
+		{
+			return station_datatype;
+		}
+
+	} while( list_next( station_datatype_list ) );
+
+	return (STATION_DATATYPE *)0;
+
+} /* station_datatype_seek() */
+
+STATION_DATATYPE *station_datatype_get_or_set(
+			LIST *station_datatype_list,
+			char *station_name,
+			char *datatype_name )
+{
+	STATION_DATATYPE *station_datatype;
+
+	if ( ( station_datatype =
+		station_datatype_seek(
+			station_datatype_list,
+			station_name,
+			datatype_name ) ) )
+	{
+		return station_datatype;
+	}
+
+	station_datatype = station_datatype_new();
+
+	station_datatype->station_name = strdup( station_name );
+
+	station_datatype->datatype = datatype_new( strdup( datatype_name ) );
+
+	list_append_pointer( station_datatype_list, station_datatype );
+	return station_datatype;
+
+} /* station_datatype_get_or_set() */
+
+void station_datatype_html_display(
+			LIST *station_datatype_list )
+{
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	char *heading;
+
+	heading = "Station,Datatype,Count";
+
+	sprintf( sys_string,
+		 "html_table.e '^^Datatype Summary' '%s' '^' 'left,left,right'",
+		 heading );
+
+	output_pipe = popen( sys_string, "w" );
+
+	if ( list_rewind( station_datatype_list ) )
+	{
+		STATION_DATATYPE *station_datatype;
+
+		do {
+			station_datatype =
+				list_get_pointer(
+					station_datatype_list );
+
+	
+			fprintf(output_pipe,
+				"%s^%s^%d\n",
+				station_datatype->station_name,
+				station_datatype->datatype->datatype_name,
+				station_datatype->measurement_count );
+
+		} while ( list_next( station_datatype_list ) );
+	}
+
+	pclose( output_pipe );
+
+} /* station_datatype_html_display() */
+

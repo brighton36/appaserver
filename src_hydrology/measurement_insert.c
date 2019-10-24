@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "measurement.h"
+#include "station_datatype.h"
 #include "appaserver_library.h"
 #include "timlib.h"
 #include "environ.h"
@@ -47,6 +48,8 @@ int main( int argc, char **argv )
 	FILE *input_pipe;
 	int row_number = 0;
 	NAME_ARG *arg;
+	LIST *station_datatype_list;
+	STATION_DATATYPE *station_datatype;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -70,6 +73,7 @@ int main( int argc, char **argv )
 		arg );
 
 	bypass_reject = ( *bypass_reject_yn == 'y' );
+
 	execute = ( *execute_yn == 'y' );
 
 	m = measurement_structure_new( application_name );
@@ -96,6 +100,7 @@ int main( int argc, char **argv )
 		 *delimiter );
 
 	input_pipe = popen( sys_string, "r" );
+	station_datatype_list = list_new();
 
 	while( timlib_get_line( delimited_record, input_pipe, 1024 ) )
 	{
@@ -150,12 +155,32 @@ int main( int argc, char **argv )
 		{
 			measurement_html_display( m, m->html_table_pipe );
 		}
+
+		if ( ! ( station_datatype =
+				station_datatype_get_or_set(
+					station_datatype_list,
+					m->measurement->station_name,
+					m->measurement->datatype ) ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: station_datatype_get_or_set() failed.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		station_datatype->measurement_count++;
 	}
 
 	pclose( input_pipe );
 
 	if ( m->insert_pipe ) pclose( m->insert_pipe );
 	if ( m->html_table_pipe ) pclose( m->html_table_pipe );
+
+	fflush( stdout );
+	station_datatype_html_display( station_datatype_list );
+	fflush( stdout );
 
 	return 0;
 

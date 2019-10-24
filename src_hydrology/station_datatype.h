@@ -19,6 +19,7 @@ typedef struct
 	char bar_graph_yn;
 	char scale_graph_zero_yn;
 	LIST *measurement_list;
+	int measurement_count;
 } STATION_DATATYPE;
 
 /* Operations */
@@ -92,5 +93,18 @@ LIST *station_datatype_fetch_measurement_list(
 			char *datatype_name,
 			char *begin_measurement_date,
 			char *end_measurement_date );
+
+STATION_DATATYPE *station_datatype_get_or_set(
+			LIST *station_datatype_list,
+			char *station_name,
+			char *datatype_name );
+
+STATION_DATATYPE *station_datatype_seek(
+			LIST *station_datatype_list,
+			char *station_name,
+			char *datatype_name );
+
+void station_datatype_html_display(
+			LIST *station_datatype_list );
 
 #endif

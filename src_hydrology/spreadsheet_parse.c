@@ -63,9 +63,7 @@ void spreadsheet_parse_display(
 					char *input_filespecification,
 					char *date_heading_label,
 					LIST *datatype_list,
-					boolean time_column,
-					char *begin_measurement_date,
-					char *end_measurement_date );
+					boolean time_column );
 
 int main( int argc, char **argv )
 {
@@ -122,9 +120,7 @@ int main( int argc, char **argv )
 			input_filespecification,
 			date_heading_label,
 			datatype_list,
-			time_column,
-			begin_measurement_date,
-			end_measurement_date );
+			time_column );
 	}
 
 	return 0;
@@ -136,13 +132,9 @@ void spreadsheet_parse_display(
 			char *input_filespecification,
 			char *date_heading_label,
 			LIST *datatype_list,
-			boolean time_column,
-			char *begin_measurement_date,
-			char *end_measurement_date )
+			boolean time_column )
 {
-	char sys_string[ 1024 ];
 	FILE *input_file;
-	FILE *output_pipe;
 	char input_buffer[ 2048 ];
 	int line_number = 0;
 	double measurement_value;
@@ -158,13 +150,6 @@ void spreadsheet_parse_display(
 	measurement_date_time = date_calloc();
 
 	if ( !list_length( datatype_list ) ) return;
-
-	sprintf( sys_string,
-		 "measurement_frequency_reject %s %s '^'",
-		 begin_measurement_date,
-		 end_measurement_date );
-
-	output_pipe = popen( sys_string, "w" );
 
 	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
 	{
@@ -238,7 +223,6 @@ void spreadsheet_parse_display(
 					input_buffer,
 					1,
 					'"' );
-
 		}
 
 		if ( !date_set_yyyy_mm_dd(
@@ -317,7 +301,7 @@ void spreadsheet_parse_display(
 				measurement_value = 0.0;
 			}
 
-			fprintf(	output_pipe,
+			fprintf(	stdout,
 					"%s^%s^%s^%s^%.3lf\n",
 					station,
 					datatype->datatype_name,
@@ -332,7 +316,6 @@ void spreadsheet_parse_display(
 		} while( list_next( datatype_list ) );
 	}
 
-	pclose( output_pipe );
 	fclose( input_file );
 	timlib_reset_get_line_check_utf_16();
 

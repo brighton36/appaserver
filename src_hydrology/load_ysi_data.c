@@ -48,6 +48,12 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+void output_bad_records(
+		 		char *bad_parse_file,
+		 		char *bad_time_file,
+		 		char *bad_range_file,
+		 		char *bad_frequency_file,
+		 		char *bad_insert_file );
 
 /* Returns measurement_count */
 /* ------------------------- */
@@ -140,6 +146,7 @@ int main( int argc, char **argv )
 
 	printf( "<h1>%s</h1>\n",
 	 	format_initial_capital( format_buffer, process_name ) );
+	fflush( stdout );
 
 	input_directory = basename_get_directory( input_filespecification );
 
@@ -200,12 +207,14 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->
 				appaserver_data_directory );
 
+/*
 	if ( execute_yn == 'y' )
 		printf( "<p>Inserted %d measurements.\n",
 			measurement_count );
 	else
 		printf( "<p>Did not insert %d measurements.\n",
 			measurement_count );
+*/
 
 	if ( execute_yn == 'y' )
 	{
@@ -243,14 +252,16 @@ int load_ysi_filespecification(
 	char *two_lines;
 	char *date_heading_label;
 	pid_t pid;
+	char *dir;
 
 	pid = getpid();
+	dir = appaserver_data_directory;
 
-	sprintf( bad_parse, "%s/parse_%d.dat", appaserver_data_directory, pid );
-	sprintf( bad_time, "%s/time_%d.dat", appaserver_data_directory, pid );
-	sprintf( bad_range, "%s/range_%d.dat", appaserver_data_directory, pid );
-	sprintf( bad_frequency, "%s/reject_%d.dat", appaserver_data_directory, pid );
-	sprintf( bad_insert, "%s/insert_%d.dat", appaserver_data_directory, pid );
+	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
+	sprintf( bad_time, "%s/time_%d.dat", dir, pid );
+	sprintf( bad_range, "%s/range_%d.dat", dir, pid );
+	sprintf( bad_frequency, "%s/reject_%d.dat", dir, pid );
+	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 
 	if ( is_exo_yn != 'y' )
 		two_lines = "yes";
@@ -260,15 +271,15 @@ int load_ysi_filespecification(
 	date_heading_label = "Date";
 
 	sprintf( sys_string,
-"spreadsheet_parse file=\"%s\" station=\"%s\" date=%s two=%s 2>%s		|"
-"measurement_adjust_time_to_sequence 2>%s					|"
-"measurement_date_within_range	begin_date=%s					 "
-"				begin_time=%s					 "
-"				end_date=%s					 "
-"				end_time=%s 2>%s				|"
-"measurement_frequency_reject begin=%s end=%s 2>%s				|"
-"measurement_insert bypass=y begin=%s end=%s execute=%c 2>%s			|"
-"cat										 ",
+"spreadsheet_parse file=\"%s\" station=\"%s\" date=%s two=%s 2>%s	|"
+"measurement_adjust_time_to_sequence 2>%s				|"
+"measurement_date_within_range	begin_date=%s				 "
+"				begin_time=%s				 "
+"				end_date=%s				 "
+"				end_time=%s 2>%s			|"
+"measurement_frequency_reject %s %s '^' 2>%s				|"
+"measurement_insert bypass=y begin=%s end=%s execute=%c 2>%s		|"
+"cat									 ",
 		 input_filespecification,
 		 station,
 		 date_heading_label,
@@ -285,14 +296,42 @@ int load_ysi_filespecification(
 		 bad_frequency,
 		 begin_date_string,
 		 end_date_string,
-		 execute_yn,
+		 (execute_yn == 'y') ? 'y' : 'n',
 		 bad_insert );
 
 	if ( system( sys_string ) ) {};
 
+	output_bad_records(
+		 bad_parse,
+		 bad_time,
+		 bad_range,
+		 bad_frequency,
+		 bad_insert );
+
 	return 0;
 
 } /* load_ysi_filespecification() */
+
+void output_bad_records(
+		 	char *bad_parse_file,
+		 	char *bad_time_file,
+		 	char *bad_range_file,
+		 	char *bad_frequency_file,
+		 	char *bad_insert_file )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"cat %s %s %s %s %s | html_table.e '^^Bad Records' '' ''",
+	 	bad_parse_file,
+	 	bad_time_file,
+	 	bad_range_file,
+	 	bad_frequency_file,
+	 	bad_insert_file );
+
+	if ( system( sys_string ) ){};
+
+} /* output_bad_records() */
 
 char *station_fetch(		char *application_name,
 				char *input_filespecification )

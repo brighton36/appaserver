@@ -179,7 +179,7 @@ DATATYPE *datatype_list_seek(	LIST *datatype_list,
 {
 	DATATYPE *datatype;
 
-	if ( !list_rewind( datatype_list ) ) return 0;
+	if ( !list_rewind( datatype_list ) ) return (DATATYPE *)0;
 
 	do {
 		datatype = list_get_pointer( datatype_list );

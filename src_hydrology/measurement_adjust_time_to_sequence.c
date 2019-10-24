@@ -84,12 +84,12 @@ void execute( char *delimiter )
 						*delimiter ) ) )
 		{
 			fprintf( stderr,
-				 "Error in %s/%s()/%d: cannot parse [%s].\n",
+				 "Warning in %s/%s()/%d: cannot parse [%s].\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
 				 input_buffer );
-			exit( 1 );
+			continue;
 		}
 
 		if ( !date_set_yyyy_mm_dd(

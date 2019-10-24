@@ -66,6 +66,8 @@ int main( int argc, char **argv )
 
 	while( timlib_get_line( delimited_record, stdin, 1024 ) )
 	{
+printf( "%s\n", delimited_record ); continue;
+
 		if ( !measurement_set_delimited_record(
 			m, 
 			delimited_record,

@@ -587,7 +587,7 @@ void hydrology_parse_begin_end_dates(
 		{
 			if ( hydrology_got_heading_label(
 				date_heading_label,
-				measurement_date ) )
+				measurement_date_string ) )
 			{
 				got_heading = 1;
 			}

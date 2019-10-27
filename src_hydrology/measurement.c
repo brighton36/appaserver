@@ -796,16 +796,6 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 
 	list_append_pointer( frequency_station_datatype_list, m );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d: got length is now = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-list_length( frequency_station_datatype_list ) );
-m2( "hydrology", msg );
-}
-
 	return m;
 
 } /* measurement_frequency_get_or_set_station_datatype() */

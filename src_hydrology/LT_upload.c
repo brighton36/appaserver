@@ -25,39 +25,23 @@
 #include "date_convert.h"
 #include "application.h"
 #include "basename.h"
+#include "hydrology.h"
 #include "application_constants.h"
 
 /* Constants */
 /* --------- */
-#define SHEF_CONVERT_STATION_PIECE	0
-#define SHEF_CONVERT_CODE_PIECE		4
-#define SHEF_CONVERT_DELIMITER		'^'
-
-#define STDERR_COUNT			300
-
-#define INSERT_MEASUREMENT		\
-	"station,measurement_date,measurement_time,measurement_value,datatype"
 
 /* Prototypes */
 /* ---------- */
-/*
-void delete_measurement(	char *application_name,
-				char *input_filename,
-				char *station );
-*/
+void output_bad_records(
+			 	char *bad_parse_file,
+			 	char *bad_insert_file );
 
-boolean extract_date_time(
-				char **error_message,
-				char *measurement_date,
-				char *measurement_time,
-				char *input_string );
-
-void remove_error_file(		char *error_filename );
-
-int LT_upload(		
+void LT_upload(		
 				char *input_filename,
 				char *station,
-				boolean execute );
+				boolean execute,
+				char *appaserver_data_directory );
 
 int main( int argc, char **argv )
 {
@@ -68,7 +52,6 @@ int main( int argc, char **argv )
 	char *input_filename;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	int load_count = 0;
 	char buffer[ 128 ];
 
 	/* Exits if failure. */
@@ -126,18 +109,16 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	load_count =
-		LT_upload(
-			input_filename,
-			station,
-			execute );
-
-	fflush( stdout );
+	LT_upload(
+		input_filename,
+		station,
+		execute,
+		appaserver_parameter_file->
+			appaserver_data_directory );
 
 	if ( execute )
 	{
-		printf( "<p>Process complete with %d measurements.\n",
-			load_count );
+		printf( "<p>Process complete.\n" );
 
 		process_increment_execution_count(
 				application_name,
@@ -146,8 +127,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		printf( "<p>Process did not load %d measurements.\n",
-			load_count );
+		printf( "<p>Process did not execute.\n" );
 	}
 
 	document_close();
@@ -156,22 +136,21 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-int LT_upload(		char *input_filename,
+void LT_upload(		char *input_filename,
 			char *station,
-			boolean execute )
+			boolean execute,
+			char *appaserver_data_directory )
 {
 	char sys_string[ 1024 ];
 	char *begin_measurement_date = {0};
 	char *end_measurement_date = {0};
 	char bad_parse[ 128 ];
-	char bad_time[ 128 ];
-	char bad_frequency[ 128 ];
 	char bad_insert[ 128 ];
 	char *date_heading_label;
 	pid_t pid;
 	char *dir;
 
-	date_heading_label = "date";
+	date_heading_label = "datetime";
 	pid = getpid();
 	dir = appaserver_data_directory;
 
@@ -180,26 +159,18 @@ int LT_upload(		char *input_filename,
 					&end_measurement_date,
 					input_filename,
 					date_heading_label,
-					1 /* date_piece */ );
+					0 /* date_piece */ );
 
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
-	sprintf( bad_time, "%s/time_%d.dat", dir, pid );
-	sprintf( bad_frequency, "%s/frequency_%d.dat", dir, pid );
 	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 
 	sprintf( sys_string,
-"spreadsheet_parse file=\"%s\" station=\"%s\" time=no date_piece=1 2>%s	|"
-"measurement_adjust_time_to_sequence 2>%s				|"
-"measurement_frequency_reject %s %s '^' 2>%s				|"
-"measurement_insert bypass=y begin=%s end=%s execute=%c 2>%s		|"
+"spreadsheet_parse file=\"%s\" station=\"%s\" time=no 2>%s		|"
+"measurement_insert begin=%s end=%s execute=%c 2>%s			|"
 "cat									 ",
 		 input_filename,
-		 station_name,
+		 station,
 		 bad_parse,
-		 bad_time,
-		 begin_measurement_date,
-		 end_measurement_date,
-		 bad_frequency,
 		 begin_measurement_date,
 		 end_measurement_date,
 		 (execute) ? 'y' : 'n',
@@ -209,26 +180,19 @@ int LT_upload(		char *input_filename,
 
 	output_bad_records(
 		 bad_parse,
-		 bad_time,
-		 bad_frequency,
 		 bad_insert );
-
 
 } /* LT_upload() */
 
 void output_bad_records(
 		 	char *bad_parse_file,
-		 	char *bad_time_file,
-		 	char *bad_frequency_file,
 		 	char *bad_insert_file )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"cat %s %s %s %s | html_table.e '^^Bad Records' '' ''",
+	"cat %s %s | html_table.e '^^Bad Records' '' ''",
 	 	bad_parse_file,
-	 	bad_time_file,
-	 	bad_frequency_file,
 	 	bad_insert_file );
 
 	if ( system( sys_string ) ){};

@@ -150,7 +150,7 @@ int main( int argc, char **argv )
 	}
 
 	sprintf( shef_bad_file,
-		 "%s/shef_bad_%d.dat",
+		 "%s/satlink_bad_%d.dat",
 		 appaserver_parameter_file->
 		 	appaserver_data_directory,
 		 getpid() );

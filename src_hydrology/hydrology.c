@@ -676,7 +676,7 @@ char *hydrology_format_measurement_date(
 	/* -------------------------------- */
 	if ( timlib_character_exists( measurement_date_time_string, 'T' ) )
 	{
-		if ( !hydrology_extract_zulu_date_time(
+		if ( hydrology_extract_zulu_date_time(
 			/* --- */
 			/* Out */
 			/* --- */
@@ -766,15 +766,16 @@ boolean hydrology_extract_zulu_date_time(
 	/* --------------------- */
 	/* Looks like: 14:30:22Z */
 	/* --------------------- */
-	hydrology_trim_time( measurement_time_string );
+	piece( time_buffer, 'T', measurement_date_time_string, 1 );
+	hydrology_trim_time( time_buffer );
 
 	/* Returns static */
 	/* -------------- */
-	hour_buffer = hydrology_extract_hour( measurement_time_string );
+	hour_buffer = hydrology_extract_hour( time_buffer );
 
 	/* Returns static */
 	/* -------------- */
-	minute_buffer = hydrology_extract_minute( measurement_time_string );
+	minute_buffer = hydrology_extract_minute( time_buffer );
 
 	sprintf( time_buffer, "%s%s", hour_buffer, minute_buffer );
 
@@ -812,6 +813,8 @@ char *hydrology_trim_time( char *measurement_time_string )
 				"0%s",
 				measurement_time_string );
 	}
+
+	*( measurement_time_string + 4 ) = '\0';
 
 	return measurement_time_string;
 

@@ -161,310 +161,77 @@ int LT_upload(		char *input_filename,
 			boolean execute )
 {
 	char sys_string[ 1024 ];
-	FILE *input_file;
-	FILE *error_file;
-	char input_buffer[ 4096 ];
-	char header_buffer[ 4096 ];
-	LIST *header_string_list;
-	char *shef_code;
-	char measurement_value[ 128 ];
-	int value_piece;
-	char measurement_date[ 128 ];
-	char measurement_time[ 128 ];
-	char error_filename[ 128 ];
-	FILE *output_pipe;
-	int load_count = 0;
-	int line_number = 0;
-	char *error_message;
-	char basename_filename[ 128 ];
+	char *begin_measurement_date = {0};
+	char *end_measurement_date = {0};
+	char bad_parse[ 128 ];
+	char bad_time[ 128 ];
+	char bad_frequency[ 128 ];
+	char bad_insert[ 128 ];
+	char *date_heading_label;
+	pid_t pid;
+	char *dir;
 
-	sprintf(error_filename,
-		"/tmp/lt_load_%d.txt", getpid() );
+	date_heading_label = "date";
+	pid = getpid();
+	dir = appaserver_data_directory;
 
-	if ( ! ( error_file = fopen( error_filename, "w" ) ) )
-	{
-		fprintf( stderr, "File open error: %s\n", error_filename );
-		return 0;
-	}
+	hydrology_parse_begin_end_dates(
+					&begin_measurement_date,
+					&end_measurement_date,
+					input_filename,
+					date_heading_label,
+					1 /* date_piece */ );
 
-	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
-	{
-		printf( "<h2>ERROR: cannot open %s for read</h2>\n",
-			input_filename );
+	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
+	sprintf( bad_time, "%s/time_%d.dat", dir, pid );
+	sprintf( bad_frequency, "%s/frequency_%d.dat", dir, pid );
+	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 
-		fclose( error_file );
-		return 0;
-	}
+	sprintf( sys_string,
+"spreadsheet_parse file=\"%s\" station=\"%s\" time=no date_piece=1 2>%s	|"
+"measurement_adjust_time_to_sequence 2>%s				|"
+"measurement_frequency_reject %s %s '^' 2>%s				|"
+"measurement_insert bypass=y begin=%s end=%s execute=%c 2>%s		|"
+"cat									 ",
+		 input_filename,
+		 station_name,
+		 bad_parse,
+		 bad_time,
+		 begin_measurement_date,
+		 end_measurement_date,
+		 bad_frequency,
+		 begin_measurement_date,
+		 end_measurement_date,
+		 (execute) ? 'y' : 'n',
+		 bad_insert );
 
-	trim_index(	basename_filename,
-			basename_get_filename(
-				input_filename ) );
+	if ( system( sys_string ) ) {};
 
-	if ( execute )
-	{
-/*
-#define INSERT_MEASUREMENT		\
-	"station,measurement_date,measurement_time,measurement_value,datatype"
-*/
-		sprintf(
-		 sys_string,
-		 "shef_upload_datatype_convert %d %d '%c'		  |"
-		 "count.e %d 'LT Load count'				  |"
-		 "piece_inverse.e %d '%c'				  |"
-		 "tr '%c' ','						  |"
-		 "measurement_change_order ',' 0,4,1,2,3		  |"
-		 "measurement_insert ignored realdata y 2>&1		  |"
-		 "html_paragraph_wrapper.e				   ",
-		 SHEF_CONVERT_STATION_PIECE,
-		 SHEF_CONVERT_CODE_PIECE,
-		 SHEF_CONVERT_DELIMITER,
-		 STDERR_COUNT,
-		 SHEF_CONVERT_CODE_PIECE,
-		 SHEF_CONVERT_DELIMITER,
-		 SHEF_CONVERT_DELIMITER );
+	output_bad_records(
+		 bad_parse,
+		 bad_time,
+		 bad_frequency,
+		 bad_insert );
 
-		output_pipe = popen( sys_string, "w" );
-
-	}
-	else
-	{
-		sprintf( sys_string,
-		"shef_upload_datatype_convert %d %d '%c'		|"
-		"piece_inverse.e %d '%c'				|"
-"tee -a /var/log/appaserver/appaserver_hydrology.err |"
-		"measurement_change_order '^' 0,4,1,2,3		  	|"
-		"measurement_insert ignored realdata n 2>&1		|"
-		"cat							 ",
-		 	 SHEF_CONVERT_STATION_PIECE,
-		 	 SHEF_CONVERT_CODE_PIECE,
-		 	 SHEF_CONVERT_DELIMITER,
-		 	 SHEF_CONVERT_CODE_PIECE,
-		 	 SHEF_CONVERT_DELIMITER );
-
-		output_pipe = popen( sys_string, "w" );
-	}
-
-	/* Get the header */
-	/* --------------- */
-	if ( !timlib_get_line( header_buffer, input_file, 4096 ) )
-	{
-		printf( "<h3>Error: cannot get the header.</h3>\n" );
-		pclose( output_pipe );
-		fclose( input_file );
-		return 0;
-	}
-
-	line_number++;
-	header_string_list = list_string_to_list( header_buffer, ',' );
-
-	if ( !list_length( header_string_list ) )
-	{
-		printf( "<h3>Error: empty header.</h3>\n" );
-		pclose( output_pipe );
-		fclose( input_file );
-		return 0;
-	}
-
-	while( timlib_get_line( input_buffer, input_file, 4096 ) )
-	{
-		line_number++;
-		trim( input_buffer );
-		if ( !*input_buffer ) continue;
-
-		if ( !extract_date_time(
-			&error_message,
-			measurement_date,
-			measurement_time,
-			input_buffer ) )
-		{
-			if ( *error_message )
-			{
-				fprintf(error_file,
-			"Warning in line %d: ignored = (%s) because %s.\n",
-					line_number,
-					input_buffer,
-					error_message );
-			}
-			else
-			{
-				fprintf(error_file,
-			"Warning in line %d: ignored = (%s)\n",
-					line_number,
-					input_buffer );
-			}
-			continue;
-		}
-
-		list_rewind( header_string_list );
-
-		do {
-
-			for(	value_piece = 0;
-				piece(	measurement_value,
-					',',
-					input_buffer,
-					value_piece );
-				value_piece++ )
-			{
-				/* ------------------- */
-				/* Skip date_time, SN  */
-				/* or any empty cells. */
-				/* ------------------- */
-				if ( value_piece <= 1
-				||   !*measurement_value )
-				{
-					list_next( header_string_list );
-					continue;
-				}
-
-				shef_code = list_get( header_string_list );
-
-				fprintf( output_pipe,
-					 "%s^%s^%s^%s^%s\n",
-					 station,
-					 measurement_date,
-					 measurement_time,
-					 measurement_value,
-					 shef_code );
-					 
-				load_count++;
-				list_next( header_string_list );
-
-			} /* for each cell in row */
-
-		} while ( list_next( header_string_list ) );
-
-	} /* for each line */
-
-	fclose( input_file );
-	fclose( error_file );
-	pclose( output_pipe );
-
-	if ( timlib_file_populated( error_filename ) )
-	{
-		sprintf( sys_string,
-"cat %s | queue_top_bottom_lines.e %d | html_table.e 'Errors' '' '|'",
-			 error_filename,
-			 STDERR_COUNT );
-		if ( system( sys_string ) ){};
-	}
-
-	remove_error_file( error_filename );
-	return load_count;
 
 } /* LT_upload() */
 
-boolean extract_date_time(
-			char **error_message,
-			char *measurement_date,
-			char *measurement_time,
-			char *input_string )
-{
-	char date_time_buffer[ 128 ];
-	char date_buffer[ 64 ];
-	char time_buffer[ 64 ];
-	char hour_buffer[ 32 ];
-	char minute_buffer[ 32 ];
-	static DATE *date = {0};
-
-	if ( !date )
-	{
-		date = date_calloc();
-	}
-
-	if ( !piece_quote_comma(
-		date_time_buffer,
-		input_string,
-		0 )
-	||   !*date_time_buffer )
-	{
-		if ( error_message )
-			*error_message =
-			 	"Cannnot identify DateTime";
-		return 0;
-	}
-
-	/* -------------------------------- */
-	/* Looks like: 2018-08-31T14:30:22Z */
-	/* -------------------------------- */
-
-	piece( date_buffer, 'T', date_time_buffer, 0 );
-
-	if ( !piece( time_buffer, 'T', date_time_buffer, 1 ) )
-	{
-		timlib_strcpy( measurement_date, date_buffer, 0 );
-		timlib_strcpy( measurement_time, "null", 0 );
-		return 1;
-	}
-
-	if ( strlen( time_buffer ) != 9 )
-	{
-		if ( error_message )
-			*error_message =
-			 	"Cannot get Zulo time";
-		return 0;
-	}
-
-	/* --------------------- */
-	/* Looks like: 14:30:22Z */
-	/* --------------------- */
-
-	if ( *(time_buffer + 8 ) != 'Z' )
-	{
-		if ( error_message )
-			*error_message =
-			 	"Expecting a 'Z' in the time";
-		return 0;
-	}
-
-	piece( hour_buffer, ':', time_buffer, 0 );
-
-	if ( !piece( minute_buffer, ':', time_buffer, 1 ) )
-	{
-		if ( error_message )
-			*error_message =
-			 	"Expecting a ':' in the time";
-		return 0;
-	}
-
-	if ( !date_set_yyyy_mm_dd(
-			date,
-			date_buffer ) )
-	{
-		if ( error_message )
-			*error_message =
-			 	"Invalid date";
-		return 0;
-	}
-
-	sprintf( time_buffer, "%s%s", hour_buffer, minute_buffer );
-
-	if ( !date_set_time_hhmm(
-			date,
-			time_buffer /* hhmm */ ) )
-	{
-		if ( error_message )
-			*error_message =
-			 	"Invalid time";
-		return 0;
-	}
-
-	/* Convert from zulu */
-	/* ----------------- */
-	date_increment_hours( date, date_get_utc_offset() );
-
-	date_get_yyyy_mm_dd( measurement_date, date );
-	date_get_hhmm( measurement_time, date );
-
-	return 1;
-
-} /* extract_date_time() */
-
-void remove_error_file( char *error_filename )
+void output_bad_records(
+		 	char *bad_parse_file,
+		 	char *bad_time_file,
+		 	char *bad_frequency_file,
+		 	char *bad_insert_file )
 {
 	char sys_string[ 1024 ];
 
-	sprintf( sys_string, "rm %s", error_filename );
+	sprintf(sys_string,
+	"cat %s %s %s %s | html_table.e '^^Bad Records' '' ''",
+	 	bad_parse_file,
+	 	bad_time_file,
+	 	bad_frequency_file,
+	 	bad_insert_file );
+
 	if ( system( sys_string ) ){};
-}
+
+} /* output_bad_records() */
 

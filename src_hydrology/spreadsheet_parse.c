@@ -80,8 +80,6 @@ int main( int argc, char **argv )
 	char *date_piece;
 	NAME_ARG *arg;
 	char *application_name;
-	char *begin_measurement_date = {0};
-	char *end_measurement_date = {0};
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -108,16 +106,7 @@ int main( int argc, char **argv )
 	two_lines = ( *two_lines_yn == 'y' );
 	time_column = ( *time_column_yn == 'y' );
 
-	hydrology_parse_begin_end_dates(
-		&begin_measurement_date,
-		&end_measurement_date,
-		input_filespecification,
-		date_heading_label,
-		atoi( date_piece ) );
-
-	if ( begin_measurement_date
-	&&   end_measurement_date
-	&&   ( datatype_list =
+	if ( ( datatype_list =
 			spreadsheet_parse_datatype_list(
 				application_name,
 				station,

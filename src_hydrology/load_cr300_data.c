@@ -45,33 +45,26 @@
 
 /* Prototypes */
 /* ---------- */
-void load_cr300_datatype_summary_display( LIST *datatype_list );
+void output_bad_records(
+				 	char *bad_parse_file,
+				 	char *bad_insert_file );
 
-/* Returns measurement_count */
-/* ------------------------- */
-int load_cr300_filespecification(	char *error_filespecification,
-					LIST *datatype_list,
-					char *filename,
+void load_cr300_filespecification(	char *filename,
 					char *station,
-					char execute_yn );
+					boolean execute,
+					char *appaserver_data_directory );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char execute_yn;
+	boolean execute;
 	char *filename;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *input_directory;
 	char *station;
-	char *error_filespecification;
-	char *error_ftp_filename;
-	int measurement_count;
 	char *process_name;
-	int process_id = getpid();
 	char format_buffer[ 128 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
-	LIST *datatype_list;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -93,7 +86,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	filename = argv[ 2 ];
 	station = argv[ 3 ];
-	execute_yn = *argv[ 4 ];
+	execute = ( *argv[ 4 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -147,86 +140,25 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	appaserver_link_file =
-		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-	 		appaserver_parameter_file->
-				document_root,
-			FILENAME_STEM,
-			application_name,
-			process_id,
-			(char *)0 /* session */,
-			"dat" );
+	load_cr300_filespecification(
+		filename,
+		station,
+		execute,
+		appaserver_parameter_file->
+			appaserver_data_directory );
 
-	error_filespecification =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	error_ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	datatype_list = list_new();
-
-	measurement_count =
-		load_cr300_filespecification(
-			error_filespecification,
-			datatype_list,
-			filename,
-			station,
-			execute_yn );
-
-	load_cr300_datatype_summary_display( datatype_list );
-
-	if ( execute_yn == 'y' )
-		printf( "<p>Loaded %d measurements.\n",
-			measurement_count );
-	else
-		printf( "<p>Did not load %d measurements.\n",
-			measurement_count );
-
-	if ( timlib_file_populated( error_filespecification ) )
+	if ( execute )
 	{
-		printf( "<br>" );
-		appaserver_library_output_ftp_prompt(
-				error_ftp_filename, 
-				PROMPT,
-				(char *)0 /* target */,
-				(char *)0 /* application_type */ );
-	}
+		printf( "<p>Execution complete.\n" );
 
-	if ( execute_yn == 'y' )
-	{
 		process_increment_execution_count(
 				application_name,
 				process_name,
 				appaserver_parameter_file_get_dbms() );
+	}
+	else
+	{
+		printf( "<p>Not executed.\n" );
 	}
 
 	document_close();
@@ -235,119 +167,67 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-/* Returns measurement_count */
-/* ------------------------- */
-int load_cr300_filespecification(
-			char *error_filespecification,
-			LIST *datatype_list,
+void load_cr300_filespecification(
 			char *filename,
 			char *station,
-			char execute_yn )
+			boolean execute,
+			char *appaserver_data_directory )
 {
 	char sys_string[ 1024 ];
-	FILE *input_pipe;
-	FILE *output_pipe;
-	int measurement_count;
-	char input_buffer[ 1024 ];
-	char datatype_name[ 128 ];
-	DATATYPE *datatype;
+	char *begin_measurement_date = {0};
+	char *end_measurement_date = {0};
+	char bad_parse[ 128 ];
+	char bad_insert[ 128 ];
+	char *date_heading_label;
+	pid_t pid;
+	char *dir;
 
-	/* Open input pipe */
-	/* --------------- */
+	date_heading_label = "timestamp";
+	pid = getpid();
+	dir = appaserver_data_directory;
+
+	hydrology_parse_begin_end_dates(
+		&begin_measurement_date,
+		&end_measurement_date,
+		filename,
+		date_heading_label,
+		0 /* date_piece */ );
+
+	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
+	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
+
 	sprintf( sys_string,
-		 "parse_alias_data '%s' '%s' TIMESTAMP 2>%s",
+"spreadsheet_parse file=\"%s\" station=\"%s\" time=no 2>%s		|"
+"measurement_insert begin=%s end=%s execute=%c 2>%s			|"
+"cat									 ",
 		 filename,
 		 station,
-		 error_filespecification );
+		 bad_parse,
+		 begin_measurement_date,
+		 end_measurement_date,
+		 (execute) ? 'y' : 'n',
+		 bad_insert );
 
-	input_pipe = popen( sys_string, "r" );
+	if ( system( sys_string ) ) {};
 
-	/* Open output pipe */
-	/* ---------------- */
-	if ( execute_yn == 'y' )
-	{
-		 sprintf(sys_string,
-		 	 "tr '^' ','					  |"
-		 	 "measurement_insert ignored realdata y 1>&2	  |"
-		 	 "cat >>%s					   ",
-		 	 error_filespecification );
-	}
-	else
-	{
-/*
-		sprintf(sys_string,
-			"queue_top_bottom_lines.e %d			  |"
-			"html_table.e '' '%s' '^' %s		 	   ",
-			QUEUE_TOP_BOTTOM_LINES,
-		 	MEASUREMENT_INSERT_LIST,
-		 	"left,left,left,left,right" );
-*/
-		 sprintf(sys_string,
-		 	 "tr '^' ','					  |"
-		 	 "measurement_insert ignored realdata n		  |"
-		 	 "cat						   " );
-	}
-
-	output_pipe = popen( sys_string, "w" );
-
-	measurement_count = 0;
-
-	while ( timlib_get_line( input_buffer, input_pipe, 1024 ) )
-	{
-		if ( !piece(	datatype_name,
-				'^',
-				input_buffer,
-				1 ) )
-		{
-			continue;
-		}
-
-		datatype =
-			datatype_set_or_get_datatype(
-				datatype_list,
-				datatype_name );
-
-		datatype->measurement_count++;
-
-		fprintf( output_pipe, "%s\n", input_buffer );
-		measurement_count++;
-	}
-
-	pclose( input_pipe );
-	pclose( output_pipe );
-
-	return measurement_count;
+	output_bad_records(
+		 bad_parse,
+		 bad_insert );
 
 } /* load_cr300_filespecification() */
 
-void load_cr300_datatype_summary_display( LIST *datatype_list )
+void output_bad_records(
+		 	char *bad_parse_file,
+		 	char *bad_insert_file )
 {
-	DATATYPE *datatype;
 	char sys_string[ 1024 ];
-	FILE *output_pipe;
 
-	strcpy( sys_string,
-	"html_table.e '^^Datatype Summary' ',count' '^' 'left,right'" );
+	sprintf(sys_string,
+	"cat %s %s | html_table.e '^^Bad Records' '' ''",
+	 	bad_parse_file,
+	 	bad_insert_file );
 
-	fflush( stdout );
-	output_pipe = popen( sys_string, "w" );
+	if ( system( sys_string ) ){};
 
-	if ( list_rewind( datatype_list ) )
-	{
-		do {
-			datatype = list_get_pointer( datatype_list );
-
-			fprintf( output_pipe,
-				 "%s^%d\n",
-				 datatype->datatype_name,
-				 datatype->measurement_count );
-
-		} while ( list_next( datatype_list ) );
-	}
-
-	pclose( output_pipe );
-	fflush( stdout );
-
-} /* load_cr300_datatype_summary_display() */
-
+} /* output_bad_records() */
 

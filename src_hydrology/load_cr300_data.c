@@ -197,11 +197,15 @@ void load_cr300_filespecification(
 	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 
 	sprintf( sys_string,
-"spreadsheet_parse file=\"%s\" station=\"%s\" time=no 2>%s		|"
+"spreadsheet_parse	file=\"%s\"					"
+"			station=\"%s\"					"
+"			date_heading_label=%s				"
+"			time=no 2>%s					|"
 "measurement_insert begin=%s end=%s execute=%c 2>%s			|"
 "cat									 ",
 		 filename,
 		 station,
+		 date_heading_label,
 		 bad_parse,
 		 begin_measurement_date,
 		 end_measurement_date,

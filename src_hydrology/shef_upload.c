@@ -24,12 +24,10 @@
 #include "session.h"
 #include "application.h"
 #include "appaserver_error.h"
-#include "appaserver_link_file.h"
+#include "hydrology.h"
 
 /* Constants */
 /* --------- */
-#define STATION_FILENAME_STEM	"shef_upload_bad_station"
-#define SHEF_FILENAME_STEM	"shef_upload_bad_shef"
 
 /* Sample
 --------------------------------------------------------------------------------
@@ -56,8 +54,14 @@
 
 /* Prototypes */
 /* ---------- */
+void output_bad_records(		char *station_bad_file,
+				 	char *shef_bad_file,
+					char *insert_bad_file );
+
+
 void shef_upload(	char *station_bad_file, 
 			char *shef_bad_file,
+			char *insert_bad_file,
 			char *application_name,
 			char *shef_filename,
 			boolean execute );
@@ -69,11 +73,12 @@ int main( int argc, char **argv )
 	char *shef_filename;
 	boolean execute;
 	DOCUMENT *document;
-	char *station_bad_file;
-	char *shef_bad_file;
+	char station_bad_file[ 128 ];
+	char shef_bad_file[ 128 ];
+	char insert_bad_file[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *session;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	char *dir;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -117,55 +122,15 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
-	appaserver_link_file =
-		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-	 		appaserver_parameter_file->
-				document_root,
-			STATION_FILENAME_STEM,
-			application_name,
-			0 /* process_id */,
-			session,
-			"dat" /* extension */ );
+	dir = appaserver_parameter_file->appaserver_data_directory;
 
-	station_bad_file =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	appaserver_link_file->filename_stem = SHEF_FILENAME_STEM;
-
-	shef_bad_file =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	sprintf( station_bad_file, "%s/station_bad_%s.dat", dir, session );
+	sprintf( shef_bad_file, "%s/shef_bad_%s.dat", dir, session );
+	sprintf( insert_bad_file, "%s/insert_bad_%s.dat", dir, session );
 
 	shef_upload(	station_bad_file, 
 			shef_bad_file,
+			insert_bad_file,
 			application_name,
 			shef_filename,
 			execute );
@@ -181,7 +146,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		printf( "<p>Process NOT executed.\n" );
+		printf( "<p>Process not executed.\n" );
 	}
 
 	document_close();
@@ -191,53 +156,68 @@ int main( int argc, char **argv )
 
 void shef_upload(	char *station_bad_file, 
 			char *shef_bad_file,
+			char *insert_bad_file,
 			char *application_name,
 			char *shef_filename,
 			boolean execute )
 
 {
 	char insert_process[ 512 ];
-	char prune_process[ 512 ];
-	char remove_process[ 512 ];
-	char display_error_process[ 512 ];
 	char sys_string[ 4096 ];
+	char *begin_measurement_date = {0};
+	char *end_measurement_date = {0};
 
-	strcpy( prune_process, "echo > /dev/null" );
-	strcpy( remove_process, "echo > /dev/null" );
+	hydrology_parse_begin_end_dates(
+		&begin_measurement_date,
+		&end_measurement_date,
+		shef_filename,
+		"timestamp" /* date_heading_label */,
+		0 /* date_piece */ );
 
-	sprintf(display_error_process,
-		"echo \"<br><th>Bad records:</th>\"		;"
-		"cat %s | html_paragraph_wrapper		;"
-		"cat %s | html_paragraph_wrapper		 ",
-		station_bad_file,
-		shef_bad_file );
-
-	printf( "<p>Processing: %s\n", shef_filename );
-	fflush( stdout );
+	if ( !begin_measurement_date || !end_measurement_date )
+	{
+		printf(
+			"<h3>ERROR: Cannot extract begin/end dates.</h3>\n" );
+		document_close();
+		return;
+	}
 
 	sprintf( insert_process,
-	"measurement_insert %s shef %c 2>&1 | html_paragraph_wrapper",
-			 application_name,
-			 (execute) ? 'y' : 'n' );
+"measurement_insert begin=%s end=%s execute=%c",
+		 begin_measurement_date,
+		 end_measurement_date,
+		 (execute) ? 'y' : 'n' );
 
 	sprintf( sys_string,
 	"cat %s					      	     	     |"
 	"station_alias_to_station %s 1 \'/\' 2>%s 		     |"
 	"shef_to_comma_delimited %s 2>%s		  	     |"
-	"%s 					      		     ;"
-	"%s							     ;"
-	"%s							     ;"
-	"%s 							      ",
+	"%s 2>%s				      		      ",
 			 shef_filename,
 			 application_name,
 			 station_bad_file,
 			 application_name,
 			 shef_bad_file,
 			 insert_process,
-			 prune_process,
-			 display_error_process,
-			 remove_process );
+			 insert_bad_file );
 
 	if ( system( sys_string ) ) {};
 
 } /* shef_upload() */
+
+void output_bad_records(		char *station_bad_file,
+				 	char *shef_bad_file,
+					char *insert_bad_file )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"cat %s %s %s | html_table.e '^^Bad Records' '' ''",
+	 	station_bad_file,
+	 	shef_bad_file,
+		insert_bad_file );
+
+	if ( system( sys_string ) ){};
+
+} /* output_bad_records() */
+

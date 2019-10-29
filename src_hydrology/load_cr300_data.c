@@ -193,6 +193,14 @@ void load_cr300_filespecification(
 		date_heading_label,
 		0 /* date_piece */ );
 
+	if ( !begin_measurement_date || !end_measurement_date )
+	{
+		printf(
+			"<h3>ERROR: Cannot extract begin/end dates.</h3>\n" );
+		document_close();
+		return;
+	}
+
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
 	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 

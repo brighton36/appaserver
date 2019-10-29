@@ -42,7 +42,6 @@ typedef struct
 /* --------- */
 #define TEMPERATURE_HEADING		"Temp"
 #define BOTTOM_TEMPERATURE_DATATYPE	"bottom_temperature"
-#define TEMPERATURE_HEADING		"Temp"
 #define SURFACE_TEMPERATURE_DATATYPE	"surface_temperature"
 #define SALINITY_HEADING		"Sal"
 #define SALINITY_DATATYPE		"salinity_raw"

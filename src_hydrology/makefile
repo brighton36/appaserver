@@ -1438,18 +1438,6 @@ hydrology_histogram: hydrology_histogram.c				\
 		${LIBRARY}/grace.o	 				\
 		-o hydrology_histogram
 
-load_report_of_water_quality: load_report_of_water_quality.c		\
-		${LIBRARY}/query_attribute_statistics_list.o		\
-		${LIBRARY}/dictionary.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		-I${SOURCE_EVERGLADES}					\
-		${EXTERNAL_LIBS}					\
-		${SOURCE_LIBS}						\
-		${STANDARD_LIBRARY} 					\
-		load_report_of_water_quality.c				\
-		-o load_report_of_water_quality
-
 adjust_measurement_time: adjust_measurement_time.c
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\

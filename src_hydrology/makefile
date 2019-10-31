@@ -93,6 +93,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		load_biscayne_ysi_data					\
 		load_ysi_data						\
 		load_cr300_data						\
+		biscayne_spreadsheet_parse				\
 		spreadsheet_parse					\
 		spreadsheet_parse_header				\
 		measurement_adjust_time_to_sequence			\
@@ -392,6 +393,16 @@ spreadsheet_parse: spreadsheet_parse.c					\
 		spreadsheet_parse.c					\
 		${SOURCE_LIBS}						\
 		-o spreadsheet_parse
+
+biscayne_spreadsheet_parse: biscayne_spreadsheet_parse.c		\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		biscayne_spreadsheet_parse.c				\
+		${SOURCE_LIBS}						\
+		-o biscayne_spreadsheet_parse
 
 alias_datatype: alias_datatype.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}

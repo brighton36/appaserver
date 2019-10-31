@@ -35,6 +35,7 @@ JULIAN *julian_date_time_new(	int year,
 
 void julian_free( JULIAN *julian );
 char *julian_display_yyyy_mm_dd( double current );
+char *julian_display_yyyymmdd( double current );
 char *julian_get_yyyy_mm_dd_string( double current );
 char *julian_get_yyyy_mm_dd( double current );
 char *julian_get_hhmm_string( double current );

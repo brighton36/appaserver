@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <ctype.h>
 #include "date_convert.h"
-#include "julian.h"
 #include "query.h"
 #include "basename.h"
 #include "appaserver_library.h"
@@ -94,8 +93,8 @@ int main( int argc, char **argv )
 	char *end_date_string;
 	char *end_time_string;
 
-	/* Exits if failure. */
-	/* ----------------- */
+	/* Exits if fails */
+	/* -------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(

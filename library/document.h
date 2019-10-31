@@ -123,6 +123,7 @@ void document_output_closing( 		void );
 
 void document_quick_output_body( 	char *application_name,
 					char *appaserver_mount_point );
+
 void document_output_quick_body( 	char *application_name,
 					char *appaserver_mount_point );
 

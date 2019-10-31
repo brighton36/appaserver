@@ -394,7 +394,7 @@ int load_sfwmd_breakpoint_data(
 					measurement_date_string,
 				 sfwmd_station_datatype->
 					measurement_time_string,
-				 sfwmd_station_datatype->value,
+				 sfwmd_station_datatype->measurement_value,
 				 sfwmd_station_datatype->
 					last_validation_date_string,
 				 sfwmd_station_datatype->db_key,
@@ -412,7 +412,8 @@ int load_sfwmd_breakpoint_data(
 						measurement_date_string,
 				 	sfwmd_station_datatype->
 						measurement_time_string,
-				 	sfwmd_station_datatype->value );
+				 	sfwmd_station_datatype->
+						measurement_value );
 				}
 			}
 
@@ -553,12 +554,13 @@ SFWMD_STATION_DATATYPE *get_sfwmd_station_datatype(
 	else
 	{
 		sfwmd_station_datatype->is_null = 0;
-		sfwmd_station_datatype->value = atof( piece_buffer );
+		sfwmd_station_datatype->measurement_value =
+			atof( piece_buffer );
 	}
 
 	if ( sfwmd_station_datatype->conversion_factor )
 	{
-		sfwmd_station_datatype->value *=
+		sfwmd_station_datatype->measurement_value *=
 			sfwmd_station_datatype->conversion_factor;
 	}
 

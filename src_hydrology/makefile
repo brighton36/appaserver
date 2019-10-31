@@ -93,6 +93,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		load_biscayne_ysi_data					\
 		load_ysi_data						\
 		load_cr300_data						\
+		sfwmd_spreadsheet_parse					\
 		biscayne_spreadsheet_parse				\
 		spreadsheet_parse					\
 		spreadsheet_parse_header				\
@@ -363,14 +364,13 @@ load_cr10_single: load_cr10_single.c					\
 		-o load_cr10_single
 
 load_sfwmd_single_file: load_sfwmd_single_file.c			\
-	${EXTERNAL_LIBS} ${SOURCE_LIBS} sfwmd_station_datatype.o
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
 		${SOURCE_LIBS}	 					\
 		load_sfwmd_single_file.c				\
-		sfwmd_station_datatype.o				\
 		-o load_sfwmd_single_file
 
 load_sfwmd_breakpoint_data: load_sfwmd_breakpoint_data.c		\
@@ -403,6 +403,17 @@ biscayne_spreadsheet_parse: biscayne_spreadsheet_parse.c		\
 		biscayne_spreadsheet_parse.c				\
 		${SOURCE_LIBS}						\
 		-o biscayne_spreadsheet_parse
+
+sfwmd_spreadsheet_parse: sfwmd_spreadsheet_parse.c			\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS} sfwmd_station_datatype.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		sfwmd_spreadsheet_parse.c				\
+		sfwmd_station_datatype.o				\
+		${SOURCE_LIBS}						\
+		-o sfwmd_spreadsheet_parse
 
 alias_datatype: alias_datatype.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}

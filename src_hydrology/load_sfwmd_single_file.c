@@ -32,8 +32,14 @@
 
 /* Prototypes */
 /* ---------- */
+void output_bad_records(
+		 	char *bad_parse_file,
+			char *bad_frequency_file,
+		 	char *bad_insert_file );
+
 void load_sfwmd_single_file(
 			char *application_name,
+			char *appaserver_data_directory,
 			char *filename,
 			boolean execute );
 
@@ -75,6 +81,8 @@ int main( int argc, char **argv )
 
 	load_sfwmd_single_file(
 		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point,
 		filename,
 		execute );
 
@@ -100,9 +108,81 @@ int main( int argc, char **argv )
 
 void load_sfwmd_single_file(
 			char *application_name,
+			char *appaserver_data_directory,
 			char *filename,
 			boolean execute )
 {
+	char sys_string[ 1024 ];
+	char *begin_measurement_date = {0};
+	char *end_measurement_date = {0};
+	char bad_parse[ 128 ];
+	char bad_frequency[ 128 ];
+	char bad_insert[ 128 ];
+	char *date_heading_label;
+	pid_t pid;
+	char *dir;
+
+	date_heading_label = "dbkey";
+	pid = getpid();
+	dir = appaserver_data_directory;
+
+	hydrology_parse_begin_end_dates(
+					&begin_measurement_date,
+					&end_measurement_date,
+					filename,
+					date_heading_label,
+					0 /* date_piece */ );
+
+	if ( !begin_measurement_date || !*begin_measurement_date )
+	{
+		printf( "<h3>Could not extract the begin/end dates.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	sprintf( bad_parse, "%s/sfwmd_parse_%d.dat", dir, pid );
+	sprintf( bad_frequency, "%s/sfwmd_frequency_%d.dat", dir, pid );
+	sprintf( bad_insert, "%s/sfwmd_insert_%d.dat", dir, pid );
+
+	sprintf( sys_string,
+"sfwmd_spreadsheet_parse \"%s\" 2>%s					|"
+"measurement_adjust_time_to_sequence					|"
+"measurement_frequency_reject %s %s '^' 2>%s				|"
+"measurement_insert begin=%s end=%s bypass=yes execute=%c 2>%s		|"
+"cat									 ",
+		 filename,
+		 bad_parse,
+		 begin_measurement_date,
+		 end_measurement_date,
+		 bad_frequency,
+		 begin_measurement_date,
+		 end_measurement_date,
+		 (execute) ? 'y' : 'n',
+		 bad_insert );
+
+	if ( system( sys_string ) ) {};
+
+	output_bad_records(
+		bad_parse,
+		bad_frequency,
+		bad_insert );
 
 } /* load_sfwmd_single_file() */
+
+void output_bad_records(
+		 	char *bad_parse_file,
+			char *bad_frequency_file,
+		 	char *bad_insert_file )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"cat %s %s %s | html_table.e '^^Bad Records' '' ''",
+	 	bad_parse_file,
+		bad_frequency_file,
+	 	bad_insert_file );
+
+	if ( system( sys_string ) ){};
+
+} /* output_bad_records() */
 

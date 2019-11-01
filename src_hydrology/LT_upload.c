@@ -38,7 +38,7 @@ void output_bad_records(
 			 	char *bad_insert_file );
 
 void LT_upload(		
-				char *input_filename,
+				char *filename,
 				char *station,
 				boolean execute,
 				char *appaserver_data_directory );
@@ -49,7 +49,7 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *station;
 	boolean execute;
-	char *input_filename;
+	char *filename;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
@@ -73,7 +73,7 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 1 ];
 	station = argv[ 2 ];
-	input_filename = argv[ 3 ];
+	filename = argv[ 3 ];
 	execute = (*argv[ 4 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -102,7 +102,7 @@ int main( int argc, char **argv )
 	printf( "</h2>\n" );
 	fflush( stdout );
 
-	if ( !*input_filename || strcmp( input_filename, "filename" ) == 0 )
+	if ( !*filename || strcmp( filename, "filename" ) == 0 )
 	{
 		printf( "<h3>Please transmit a file.</h3>\n" );
 		document_close();
@@ -110,7 +110,7 @@ int main( int argc, char **argv )
 	}
 
 	LT_upload(
-		input_filename,
+		filename,
 		station,
 		execute,
 		appaserver_parameter_file->
@@ -136,7 +136,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void LT_upload(		char *input_filename,
+void LT_upload(		char *filename,
 			char *station,
 			boolean execute,
 			char *appaserver_data_directory )
@@ -157,9 +157,16 @@ void LT_upload(		char *input_filename,
 	hydrology_parse_begin_end_dates(
 					&begin_measurement_date,
 					&end_measurement_date,
-					input_filename,
+					filename,
 					date_heading_label,
 					0 /* date_piece */ );
+
+	if ( !begin_measurement_date || !*begin_measurement_date )
+	{
+		printf( "<h3>Could not extract the begin/end dates.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
 
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
 	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
@@ -168,7 +175,7 @@ void LT_upload(		char *input_filename,
 "spreadsheet_parse file=\"%s\" station=\"%s\" time=no 2>%s		|"
 "measurement_insert begin=%s end=%s execute=%c 2>%s			|"
 "cat									 ",
-		 input_filename,
+		 filename,
 		 station,
 		 bad_parse,
 		 begin_measurement_date,
@@ -179,8 +186,8 @@ void LT_upload(		char *input_filename,
 	if ( system( sys_string ) ) {};
 
 	output_bad_records(
-		 bad_parse,
-		 bad_insert );
+		bad_parse,
+		bad_insert );
 
 } /* LT_upload() */
 

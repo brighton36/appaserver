@@ -323,10 +323,11 @@ int load_bank_spreadsheet(
 	if ( !execute )
 	{
 	/* ------------------------------------------------------------ */
+	/* Sets bank_upload->feeder_check_number_existing_journal_ledger*/
+	/* or								*/
 	/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
-	/*      bank_upload->feeder_check_number_existing_journal_ledger*/
-	/*      bank_upload->bank_upload_status				*/
-	/*      existing_cash_journal_ledger->match_sum_taken = 1	*/
+	/* or								*/
+	/* Sets bank_upload->feeder_match_existing_journal_ledger_list	*/
 	/* ------------------------------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
@@ -339,21 +340,6 @@ int load_bank_spreadsheet(
 				existing_cash_journal_ledger_list,
 			bank_upload_structure->
 				uncleared_checks_transaction_list );
-
-		if ( list_length( 
-			bank_upload_structure->file.bank_upload_file_list ) )
-		{
-		/* ---------------------------------------------------- */
-		/* Checks feeder_phrase_match_build_transaction		*/
-		/*    and feeder_check_number_existing_journal_ledger	*/
-		/* ---------------------------------------------------- */
-			bank_upload_match_sum_existing_journal_ledger_list(
-				bank_upload_structure->
-					file.
-					bank_upload_file_list,
-				bank_upload_structure->
-					existing_cash_journal_ledger_list );
-		}
 
 		bank_upload_table_display(
 			application_name,
@@ -415,10 +401,11 @@ int load_bank_spreadsheet(
 				bank_upload_date_time );
 
 	/* ------------------------------------------------------------ */
+	/* Sets bank_upload->feeder_check_number_existing_journal_ledger*/
+	/* or								*/
 	/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
-	/*      bank_upload->feeder_check_number_existing_journal_ledger*/
-	/*      bank_upload->bank_upload_status				*/
-	/*      existing_cash_journal_ledger->match_sum_taken = 1	*/
+	/* or								*/
+	/* Sets bank_upload->feeder_match_existing_journal_ledger_list	*/
 	/* ------------------------------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
@@ -431,21 +418,6 @@ int load_bank_spreadsheet(
 				existing_cash_journal_ledger_list,
 			bank_upload_structure->
 				uncleared_checks_transaction_list );
-
-		if ( list_length( 
-			bank_upload_structure->file.bank_upload_file_list ) )
-		{
-		/* ---------------------------------------------------- */
-		/* Checks feeder_phrase_match_build_transaction		*/
-		/*    and feeder_check_number_existing_journal_ledger	*/
-		/* ---------------------------------------------------- */
-			bank_upload_match_sum_existing_journal_ledger_list(
-				bank_upload_structure->
-					file.
-					bank_upload_file_list,
-				bank_upload_structure->
-					existing_cash_journal_ledger_list );
-		}
 
 		/* ------------------------------------------ */
 		/* Insert into TRANSACTION and JOURNAL_LEDGER */

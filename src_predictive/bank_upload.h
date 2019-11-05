@@ -13,13 +13,6 @@
 
 /* Enumerated types */
 /* ---------------- */
-enum bank_upload_status{	bank_upload_status_unknown,
-				bank_upload_existing_transaction,
-				bank_upload_existing_bank_upload,
-				bank_upload_feeder_phrase_match,
-				bank_upload_cleared_check,
-				bank_upload_check_number_match };
-
 enum bank_upload_exception {	bank_upload_exception_none,
 				duplicated_spreadsheet_file,
 				empty_transaction_rows,
@@ -64,11 +57,12 @@ typedef struct
 	double bank_running_balance;
 	char *fund_name;
 	int check_number;
+	boolean existing_bank_upload;
+	boolean existing_transaction;
 	TRANSACTION *feeder_phrase_match_build_transaction;
 	LIST *reconciled_transaction_list;
 	LIST *feeder_match_sum_existing_journal_ledger_list;
 	JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger;
-	enum bank_upload_status bank_upload_status;
 } BANK_UPLOAD;
 
 typedef struct
@@ -173,12 +167,6 @@ LIST *bank_upload_fetch_uncleared_checks_transaction_list(
 					char *minimum_transaction_date,
 					char *fund_name );
 
-/* ------------------------------------------------------------ */
-/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
-/*      bank_upload->feeder_check_number_existing_journal_ledger*/
-/*      bank_upload->bank_upload_status				*/
-/*      existing_cash_journal_ledger->match_sum_taken = 1	*/
-/* ------------------------------------------------------------ */
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
 				char *application_name,
@@ -372,7 +360,8 @@ void bank_upload_transaction_balance_propagate(
 
 char *bank_upload_get_account_html(
 		char *application_name,
-		enum bank_upload_status,
+		boolean existing_bank_upload,
+		boolean existing_transaction,
 		TRANSACTION *feeder_phrase_match_build_transaction,
 		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger,
 		LIST *match_sum_existing_journal_ledger_list );
@@ -391,6 +380,7 @@ LIST *bank_upload_fetch_transaction_date_time_list(
 					char *minimum_transaction_date,
 					char *account_name );
 
+/*
 void bank_upload_set_purchase_order_check(
 				LIST *bank_upload_list,
 				char *application_name,
@@ -400,6 +390,7 @@ void bank_upload_set_purchase_order_check(
 void bank_upload_set_non_purchase_order_check(
 				LIST *bank_upload_list,
 				LIST *existing_cash_journal_ledger_list );
+*/
 
 void bank_upload_set_reoccurring_transaction(
 				LIST *bank_upload_list,
@@ -439,23 +430,26 @@ int bank_upload_get_file_row_count(
 char *bank_upload_journal_ledger_list_html(
 			LIST *match_sum_existing_journal_ledger_list );
 
-/* ---------------------------------------------------- */
-/* Checks feeder_phrase_match_build_transaction		*/
-/*    and feeder_check_number_existing_journal_ledger	*/
-/* ---------------------------------------------------- */
 void bank_upload_match_sum_existing_journal_ledger_list(
 			LIST *bank_upload_list,
 			LIST *existing_cash_journal_ledger_list );
 
-/* --------------------------------------------------------------------- */
-/* Sets bank_upload->feeder_check_number_existing_journal_ledger	 */
-/* Sets bank_upload->bank_upload_status = bank_upload_check_number_match */
-/* --------------------------------------------------------------------- */
 void bank_upload_uncleared_checks_transaction_list(
 				LIST *bank_upload_list,
 				char *application_name,
 				char *fund_name,
 				LIST *uncleared_checks_transaction_list );
 
+void bank_upload_feeder_phrase_match_build_transaction(
+				LIST *bank_upload_list,
+				LIST *reoccurring_transaction_list,
+				LIST *existing_cash_journal_ledger_list );
+
+void bank_upload_check_number_existing_journal_ledger(
+				LIST *bank_upload_list,
+				char *application_name,
+				char *fund_name,
+				LIST *existing_cash_journal_ledger_list,
+				LIST *uncleared_checks_transaction_list );
 #endif
 

@@ -7,11 +7,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "dictionary.h"
+#include "julian.h"
 #include "boolean.h"
 
-#define MEASUREMENT_QUEUE_TOP_BOTTOM_LINES	50000
+#define MEASUREMENT_QUEUE_TOP_BOTTOM_LINES	50
 
 #define MEASUREMENT_SELECT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"
+
+#define MEASUREMENT_INSERT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"
 
 typedef struct
 {
@@ -74,8 +77,11 @@ MEASUREMENT_FREQUENCY *measurement_frequency_new(
 
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 				measurement_frequency_station_datatype_new(
+					char *application_name,
 					char *station_name,
-					char *datatype );
+					char *datatype,
+					char *begin_measurement_date,
+					char *end_measurement_date );
 
 MEASUREMENT_STRUCTURE *measurement_structure_new(
 					char *application_name );
@@ -95,14 +101,15 @@ MEASUREMENT *measurement_strdup_new(
 					char *time,
 					char *value_string );
 
-void measurement_set_comma_delimited_record(
+boolean measurement_set_delimited_record(
 					MEASUREMENT_STRUCTURE *m, 
 					char *comma_delimited_record,
-					char *argv_0 );
+					char delimiter );
 
-void measurement_insert( 		MEASUREMENT_STRUCTURE *m,
-					int really_yn,
+void measurement_html_display( 		MEASUREMENT_STRUCTURE *m,
 					FILE *html_table_pipe );
+
+void measurement_insert( 		MEASUREMENT_STRUCTURE *m );
 
 /*
 double measurement_get_value_from_db(	int *record_exists,
@@ -122,9 +129,7 @@ void measurement_output_insert_pipe(	FILE *insert_pipe,
 					double value,
 					boolean null_value );
 
-FILE *measurement_open_insert_pipe(	char *application_name,
-					int delete_measurements_day,
-					int really_yn );
+FILE *measurement_open_insert_pipe(	char *application_name );
 
 FILE *measurement_open_html_table_pipe(	void );
 
@@ -133,24 +138,27 @@ double measurement_get_value(		boolean *null_value,
 
 void measurement_set_load_process( 	MEASUREMENT *m,
 					char *load_process,
-					int really_yn );
+					boolean execute );
 
 void measurement_set_argv_0(		MEASUREMENT_STRUCTURE *m,
 					char *argv_0 );
 
-int measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
+boolean measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
 					FILE *input_pipe );
 
 FILE *measurement_open_delete_pipe(	char *application_name );
 
+/* Returns static memory */
+/* --------------------- */
 char *measurement_display(		MEASUREMENT *m );
+
+/* Returns static memory */
+/* --------------------- */
+char *measurement_display_delimiter(	MEASUREMENT *m,
+					char delimiter );
 
 void measurement_delete(		FILE *delete_pipe,
 					MEASUREMENT *m );
-
-void measurement_open_input_process( 	MEASUREMENT_STRUCTURE *m,
-					char *load_process,
-					int really_yn );
 
 DICTIONARY *measurement_get_date_time_frequency_dictionary(
 					char *application_name,
@@ -159,7 +167,7 @@ DICTIONARY *measurement_get_date_time_frequency_dictionary(
 					char *begin_measurement_date_string,
 					char *end_measurement_date_string );
 
-boolean measurement_date_time_frequency_exists(
+boolean measurement_data_collection_frequency_reject(
 				DICTIONARY *date_time_frequency_dictionary,
 				char *measurement_date_string,
 				char *measurement_time_string );
@@ -167,8 +175,11 @@ boolean measurement_date_time_frequency_exists(
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_get_or_set_station_datatype(
 					LIST *frequency_station_datatype_list,
+					char *application_name,
 					char *station_name,
-					char *datatype );
+					char *datatype,
+					char *begin_measurement_date,
+					char *end_measurement_date );
 
 void measurement_update(		char *application_name,
 					char *station_name,
@@ -194,7 +205,26 @@ MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
 					char *measurement_time,
 					LIST *measurement_list );
 
+void measurement_text_output(		MEASUREMENT *m,
+					char delimiter );
+
 void measurement_change_text_output(	LIST *measurement_list,
+					char delimiter );
+
+MEASUREMENT *measurement_variable_parse(
+					char *buffer,
+					char delimiter,
+					LIST *order_integer_list );
+
+void measurement_non_execute_display(
+					MEASUREMENT_STRUCTURE *m,
+					FILE *html_table_pipe );
+
+JULIAN *measurement_adjust_time_to_sequence(
+					JULIAN *measurement_date_time,
+					char *sequence_list_string );
+
+void measurement_text_output(		MEASUREMENT *measurement,
 					char delimiter );
 
 #endif

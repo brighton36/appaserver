@@ -235,7 +235,7 @@ char *date_get_yyyy_mm_dd_string(
 
 int date_get_day_number(	DATE *date );
 
-int date_set_time_hhmm(		DATE *date,
+boolean date_set_time_hhmm(	DATE *date,
 				char *hhmm );
 
 int date_get_minutes_number(	DATE *date );
@@ -307,6 +307,8 @@ void date_increment_weekly_ceiling(
 				DATE *date );
 
 int date_get_day_of_week(	DATE *d );
+
+char *date_display_yyyymmdd(	DATE *date );
 
 char *date_display(		DATE *date );
 

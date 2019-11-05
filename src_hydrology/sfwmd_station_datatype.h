@@ -12,7 +12,7 @@ typedef struct
 	char *station;
 	char *datatype;
 	char *db_key;
-	double value;
+	double measurement_value;
 	boolean is_null;
 	char measurement_update_method[ 64 ];
 	char last_validation_date_string[ 16 ];

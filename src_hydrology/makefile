@@ -82,6 +82,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		adjust_measurement_time					\
 		delete_measurements_day					\
 		measurement_insert					\
+		measurement_frequency_reject				\
 		prepend_century_maybe					\
 		load_turkey_point					\
 		LT_upload						\
@@ -92,7 +93,14 @@ EXECUTABLES=	hydrology_verification_process				\
 		load_biscayne_ysi_data					\
 		load_ysi_data						\
 		load_cr300_data						\
-		parse_alias_data					\
+		sfwmd_spreadsheet_parse					\
+		sfwmd_breakpoint_parse					\
+		biscayne_spreadsheet_parse				\
+		spreadsheet_parse					\
+		spreadsheet_parse_header				\
+		measurement_adjust_time_to_sequence			\
+		measurement_date_within_range				\
+		alias_datatype						\
 		get_aggregation_sum_yn					\
 		apply_position_translation_to_record			\
 		restore_measurement_backup				\
@@ -120,6 +128,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		output_hydroperiod					\
 		output_annual_comparison				\
 		calculate_hydroperiod					\
+		measurement_change_order				\
 		calculate_oxygen_solubility				\
 		merged_datasets_remove_all_but_first_heading.e		\
 		get_date_time_slot_list					\
@@ -356,14 +365,13 @@ load_cr10_single: load_cr10_single.c					\
 		-o load_cr10_single
 
 load_sfwmd_single_file: load_sfwmd_single_file.c			\
-	${EXTERNAL_LIBS} ${SOURCE_LIBS} sfwmd_station_datatype.o
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
 		${SOURCE_LIBS}	 					\
 		load_sfwmd_single_file.c				\
-		sfwmd_station_datatype.o				\
 		-o load_sfwmd_single_file
 
 load_sfwmd_breakpoint_data: load_sfwmd_breakpoint_data.c		\
@@ -377,15 +385,89 @@ load_sfwmd_breakpoint_data: load_sfwmd_breakpoint_data.c		\
 		sfwmd_station_datatype.o				\
 		-o load_sfwmd_breakpoint_data
 
-parse_alias_data: parse_alias_data.c					\
+spreadsheet_parse: spreadsheet_parse.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		parse_alias_data.c					\
+		spreadsheet_parse.c					\
 		${SOURCE_LIBS}						\
-		-o parse_alias_data
+		-o spreadsheet_parse
+
+biscayne_spreadsheet_parse: biscayne_spreadsheet_parse.c		\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		biscayne_spreadsheet_parse.c				\
+		${SOURCE_LIBS}						\
+		-o biscayne_spreadsheet_parse
+
+sfwmd_spreadsheet_parse: sfwmd_spreadsheet_parse.c			\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS} sfwmd_station_datatype.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		sfwmd_spreadsheet_parse.c				\
+		sfwmd_station_datatype.o				\
+		${SOURCE_LIBS}						\
+		-o sfwmd_spreadsheet_parse
+
+sfwmd_breakpoint_parse: sfwmd_breakpoint_parse.c			\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS} sfwmd_station_datatype.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		sfwmd_breakpoint_parse.c				\
+		sfwmd_station_datatype.o				\
+		${SOURCE_LIBS}						\
+		-o sfwmd_breakpoint_parse
+
+alias_datatype: alias_datatype.c					\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		alias_datatype.c					\
+		${SOURCE_LIBS}						\
+		-o alias_datatype
+
+spreadsheet_parse_header: spreadsheet_parse_header.c			\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		spreadsheet_parse_header.c				\
+		${SOURCE_LIBS}						\
+		-o spreadsheet_parse_header
+
+measurement_adjust_time_to_sequence:					\
+	measurement_adjust_time_to_sequence.c				\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		measurement_adjust_time_to_sequence.c			\
+		${SOURCE_LIBS}						\
+		-o measurement_adjust_time_to_sequence
+
+measurement_date_within_range:						\
+	measurement_date_within_range.c					\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		measurement_date_within_range.c				\
+		${SOURCE_LIBS}						\
+		-o measurement_date_within_range
 
 load_cr300_data: load_cr300_data.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}
@@ -1342,7 +1424,7 @@ validate_midnight: validate_midnight.c ${SOURCE_LIBS}
 		validate_midnight.c					\
 		-o validate_midnight
 
-measurement_insert: measurement_insert.c measurement.o
+measurement_insert: measurement_insert.c
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-I${SOURCE_EVERGLADES}					\
@@ -1351,6 +1433,16 @@ measurement_insert: measurement_insert.c measurement.o
 		${STANDARD_LIBRARY} 					\
 		measurement_insert.c					\
 		-o measurement_insert
+
+measurement_frequency_reject: measurement_frequency_reject.c
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-I${SOURCE_EVERGLADES}					\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		measurement_frequency_reject.c				\
+		-o measurement_frequency_reject
 
 hydrology_statistics_report: hydrology_statistics_report.c		\
 		${LIBRARY}/query_attribute_statistics_list.o		\
@@ -1379,18 +1471,6 @@ hydrology_histogram: hydrology_histogram.c				\
 		hydrology_histogram.c					\
 		${LIBRARY}/grace.o	 				\
 		-o hydrology_histogram
-
-load_report_of_water_quality: load_report_of_water_quality.c		\
-		${LIBRARY}/query_attribute_statistics_list.o		\
-		${LIBRARY}/dictionary.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		-I${SOURCE_EVERGLADES}					\
-		${EXTERNAL_LIBS}					\
-		${SOURCE_LIBS}						\
-		${STANDARD_LIBRARY} 					\
-		load_report_of_water_quality.c				\
-		-o load_report_of_water_quality
 
 adjust_measurement_time: adjust_measurement_time.c
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -1595,6 +1675,16 @@ calculate_hydroperiod:  calculate_hydroperiod.c				\
 		${STANDARD_LIBRARY} 					\
 		calculate_hydroperiod.c					\
 		-o calculate_hydroperiod
+
+measurement_change_order:  measurement_change_order.c			\
+		${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		measurement_change_order.c				\
+		-o measurement_change_order
 
 calculate_oxygen_solubility:  calculate_oxygen_solubility.c		\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}

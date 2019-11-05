@@ -25,7 +25,6 @@
 #include "session.h"
 #include "application.h"
 #include "appaserver_error.h"
-#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
@@ -46,12 +45,13 @@ shef
 
 /* Prototypes */
 /* ---------- */
+void output_bad_records(char *bad_insert_file );
+
 char *get_station(	char *full_filename );
 
 void satlink_upload(	char *full_filename,
 			char *shef_bad_file,
 			boolean execute,
-			char *application_name,
 			char *station_name,
 			char *argv_0,
 			boolean nohtml );
@@ -65,10 +65,9 @@ int main( int argc, char **argv )
 	boolean execute;
 	DOCUMENT *document;
 	char *argv_0;
-	char *shef_bad_file;
+	char shef_bad_file[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 1024 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
 	boolean nohtml;
 
 	/* Exits if failure. */
@@ -150,37 +149,15 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	appaserver_link_file =
-		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-	 		appaserver_parameter_file->
-				document_root,
-			process_name /* filename_stem */,
-			application_name,
-			getpid(),
-			(char *)0 /* session */,
-			"dat" );
-
-	shef_bad_file =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	sprintf( shef_bad_file,
+		 "%s/satlink_bad_%d.dat",
+		 appaserver_parameter_file->
+		 	appaserver_data_directory,
+		 getpid() );
 
 	satlink_upload(	full_filename, 
 			shef_bad_file,
 			execute,
-			application_name,
 			station_name,
 			argv_0,
 			nohtml );
@@ -208,52 +185,25 @@ int main( int argc, char **argv )
 void satlink_upload(	char *full_filename,
 			char *shef_bad_file,
 			boolean execute,
-			char *application_name,
 			char *station_name,
 			char *argv_0,
 			boolean nohtml )
 {
 	char insert_process[ 512 ];
-	char remove_process[ 512 ];
-	char display_error_process[ 512 ];
 	char *shef_process;
 	char sys_string[ 1024 ];
 
-	sprintf(remove_process,
-		"/bin/rm -f %s 2>/dev/null",
-		shef_bad_file );
 
-	sprintf(display_error_process,
-		"echo \"<br><big>Bad records:</big>\"			;"
-		"cat %s							|"
-		"grep -v '^Starting:'					|"
-		"queue_top_bottom_lines.e 50				|"
-		"html_paragraph_wrapper					;"
-		"echo \"<br><big>END Bad records</big>\"		 ",
-		shef_bad_file );
-
-	if ( execute )
-	{
-		sprintf( insert_process,
-"measurement_insert %s shef %c 2>>%s	|"
-"cat					 ",
-		 	application_name,
-		 	(execute) ? 'y' : 'n',
-		 	shef_bad_file );
-	}
-	else
 	if ( nohtml )
 	{
 		strcpy( insert_process, "cat" );
 	}
 	else
 	{
-		sprintf( insert_process,
-"measurement_insert %s shef %c 2>>%s	|"
-"cat					 ",
-		 	application_name,
-		 	(execute) ? 'y' : 'n',
-		 	shef_bad_file );
+		sprintf(insert_process,
+"measurement_insert station=%s begin=begin end=end bypass=yes execute=%c",
+			station_name,
+		 	(execute) ? 'y' : 'n' );
 	}
 
 	if ( strcmp( argv_0, "sl2_upload" ) == 0 )
@@ -262,25 +212,17 @@ void satlink_upload(	char *full_filename,
 		shef_process = "sl3_shef_to_comma_delimited";
 
 	sprintf( sys_string,
-	"cat %s			      	     |"
-	"%s %s %s 2>%s		  	     |"
-	"%s				     ;"
-	"%s				      ",
+	"cat %s			      	     	|"
+	"%s					|"
+	"%s 2>%s		  	      	 ",
 			 full_filename,
 			 shef_process,
-			 application_name,
-			 station_name,
-			 shef_bad_file,
 			 insert_process,
-			 display_error_process );
+			 shef_bad_file );
 
 	if ( system( sys_string ) ) {};
 
-	sprintf( sys_string,
-		 "rm -f %s",
-		 shef_bad_file );
-
-	if ( system( sys_string ) ) {};
+	output_bad_records( shef_bad_file );
 
 } /* satlink_upload() */
 
@@ -345,4 +287,16 @@ char *get_station( char *full_filename )
 	return station;
 
 } /* get_station() */
+
+void output_bad_records( char *bad_insert_file )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"cat %s | html_table.e '^^Bad Records' '' ''",
+	 	bad_insert_file );
+
+	if ( system( sys_string ) ){};
+
+} /* output_bad_records() */
 

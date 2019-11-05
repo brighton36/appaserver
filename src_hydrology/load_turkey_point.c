@@ -22,7 +22,6 @@
 #include "environ.h"
 #include "date.h"
 #include "process.h"
-#include "date_convert.h"
 #include "application.h"
 #include "basename.h"
 #include "hydrology.h"
@@ -30,8 +29,14 @@
 
 /* Prototypes */
 /* ---------- */
-int load_turkey_point_file(	char *application_name,
-				char *station_name,
+void output_bad_records(
+		 		char *bad_parse_file,
+		 		char *bad_time_file,
+		 		char *bad_frequency_file,
+		 		char *bad_insert_file );
+
+void load_turkey_point_file(	char *appaserver_data_directory,
+				char *station,
 				char *input_filename,
 				boolean execute );
 
@@ -44,7 +49,6 @@ int main( int argc, char **argv )
 	char *input_filename;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	int load_count;
 	char buffer[ 128 ];
 
 	/* Exits if failure. */
@@ -59,7 +63,7 @@ int main( int argc, char **argv )
 	if ( argc != 5 )
 	{
 		fprintf( stderr, 
-"Usage: %s process station filename execute_yn\n",
+			 "Usage: %s process station filename execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -89,7 +93,9 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
-	printf( "<h2>%s\n", format_initial_capital( buffer, process_name ) );
+	printf( "<h1>%s</h1>\n",
+		format_initial_capital( buffer, process_name ) );
+	printf( "<h2>" );
 	fflush( stdout );
 	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
 	printf( "</h2>\n" );
@@ -102,17 +108,16 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	load_count =
-		load_turkey_point_file(
-			application_name,
-			station_name,
-			input_filename,
-			execute );
+	load_turkey_point_file(
+		appaserver_parameter_file->
+			appaserver_data_directory,
+		station_name,
+		input_filename,
+		execute );
 
 	if ( execute )
 	{
-		printf( "<p>Process complete with %d measurements.\n",
-			load_count );
+		printf( "<h3>Insert complete.</h3>\n" );
 
 		process_increment_execution_count(
 				application_name,
@@ -121,8 +126,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		printf( "<p>Process did not load %d measurements.\n",
-			load_count );
+		printf( "<h3>Insert not executed.\n" );
 	}
 
 	document_close();
@@ -131,54 +135,82 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-int load_turkey_point_file(	char *application_name,
+void load_turkey_point_file(	char *appaserver_data_directory,
 				char *station_name,
 				char *input_filename,
 				boolean execute )
 {
-	int load_count = 0;
-	HYDROLOGY *hydrology;
-	STATION *station;
+	char sys_string[ 1024 ];
+	char *begin_measurement_date = {0};
+	char *end_measurement_date = {0};
+	char bad_parse[ 128 ];
+	char bad_time[ 128 ];
+	char bad_frequency[ 128 ];
+	char bad_insert[ 128 ];
+	char *date_heading_label;
+	pid_t pid;
+	char *dir;
 
-	hydrology = hydrology_new();
+	date_heading_label = "date";
+	pid = getpid();
+	dir = appaserver_data_directory;
 
-	station = hydrology_set_or_get_station(
-			hydrology->input.station_list,
-			application_name,
-			station_name );
+	hydrology_parse_begin_end_dates(
+					&begin_measurement_date,
+					&end_measurement_date,
+					input_filename,
+					date_heading_label,
+					1 /* date_piece */ );
 
-	hydrology->output.header_column_datatype_list =
-		hydrology_get_header_column_datatype_list(
-				station->station_datatype_list,
-				station->station_name,
-				input_filename,
-				TURKEY_POINT_FIRST_COLUMN_PIECE );
+	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
+	sprintf( bad_time, "%s/time_%d.dat", dir, pid );
+	sprintf( bad_frequency, "%s/frequency_%d.dat", dir, pid );
+	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 
-	hydrology_set_measurement(
-		station->station_datatype_list,
-		input_filename,
-		TURKEY_POINT_DATE_TIME_PIECE );
+	sprintf( sys_string,
+"spreadsheet_parse file=\"%s\" station=\"%s\" time=no date_piece=1 2>%s	|"
+"measurement_adjust_time_to_sequence 2>%s				|"
+"measurement_frequency_reject %s %s '^' 2>%s				|"
+"measurement_insert bypass=y begin=%s end=%s execute=%c 2>%s		|"
+"cat									 ",
+		 input_filename,
+		 station_name,
+		 bad_parse,
+		 bad_time,
+		 begin_measurement_date,
+		 end_measurement_date,
+		 bad_frequency,
+		 begin_measurement_date,
+		 end_measurement_date,
+		 (execute) ? 'y' : 'n',
+		 bad_insert );
 
-	if ( execute )
-	{
-		load_count =
-			hydrology_measurement_insert(
-				station->station_name,
-				station->station_datatype_list );
-	}
-	else
-	{
-		hydrology_summary_table_display(
-				station->station_name,
-				station->station_datatype_list );
+	if ( system( sys_string ) ) {};
 
-		load_count =
-			hydrology_measurement_table_display(
-				station->station_name,
-				station->station_datatype_list );
-	}
-
-	return load_count;
+	output_bad_records(
+		 bad_parse,
+		 bad_time,
+		 bad_frequency,
+		 bad_insert );
 
 } /* load_turkey_point_file() */
+
+void output_bad_records(
+		 	char *bad_parse_file,
+		 	char *bad_time_file,
+		 	char *bad_frequency_file,
+		 	char *bad_insert_file )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"cat %s %s %s %s | html_table.e '^^Bad Records' '' ''",
+	 	bad_parse_file,
+	 	bad_time_file,
+	 	bad_frequency_file,
+	 	bad_insert_file );
+
+	if ( system( sys_string ) ){};
+
+} /* output_bad_records() */
 

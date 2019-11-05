@@ -91,7 +91,7 @@ void shef_upload_datatype_convert_one_time(
 	hydrology = hydrology_new();
 
 	station =
-		hydrology_get_or_set_station(
+		station_get_or_set_station(
 			hydrology->input.station_list,
 			application_name,
 			station_name );
@@ -107,7 +107,7 @@ void shef_upload_datatype_convert_one_time(
 	}
 
 	datatype_name =
-		hydrology_datatype_name_seek_phrase(
+		datatype_name_seek_phrase(
 			station->station_datatype_list,
 			station->station_name,
 			shef_upload_code
@@ -154,7 +154,7 @@ void shef_upload_datatype_convert_stdin(
 		}
 
 		station =
-			hydrology_get_or_set_station(
+			station_get_or_set_station(
 				hydrology->input.station_list,
 				application_name,
 				station_name );
@@ -170,7 +170,7 @@ void shef_upload_datatype_convert_stdin(
 		}
 
 		datatype_name =
-			hydrology_datatype_name_seek_phrase(
+			datatype_name_seek_phrase(
 				station->station_datatype_list,
 				station->station_name,
 				shef_upload_code

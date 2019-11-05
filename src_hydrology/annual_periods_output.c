@@ -961,7 +961,7 @@ sys_string );
 		printf( "<h1>Annual Periods Spreadsheet<br></h1>\n" );
 		printf( "<h2>\n" );
 		fflush( stdout );
-		system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 		fflush( stdout );
 		printf( "</h2>\n" );
 	
@@ -1106,7 +1106,7 @@ sys_string );
 		printf( "<h1>Annual Periods Text File<br></h1>\n" );
 		printf( "<h2>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ){};
 		fflush( stdout );
 		printf( "</h2>\n" );
 	
@@ -3504,7 +3504,7 @@ void period_wo_date_output_transmit(
 		printf( "<h1>Annual Periods Transmission<br></h1>\n" );
 		printf( "<h2>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ){};
 		fflush( stdout );
 		printf( "</h2>\n" );
 		

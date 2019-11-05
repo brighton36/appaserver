@@ -152,4 +152,31 @@ LIST *datatype_fetch_alias_list(
 				char *application_name,
 				char *datatype_name );
 
+char *datatype_alias_display(
+				LIST *station_list,
+				char *application_name,
+				char *station_name,
+				char *datatype_alias );
+
+DATATYPE *datatype_seek_phrase(
+				LIST *station_datatype_list,
+				char *station_name,
+				/* -----------------------	*/
+				/* Samples: Salinity (PSU)	*/
+				/*	    Salinity		*/
+				/* ----------------------- 	*/
+				char *datatype_units_seek_phrase );
+
+char *datatype_name_seek_phrase(
+				LIST *station_datatype_list,
+				char *station_name,
+				/* -----------------------	*/
+				/* Samples: Salinity (PSU)	*/
+				/*	    Salinity		*/
+				/* ----------------------- 	*/
+				char *datatype_units_seek_phrase );
+
+LIST *datatype_column_piece_datatype_list(
+				LIST *datatype_list );
+
 #endif

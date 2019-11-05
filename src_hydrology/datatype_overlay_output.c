@@ -84,14 +84,6 @@ LIST *get_compare_datatype_name_list(
 			DICTIONARY *parameter_dictionary,
 			char *appaserver_mount_point );
 
-void insert_into_station_datatype_group_tables(
-			char *application_name,
-			char *login_name,
-			char *new_station_datatype_group,
-			LIST *station_datatype_group_member_string_list,
-			char *anchor_station,
-			char *anchor_datatype );
-
 void output_scatter_plot(
 			char *application_name,
 			char *input_sys_string,
@@ -181,15 +173,7 @@ int main( int argc, char **argv )
 	char *distill_landscape_flag;
 	char *new_station_datatype_group = {0};
 	char *station_datatype_group = {0};
-	LIST *station_datatype_group_member_string_list;
-	char *database_string = {0};
 	int process_id = getpid();
-/*
-	int right_justified_columns_from_right;
-	char *session;
-	boolean bar_graph;
-	char *units;
-*/
 
 	if ( argc != 7 )
 	{
@@ -206,25 +190,12 @@ int main( int argc, char **argv )
 	aggregate_level_string = argv[ 5 ];
 	parameter_dictionary_string = argv[ 6 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	parameter_dictionary = 
 		dictionary_index_string2dictionary(
@@ -294,22 +265,6 @@ int main( int argc, char **argv )
 		"<p>ERROR: you must select a station|datatype to save.\n" );
 			document_close();
 			exit( 0 );
-		}
-
-		station_datatype_group_member_string_list =
-			dictionary_get_index_data_list(
-				parameter_dictionary,
-				"compare_station|compare_datatype" );
-
-		if ( list_length( station_datatype_group_member_string_list ) )
-		{
-			insert_into_station_datatype_group_tables(
-				application_name,
-				login_name,
-				new_station_datatype_group,
-				station_datatype_group_member_string_list,
-				anchor_station,
-				anchor_datatype );
 		}
 	}
 
@@ -1606,104 +1561,6 @@ m2( "hydrology", msg );
 	document_close();
 
 } /* output_covariance() */
-
-void insert_into_station_datatype_group_tables(
-			char *application_name,
-			char *login_name,
-			char *new_station_datatype_group,
-			LIST *station_datatype_group_member_string_list,
-			char *anchor_station,
-			char *anchor_datatype )
-{
-	char sys_string[ 1024 ];
-	FILE *output_pipe;
-	char *table_name;
-	char *field_list_string;
-	char *station_datatype_group_member_string;
-
-	/* Insert into station_datatype_groups */
-	/* ----------------------------------- */
-	table_name =
-		get_table_name(
-			application_name, "station_datatype_groups" );
-
-	sprintf( sys_string,
-		 "insert_statement.e %s station_datatype_group,login_name |"
-		 "sql.e							   ",
-		 table_name );
-	output_pipe = popen( sys_string, "w" );
-	fprintf( output_pipe,
-		 "%s|%s\n",
-		 new_station_datatype_group,
-		 login_name );
-	pclose( output_pipe );
-
-	/* Insert into station_datatype_group_members */
-	/* ------------------------------------------ */
-	table_name =
-		get_table_name(
-			application_name, "station_datatype_group_members" );
-
-	field_list_string =
-		"station_datatype_group,login_name,station,datatype";
-
-	sprintf( sys_string,
-		 "insert_statement.e %s %s				  |"
-		 "sql.e							   ",
-		 table_name,
-		 field_list_string );
-
-	output_pipe = popen( sys_string, "w" );
-
-	list_rewind( station_datatype_group_member_string_list );
-	do {
-		station_datatype_group_member_string =
-			list_get_pointer(
-				station_datatype_group_member_string_list );
-
-		fprintf( output_pipe,
-			 "%s|%s|%s\n",
-			 new_station_datatype_group,
-			 login_name,
-			 station_datatype_group_member_string );
-	} while( list_next( station_datatype_group_member_string_list ) );
-
-	fprintf( output_pipe,
-		 "%s|%s|%s|%s\n",
-		 new_station_datatype_group,
-		 login_name,
-		 anchor_station,
-		 anchor_datatype );
-
-	pclose( output_pipe );
-
-	/* Insert into station_datatype_group_anchors */
-	/* ------------------------------------------ */
-	table_name =
-		get_table_name(
-			application_name, "station_datatype_group_anchors" );
-
-	field_list_string =
-		"station_datatype_group,login_name,station,datatype";
-
-	sprintf( sys_string,
-		 "insert_statement.e %s %s				  |"
-		 "sql							   ",
-		 table_name,
-		 field_list_string );
-
-	output_pipe = popen( sys_string, "w" );
-
-	fprintf( output_pipe,
-		 "%s|%s|%s|%s\n",
-		 new_station_datatype_group,
-		 login_name,
-		 anchor_station,
-		 anchor_datatype );
-
-	pclose( output_pipe );
-
-} /* insert_into_station_datatype_group_tables() */
 
 LIST *get_compare_datatype_name_list(
 				LIST **compare_station_name_list,

@@ -58,11 +58,6 @@ STATION *hydrology_set_or_get_station(
 				char *application_name,
 				char *station_name );
 
-STATION *hydrology_get_or_set_station(
-				LIST *input_station_list,
-				char *application_name,
-				char *station_name );
-
 char *hydrology_translate_units_name(
 				LIST *station_datatype_list,
 				char *units_phrase );
@@ -82,26 +77,8 @@ void hydrology_parse_datatype_units_phrase(
 				/* ----------------------- 	*/
 				char *datatype_units_seek_phrase );
 
-char *hydrology_datatype_name_seek_phrase(
-				LIST *station_datatype_list,
-				char *station_name,
-				/* -----------------------	*/
-				/* Samples: Salinity (PSU)	*/
-				/*	    Salinity		*/
-				/* ----------------------- 	*/
-				char *datatype_units_seek_phrase );
-
 char *hydrology_units_name_seek_phrase(
 				LIST *station_datatype_list,
-				/* -----------------------	*/
-				/* Samples: Salinity (PSU)	*/
-				/*	    Salinity		*/
-				/* ----------------------- 	*/
-				char *datatype_units_seek_phrase );
-
-DATATYPE *hydrology_datatype_seek_phrase(
-				LIST *station_datatype_list,
-				char *station_name,
 				/* -----------------------	*/
 				/* Samples: Salinity (PSU)	*/
 				/*	    Salinity		*/
@@ -112,10 +89,17 @@ MEASUREMENT *hydrology_extract_measurement(
 				char *input_string,
 				int column_piece );
 
-void hydrology_set_measurement(
+/* Sets station_datatype->measurement_list */
+/* --------------------------------------- */
+void hydrology_parse_file(
 				LIST *station_datatype_list,
+				LIST *frequency_station_datatype_list,
+				char *application_name,
+				FILE *error_file,
 				char *input_filename,
-				int date_time_piece );
+				int date_time_piece,
+				char *begin_measurement_date,
+				char *end_measurement_date );
 
 int hydrology_measurement_table_display(
 				char *station_name,
@@ -128,5 +112,52 @@ void hydrology_summary_table_display(
 int hydrology_measurement_insert(
 				char *station_name,
 				LIST *station_datatype_list );
+
+void hydrology_parse_begin_end_dates(
+				char **begin_measurement_date,
+				char **end_measurement_date,
+				char *input_filespecification,
+				char *date_heading_label,
+				int date_piece );
+
+/* Returns static memory */
+/* --------------------- */
+char *hydrology_format_measurement_date(
+				/* ------------------------ */
+				/* Out: assume stack memory */
+				/* ------------------------ */
+				char *measurement_time_string,
+				/* -- */
+				/* In */
+				/* -- */
+				char *measurement_date_time_string );
+
+boolean hydrology_extract_zulu_date_time(
+				/* --- */
+				/* Out */
+				/* --- */
+				char *measurement_date_string,
+				/* --- */
+				/* Out */
+				/* --- */
+				char *measurement_time_string,
+				/* ----------------------------------- */
+				/* In: looks like 2018-08-31T14:30:22Z */
+				/* ----------------------------------- */
+				char *measurement_date_time_string );
+
+char *hydrology_trim_time(	char *measurement_time_string );
+
+/* Returns static */
+/* -------------- */
+char *hydrology_extract_hour(	char *measurement_time_string );
+
+/* Returns static */
+/* -------------- */
+char *hydrology_extract_minute(	char *measurement_time_string );
+
+boolean hydrology_got_heading_label(
+				char *date_heading_label,
+				char *heading_buffer );
 
 #endif

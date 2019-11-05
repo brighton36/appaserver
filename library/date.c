@@ -1087,6 +1087,11 @@ char *date_get_hhmm( char *destination, DATE *date )
 	return destination;
 }
 
+char *date_display_yyyymmdd( DATE *date )
+{
+	return date_display_yyyy_mm_dd( date );
+}
+
 char *date_display( DATE *date )
 {
 	return date_display_yyyy_mm_dd( date );
@@ -1684,13 +1689,39 @@ DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
 
 } /* date_yyyy_mm_dd_hhmm_new() */
 
-int date_set_time_hhmm(		DATE *date,
+boolean date_set_time_hhmm(	DATE *date,
 				char *hhmm )
 {
 	int hours, minutes;
-	char buffer[ 3 ];
+	char buffer[ 128 ];
 
-	if ( strlen( hhmm ) != 4 ) return 0;
+	/* Remove spaces and colons. */
+	/* ------------------------- */
+	trim_character(	buffer /* destination */,
+			':' ,
+			hhmm /* source */ );
+
+	strcpy( hhmm, buffer );
+
+	trim_character(	buffer /* destination */,
+			' ' ,
+			hhmm /* source */ );
+
+	strcpy( hhmm, buffer );
+
+	/* Put leading zero, maybe */
+	/* ----------------------- */
+	if ( strlen( hhmm ) == 3 )
+	{
+		char buffer[ 5 ];
+
+		sprintf( buffer, "0%s", hhmm );
+		strcpy( hhmm, buffer );
+	}
+
+	/* Allow for trailing seconds */
+	/* -------------------------- */
+	if ( strlen( hhmm ) < 4 ) return 0;
 
 	*(buffer + 2) = '\0';
 	*buffer = *hhmm;

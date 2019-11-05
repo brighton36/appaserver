@@ -22,6 +22,15 @@ backup/
 # -------------
 # src_hydrology
 # -------------
+sfwmd_breakpoint_parse
+sfwmd_spreadsheet_parse
+biscayne_spreadsheet_parse
+measurement_date_within_range
+measurement_adjust_time_to_sequence
+measurement_frequency_reject
+alias_datatype
+spreadsheet_parse_header
+measurement_change_order
 load_turkey_point
 shef_upload_datatype_convert
 LT_upload
@@ -93,7 +102,7 @@ load_sfwmd_breakpoint_data
 load_biscayne_ysi_data
 load_ysi_data
 load_cr300_data
-parse_alias_data
+spreadsheet_parse
 get_aggregation_sum_yn
 apply_position_translation_to_record
 restore_measurement_backup

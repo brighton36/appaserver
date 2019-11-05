@@ -19,11 +19,6 @@
 
 /* Prototypes */
 /* ---------- */
-int load_turkey_point_file(	char *application_name,
-				char *station,
-				char *input_filename,
-				boolean execute );
-
 void remove_error_file(		char *error_filename );
 
 boolean extract_static_attributes(

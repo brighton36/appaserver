@@ -9,7 +9,9 @@
 # This select the same columns as station_datatype_record_list.sh
 # ---------------------------------------------------------------
 
-echo "Starting: $0 $*" 1>&2
+#Too much output.
+#----------------
+#echo "Starting: $0 $*" 1>&2
 
 if [ "$#" -ne 1 ]
 then

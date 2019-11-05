@@ -170,6 +170,11 @@ char *julian_get_yyyy_mm_dd_string( double current )
 	return julian_to_yyyy_mm_dd( current );
 }
 
+char *julian_display_yyyymmdd( double current )
+{
+	return julian_to_yyyy_mm_dd( current );
+}
+
 char *julian_display( double current )
 {
 	return julian_to_yyyy_mm_dd( current );

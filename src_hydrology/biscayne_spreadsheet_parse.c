@@ -1,8 +1,8 @@
-/* -------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_hydrology/load_biscayne_ysi_data.c	*/
-/* -------------------------------------------------------	*/
+/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/biscayne_spreadsheet_parse.c	*/
+/* -----------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org		*/
-/* -------------------------------------------------------	*/
+/* -----------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +26,7 @@
 #include "dictionary.h"
 #include "session.h"
 #include "application.h"
+#include "julian.h"
 #include "hydrology_library.h"
 #include "appaserver_link_file.h"
 
@@ -58,7 +59,7 @@ LIST *with_input_buffer_get_datatype_list(
 					char *input_buffer,
 					boolean is_odd_station );
 
-LIST *get_datatype_list(		char *input_filespecification,
+LIST *get_datatype_list(		char *filename,
 					boolean is_odd_station );
 
 DATATYPE *new_datatype(			char *datatype_name );
@@ -66,185 +67,227 @@ DATATYPE *new_datatype(			char *datatype_name );
 boolean datatype_exists(		char *application_name,
 					char *datatype_name );
 
-void load_biscayne_ysi_data(
-					char *application_name,
-					char *filename,
-					char *station,
-					char *begin_date_string,
-					char *begin_time_string,
-					char *end_date_string,
-					char *end_time_string,
-					boolean execute );
+void biscayne_spreadsheet_parse(	 char *filename,
+					char *station );
 
 boolean station_filename_synchronized(	char *station,
-					char *filename );
+					char *parameter_filename );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	boolean execute;
 	char *filename;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *station;
-	char *process_name;
-	char format_buffer[ 128 ];
-	char *begin_date_string;
-	char *begin_time_string;
-	char *end_date_string;
-	char *end_time_string;
 
-	/* Exits if fails */
-	/* -------------- */
+	/* Exits if failure. */
+	/* ----------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
 
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	if ( argc != 9 )
+	if ( argc != 3 )
 	{
 		fprintf( stderr, 
-"Usage: %s process filename station begin_date begin_time end_date end_time execute_yn\n",
+			 "Usage: %s filename station\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	process_name = argv[ 1 ];
-	filename = argv[ 2 ];
-	station = argv[ 3 ];
-	begin_date_string = argv[ 4 ];
-	begin_time_string = argv[ 5 ];
-	end_date_string = argv[ 6 ];
-	end_time_string = argv[ 7 ];
-	execute = ( *argv[ 8 ] == 'y' );
-
-	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	document_quick_output_body(
-		application_name,
-		appaserver_parameter_file->
-			appaserver_mount_point );
-
-	printf( "<h1>%s</h1>\n",
-	 	format_initial_capital( format_buffer, process_name ) );
-
-	if ( !*station
-	||   strcmp( station, "station" ) == 0
-	||   strcmp( station, "biscayne_station" ) == 0 )
-	{
-		printf( "<h3>Error: Please choose a station.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
+	filename = argv[ 1 ];
+	station = argv[ 2 ];
 
 	if ( !datatype_exists( application_name, BOTTOM_TEMPERATURE_DATATYPE ) )
 	{
-		printf(
-"<h3>Error: the datatype bottom temperature has changed. It should be (%s).\n",
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: the datatype bottom temperature has changed. It should be (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
 			BOTTOM_TEMPERATURE_DATATYPE );
-		document_close();
 		exit( 0 );
 	}
 
 	if ( !datatype_exists( application_name, SURFACE_TEMPERATURE_DATATYPE ))
 	{
-		printf(
-"<h3>Error: the datatype bottom temperature has changed. It should be (%s).\n",
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: the datatype surface temperature has changed. It should be (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
 			SURFACE_TEMPERATURE_DATATYPE );
-		document_close();
 		exit( 0 );
 	}
 
 	if ( !datatype_exists( application_name, SALINITY_DATATYPE ) )
 	{
-		printf(
-"<h3>Error: the datatype salinity has changed. It should be (%s).\n",
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: the datatype salinity has changed. It should be (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
 			SALINITY_DATATYPE );
-		document_close();
 		exit( 0 );
 	}
 
 	if ( !datatype_exists( application_name, DEPTH_DATATYPE ) )
 	{
-		printf(
-"<h3>Error: the datatype depth has changed. It should be (%s).\n",
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: the datatype depth has changed. It should be (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
 			DEPTH_DATATYPE );
-		document_close();
 		exit( 0 );
 	}
 
 	if ( !datatype_exists( application_name, CONDUCTIVITY_DATATYPE ) )
 	{
-		printf(
-"<h3>Error: the datatype conductivity has changed. It should be (%s).\n",
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: the datatype conductivity has changed. It should be (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
 			CONDUCTIVITY_DATATYPE );
-		document_close();
 		exit( 0 );
 	}
 
 	if ( !station_filename_synchronized(
-		station,
-		filename ) )
+					station,
+					filename ) )
 	{
-		printf(
-"<h3>Warning: the chosen station conflicts with the filename.</h3>\n" );
+		fprintf(stderr,
+"Warning in %s/%s()/%d: the chosen station conflicts with the filename.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 	}
 
-	if ( !*filename || strcmp( filename, "filename" ) == 0 )
-	{
-		printf(
-"<h3>Error: Please transmit a file.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
-
-	load_biscayne_ysi_data(
-			application_name,
-			filename,
-			station,
-			begin_date_string,
-			begin_time_string,
-			end_date_string,
-			end_time_string,
-			execute );
-
-	if ( execute )
-	{
-		printf( "<p>Process complete.\n" );
-
-		process_increment_execution_count(
-				application_name,
-				process_name,
-				appaserver_parameter_file_get_dbms() );
-	}
-	else
-	{
-		printf( "<p>Process not executed.\n" );
-	}
-
-	document_close();
+	biscayne_spreadsheet_parse(
+		filename,
+		station );
 
 	return 0;
 
 } /* main() */
 
-void load_biscayne_ysi_data(
-			char *application_name,
+void biscayne_spreadsheet_parse(
 			char *filename,
-			char *station,
-			char *begin_date_string,
-			char *begin_time_string,
-			char *end_date_string,
-			char *end_time_string,
-			boolean execute )
+			char *station )
 {
+	FILE *input_file;
+	char input_buffer[ 1024 ];
+	char measurement_date_american[ 32 ];
+	char measurement_date_international[ 32 ];
+	char measurement_time[ 32 ];
+	char measurement_value_string[ 32 ];
+	double measurement_value;
+	LIST *datatype_list;
+	DATATYPE *datatype;
+	boolean is_odd_station;
+	int line_number = 0;
+	JULIAN *measurement_date_time = julian_new_julian( 0.0 );
 
-} /* void load_biscayne_ysi_data */
+	is_odd_station = get_is_odd_station( station );
+
+	datatype_list = get_datatype_list(	filename,
+						is_odd_station );
+
+	if ( !list_length( datatype_list ) ) return;
+
+	if ( ! ( input_file = fopen( filename, "r" ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 filename );
+		exit( 1 );
+	}
+
+	while( get_line( input_buffer, input_file ) )
+	{
+		line_number++;
+
+		if ( !*input_buffer ) continue;
+		if ( !isdigit( *input_buffer ) ) continue;
+
+		/* Measurement date */
+		/* ---------------- */
+		column( measurement_date_american, 0, input_buffer );
+		date_convert_source_american(
+				measurement_date_international,
+				international,
+				measurement_date_american );
+
+		if ( !date_convert_is_valid_international(
+				measurement_date_international ) )
+		{
+			fprintf( stderr,
+				 "Invalid date in line %d: %s\n",
+				 line_number,
+				 input_buffer );
+			continue;
+		}
+
+		/* Measurement time */
+		/* ---------------- */
+		if ( !column( measurement_time, 1, input_buffer ) )
+		{
+			fprintf( stderr,
+				 "Invalid time in line %d: %s\n",
+				 line_number,
+				 input_buffer );
+			continue;
+		}
+
+		piece_inverse( measurement_time, ':', 2 );
+		trim_character( measurement_time, ':', measurement_time );
+
+		if ( strlen( measurement_time ) != 4 )
+		{
+			fprintf( stderr,
+				 "Invalid time in line %d: %s\n",
+				 line_number,
+				 input_buffer );
+			continue;
+		}
+
+		julian_set_yyyy_mm_dd_hhmm(
+					measurement_date_time,
+					measurement_date_international,
+					measurement_time );
+
+		list_rewind( datatype_list );
+
+		do {
+			datatype = list_get_pointer( datatype_list );
+
+			column(	measurement_value_string,
+				datatype->column_number,
+				input_buffer );
+
+			measurement_value = atof( measurement_value_string );
+
+			printf(		"%s^%s^%s^%s^%.3lf\n",
+					station,
+					datatype->datatype_name,
+					julian_display_yyyymmdd(
+						measurement_date_time->
+							current ),
+					julian_display_hhmm(
+						measurement_date_time->
+							current ),
+					measurement_value );
+
+		} while( list_next( datatype_list ) );
+	}
+
+	fclose( input_file );
+
+} /* biscayne_spreadsheet_parse() */
 
 boolean station_filename_synchronized(
 					char *station,
-					char *input_filespecification )
+					char *parameter_filename )
 {
 	int station_number;
 	int file_number;
@@ -253,7 +296,7 @@ boolean station_filename_synchronized(
 
 	if ( instr( "BISC", station, 1 ) == -1 ) return 1;
 
-	filename = basename_get_filename( input_filespecification );
+	filename = basename_get_filename( parameter_filename );
 
 	if ( strlen( filename ) < 3 ) return 1;
 
@@ -269,6 +312,7 @@ boolean station_filename_synchronized(
 	if ( !station_number ) return 1;
 
 	return ( station_number == file_number );
+
 } /* station_filename_synchronized() */
 
 boolean datatype_exists( char *application_name, char *datatype_name )
@@ -285,7 +329,9 @@ boolean datatype_exists( char *application_name, char *datatype_name )
 		 "			where=\"%s\"			",
 		 application_name,
 		 where_clause );
+
 	return atoi( pipe2string( sys_string ) );
+
 } /* datatype_exists() */
 
 DATATYPE *new_datatype( char *datatype_name )
@@ -306,20 +352,20 @@ DATATYPE *new_datatype( char *datatype_name )
 	return datatype;
 } /* datatype_new() */
 
-LIST *get_datatype_list(	char *input_filespecification,
+LIST *get_datatype_list(	char *filename,
 				boolean is_odd_station )
 {
 	FILE *input_file;
 	char input_buffer[ 1024 ];
 
-	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+	if ( ! ( input_file = fopen( filename, "r" ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 input_filespecification );
+			 filename );
 		exit( 1 );
 	}
 
@@ -328,13 +374,16 @@ LIST *get_datatype_list(	char *input_filespecification,
 		if ( instr( "Date", input_buffer, 1 ) != -1 )
 		{
 			fclose( input_file );
+
 			return with_input_buffer_get_datatype_list(
 						input_buffer,
 						is_odd_station );
 		}
 	}
+
 	fclose( input_file );
 	return (LIST *)0;
+
 } /* get_datatype_list() */
 
 LIST *with_input_buffer_get_datatype_list(	char *input_buffer,
@@ -406,16 +455,20 @@ LIST *with_input_buffer_get_datatype_list(	char *input_buffer,
 		}
 		else
 		{
-			printf(
-			"<h3>Error: cannot recognize heading of %s.</h3>\n",
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: cannot recognize heading of %s.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
 				datatype_heading );
-			document_close();
 			exit( 0 );
 		}
 
 		list_append_pointer( datatype_list, datatype );
 	}
+
 	return datatype_list;
+
 } /* with_input_buffer_get_datatype_list() */
 
 boolean get_is_odd_station( char *station )

@@ -1,8 +1,8 @@
 :
 
-cd ../library && make
+make spreadsheet_parse
 
-cd - && make parse_alias_data
+#cd - && make parse_alias_data
 
 #if [ "$?" -eq 0 ]
 #then

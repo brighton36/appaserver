@@ -89,6 +89,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 {
 	extern enum bank_upload_exception bank_upload_exception;
 	BANK_UPLOAD_STRUCTURE *p;
+	DATE *uncleared_checks_back_date;
 
 	p = bank_upload_structure_calloc();
 
@@ -176,28 +177,6 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		bank_upload_get_file_row_count(
 			p->file.bank_upload_file_list );
 
-/*
-	if ( !p->file.file_row_count )
-	{
-		char *msg;
-
-		msg = "<h2>ERROR: empty transaction rows.</h2>";
-
-		fprintf( stderr,
-			 "%s/%s()/%d: %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 msg );
-
-		printf( "%s\n", msg );
-
-		bank_upload_exception = empty_transaction_rows;
-
-		return (BANK_UPLOAD_STRUCTURE *)0;
-	}
-*/
-
 	p->existing_cash_journal_ledger_list =
 		bank_upload_fetch_existing_cash_journal_ledger_list(
 			application_name,
@@ -205,11 +184,18 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 				/* minimum_transaction_date */,
 			p->fund_name );
 
+	uncleared_checks_back_date =
+		date_yyyy_mm_dd_new(
+			p->file.minimum_bank_date );
+
+	date_increment_days( uncleared_checks_back_date, -15.0 );
+
 	p->uncleared_checks_transaction_list =
 		bank_upload_fetch_uncleared_checks_transaction_list(
 			application_name,
-			p->file.minimum_bank_date
-				/* minimum_transaction_date */,
+			date_display_yyyy_mm_dd(
+				uncleared_checks_back_date )
+					/* minimum_transaction_date */,
 			p->fund_name );
 
 	p->reoccurring_structure = reoccurring_structure_new();
@@ -1110,7 +1096,7 @@ LIST *bank_upload_fetch_uncleared_checks_transaction_list(
 			__FUNCTION__ );
 
 	uncleared_checks_transaction_date_time_list =
-		bank_upload_fetch_uncleared_checks_list(
+		bank_upload_fetch_transaction_date_time_list(
 			application_name,
 			minimum_transaction_date,
 			uncleared_checks_account );
@@ -1194,6 +1180,16 @@ void bank_upload_set_transaction(
 		bank_upload_list,
 		existing_cash_journal_ledger_list );
 
+/* --------------------------------------------------------------------- */
+/* Sets bank_upload->feeder_check_number_existing_journal_ledger	 */
+/* Sets bank_upload->bank_upload_status = bank_upload_check_number_match */
+/* --------------------------------------------------------------------- */
+	bank_upload_uncleared_checks_transaction_list(
+		bank_upload_list,
+		application_name,
+		fund_name,
+		uncleared_checks_transaction_list );
+
 	bank_upload_set_reoccurring_transaction(
 		bank_upload_list,
 		reoccurring_transaction_list,
@@ -1266,6 +1262,65 @@ void bank_upload_set_purchase_order_check(
 	} while( list_next( bank_upload_list ) );
 
 } /* bank_upload_set_purchase_order_check() */
+
+/* --------------------------------------------------------------------- */
+/* Sets bank_upload->feeder_check_number_existing_journal_ledger	 */
+/* Sets bank_upload->bank_upload_status = bank_upload_check_number_match */
+/* --------------------------------------------------------------------- */
+void bank_upload_uncleared_checks_transaction_list(
+				LIST *bank_upload_list,
+				char *application_name,
+				char *fund_name,
+				LIST *uncleared_checks_transaction_list )
+{
+	BANK_UPLOAD *bank_upload;
+	JOURNAL_LEDGER *journal_ledger;
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( bank_upload_list ) ) return;
+
+	do {
+		bank_upload = list_get_pointer( bank_upload_list );
+
+		if ( !bank_upload->check_number ) continue;
+
+		if ( ( transaction =
+				feeder_check_number_existing_transaction(
+					uncleared_checks_transaction_list,
+					bank_upload->check_number ) ) )
+		{
+			if ( ( journal_ledger =
+				ledger_seek_uncleared_journal_ledger(
+					application_name,
+					fund_name,
+					transaction->journal_ledger_list ) ) )
+			{
+				bank_upload->
+				  feeder_check_number_existing_journal_ledger =
+					journal_ledger;
+
+				bank_upload->bank_upload_status =
+					bank_upload_check_number_match;
+
+				journal_ledger->match_sum_taken = 1;
+
+				/* Check number may not be set */
+				/* --------------------------- */
+				journal_ledger->check_number =
+					bank_upload->check_number;
+
+fprintf( stderr, "%s/%s()/%d: check_number = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+journal_ledger->check_number );
+
+			}
+		}
+
+	} while( list_next( bank_upload_list ) );
+
+} /* bank_upload_uncleared_checks_transaction_list() */
 
 /* --------------------------------------------------------------------- */
 /* Sets bank_upload->feeder_check_number_existing_journal_ledger	 */
@@ -2742,15 +2797,13 @@ char *bank_upload_unique_bank_description(
 
 } /* bank_upload_unique_bank_description() */
 
-/* Returns transaction_date_time_list */
-/* ---------------------------------- */
-LIST *bank_upload_fetch_uncleared_checks_list(
+LIST *bank_upload_fetch_transaction_date_time_list(
 			char *application_name,
 			char *minimum_transaction_date,
-			char *uncleared_checks_account )
+			char *account_name )
 {
 	char sys_string[ 1024 ];
-	char where[ 128 ];
+	char where[ 256 ];
 	char *select;
 	char *folder;
 
@@ -2761,7 +2814,7 @@ LIST *bank_upload_fetch_uncleared_checks_list(
 			"transaction_date_time >= '%s' and	"
 			"account = '%s'				",
 			minimum_transaction_date,
-			uncleared_checks_account );
+			account_name );
 
 	sprintf(	sys_string,
 			"get_folder_data	application=%s		"
@@ -2776,7 +2829,7 @@ LIST *bank_upload_fetch_uncleared_checks_list(
 
 	return pipe2list( sys_string );
 
-} /* bank_upload_fetch_uncleared_checks_list() */
+} /* bank_upload_transaction_date_time_list() */
 
 int bank_upload_parse_check_number( char *bank_description )
 {

@@ -10119,7 +10119,7 @@ TRANSACTION *ledger_check_number_seek_transaction(
 
 	return (TRANSACTION *)0;
 
-} /* ledger_check_number_seek() */
+} /* ledger_check_number_seek_transaction() */
 
 JOURNAL_LEDGER *ledger_account_seek_journal_ledger(
 					LIST *journal_ledger_list,
@@ -10143,3 +10143,44 @@ JOURNAL_LEDGER *ledger_account_seek_journal_ledger(
 	return (JOURNAL_LEDGER *)0;
 
 } /* ledger_account_seek_journal_ledger() */
+
+JOURNAL_LEDGER *ledger_seek_uncleared_journal_ledger(
+					char *application_name,
+					char *fund_name,
+					LIST *journal_ledger_list )
+{
+	JOURNAL_LEDGER *journal_ledger;
+	static char *account_name = {0};
+
+	if ( !account_name )
+	{
+		char *key;
+
+		key = LEDGER_UNCLEARED_CHECKS_KEY;
+
+		account_name =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */,
+				__FUNCTION__ );
+	}
+
+	if ( !list_rewind( journal_ledger_list ) ) return (JOURNAL_LEDGER *)0;
+
+	do {
+		journal_ledger = list_get( journal_ledger_list );
+
+		if ( strcmp(	journal_ledger->account_name,
+				account_name ) == 0  )
+		{
+			return journal_ledger;
+		}
+
+	} while ( list_next( journal_ledger_list ) );
+
+	return (JOURNAL_LEDGER *)0;
+
+} /* ledger_seek_uncleared_journal_ledger() */
+

@@ -1219,4 +1219,9 @@ JOURNAL_LEDGER *ledger_seek_journal_ledger(
 				char *transaction_date_time,
 				char *account_name );
 
+JOURNAL_LEDGER *ledger_seek_uncleared_journal_ledger(
+				char *application_name,
+				char *fund_name,
+				LIST *journal_ledger_list );
+
 #endif

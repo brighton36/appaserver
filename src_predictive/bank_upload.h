@@ -386,10 +386,10 @@ char *bank_upload_unique_bank_description(
 					char *bank_amount,
 					char *bank_balance );
 
-LIST *bank_upload_fetch_uncleared_checks_list(
+LIST *bank_upload_fetch_transaction_date_time_list(
 					char *application_name,
 					char *minimum_transaction_date,
-					char *uncleared_checks_account );
+					char *account_name );
 
 void bank_upload_set_purchase_order_check(
 				LIST *bank_upload_list,
@@ -446,6 +446,16 @@ char *bank_upload_journal_ledger_list_html(
 void bank_upload_match_sum_existing_journal_ledger_list(
 			LIST *bank_upload_list,
 			LIST *existing_cash_journal_ledger_list );
+
+/* --------------------------------------------------------------------- */
+/* Sets bank_upload->feeder_check_number_existing_journal_ledger	 */
+/* Sets bank_upload->bank_upload_status = bank_upload_check_number_match */
+/* --------------------------------------------------------------------- */
+void bank_upload_uncleared_checks_transaction_list(
+				LIST *bank_upload_list,
+				char *application_name,
+				char *fund_name,
+				LIST *uncleared_checks_transaction_list );
 
 #endif
 

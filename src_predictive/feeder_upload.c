@@ -292,14 +292,22 @@ TRANSACTION *feeder_phrase_match_new_transaction(
 
 } /* feeder_phrase_match_new_transaction() */
 
+TRANSACTION *feeder_check_number_existing_transaction(
+				LIST *transaction_list,
+				int check_number )
+{
+	return ledger_check_number_seek_transaction(
+			transaction_list,
+			check_number );
+}
+
 JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger(
-				LIST *existing_cash_journal_ledger_list,
+				LIST *journal_ledger_list,
 				int check_number )
 {
 	return ledger_check_number_seek_journal_ledger(
-			existing_cash_journal_ledger_list,
+			journal_ledger_list,
 			check_number );
-
 }
 
 TRANSACTION *feeder_phrase_match_build_transaction(
@@ -378,7 +386,6 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 {
 	FILE *output_pipe;
 	char temp_output_file[ 128 ];
-	LIST *journal_ledger_list;
 	JOURNAL_LEDGER *journal_ledger;
 	char *pipe_delimited_transaction_list_string;
 	LIST *name_string_list;

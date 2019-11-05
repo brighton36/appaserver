@@ -78,7 +78,7 @@ TRANSACTION *feeder_phrase_match_new_transaction(
 					double bank_amount );
 
 JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger(
-				LIST *existing_cash_journal_ledger_list,
+				LIST *journal_ledger_list,
 				int check_number );
 
 TRANSACTION *feeder_phrase_match_build_transaction(
@@ -92,6 +92,10 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 				double abs_bank_amount,
 				char *bank_date,
 				boolean check_debit );
+
+TRANSACTION *feeder_check_number_existing_transaction(
+				LIST *transaction_list,
+				int check_number );
 
 #endif
 

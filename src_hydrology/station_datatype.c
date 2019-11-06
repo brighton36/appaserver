@@ -623,6 +623,7 @@ void station_datatype_html_display(
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
 	char *heading;
+	int total = 0;
 
 	heading = "Station,Datatype,Count";
 
@@ -641,15 +642,20 @@ void station_datatype_html_display(
 				list_get_pointer(
 					station_datatype_list );
 
-	
 			fprintf(output_pipe,
 				"%s^%s^%d\n",
 				station_datatype->station_name,
 				station_datatype->datatype->datatype_name,
 				station_datatype->measurement_count );
 
+			total += station_datatype->measurement_count;
+
 		} while ( list_next( station_datatype_list ) );
 	}
+
+	fprintf(output_pipe,
+		"Total^^%d\n",
+		total );
 
 	pclose( output_pipe );
 

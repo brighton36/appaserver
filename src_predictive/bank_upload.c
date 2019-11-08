@@ -178,7 +178,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			p->file.bank_upload_file_list );
 
 	p->existing_cash_journal_ledger_list =
-		bank_upload_fetch_existing_cash_journal_ledger_list(
+		bank_upload_existing_cash_journal_ledger_list(
 			application_name,
 			p->file.minimum_bank_date
 				/* minimum_transaction_date */,
@@ -189,14 +189,6 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			p->file.minimum_bank_date );
 
 	date_increment_days( uncleared_checks_back_date, -15.0 );
-
-	p->uncleared_checks_transaction_list =
-		bank_upload_fetch_uncleared_checks_transaction_list(
-			application_name,
-			date_display_yyyy_mm_dd(
-				uncleared_checks_back_date )
-					/* minimum_transaction_date */,
-			p->fund_name );
 
 	p->reoccurring_structure = reoccurring_structure_new();
 
@@ -489,6 +481,8 @@ LIST *bank_upload_fetch_file_list(
 					bank_upload->bank_amount,
 					bank_upload->bank_running_balance );
 
+		/* Need to cache this */
+		/* ------------------ */
 		if ( bank_upload_exists(
 			application_name,
 			bank_upload->bank_date,
@@ -1066,6 +1060,7 @@ void bank_upload_fetch_parse(	char **bank_date,
 
 } /* bank_upload_fetch_parse() */
 
+#ifdef NOT_DEFINED
 LIST *bank_upload_fetch_uncleared_checks_transaction_list(
 					char *application_name,
 					char *minimum_transaction_date,
@@ -1106,14 +1101,30 @@ LIST *bank_upload_fetch_uncleared_checks_transaction_list(
 			where_clause );
 
 } /* bank_upload_fetch_uncleared_checks_transaction_list() */
+#endif
 
-LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
+LIST *bank_upload_existing_cash_journal_ledger_list(
 					char *application_name,
 					char *minimum_transaction_date,
 					char *fund_name )
 {
-	LIST *existing_cash_journal_ledger_list = {0};
+	LIST *journal_ledger_list;
+	char sys_string[ 2048 ];
 	char *cash_account_name;
+	char where[ 1024 ];
+	char *join_where;
+	char *subquery_join;
+	char *select;
+	char check_number_select[ 512 ];
+	FILE *input_pipe;
+	char input_buffer[ 1024 ];
+	char local_full_name[ 128 ];
+	char local_street_address[ 128 ];
+	char local_transaction_date_time[ 128 ];
+	char local_account_name[ 128 ];
+	char *folder_list_string;
+	JOURNAL_LEDGER *ledger;
+	char check_number[ 16 ];
 
 	cash_account_name =
 		ledger_get_hard_coded_account_name(
@@ -1123,49 +1134,116 @@ LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
-#ifdef NOT_DEFINED
-	existing_cash_journal_ledger_list =
-		ledger_get_journal_ledger_list(
-				application_name,
-				(char *)0 /* full_name */,
-				(char *)0 /* street_address */,
-				minimum_transaction_date
-					/* minimum_transaction_date_time */,
+/*
+"full_name,street_address,transaction_date_time,account,transaction_count,previous_balance,debit_amount,credit_amount,balance,check_number";
+*/
+	select = ledger_journal_ledger_get_select();
+	sprintf( check_number_select, "%s,check_number", select );
+
+	folder_list_string = "journal_ledger,transaction";
+
+	join_where = ledger_get_journal_ledger_transaction_join_where();
+
+	subquery_join =
+		bank_upload_transaction_journal_ledger_subquery();
+
+	sprintf(where,
+	 	"transaction.transaction_date_time >= '%s' and	"
+		"account = '%s' and %s and %s			",
+	 	minimum_transaction_date,
+		cash_account_name,
+		join_where,
+		subquery_join );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		"
+		 "			order=\"%s\"		",
+		 application_name,
+		 check_number_select,
+		 folder_list_string,
+		 where,
+		 "transaction_date_time" );
+
+	input_pipe = popen( sys_string, "r" );
+
+	journal_ledger_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece(	local_full_name,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		piece(	local_street_address,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		piece(	local_transaction_date_time,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		piece(	local_account_name,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			3 );
+
+		piece(	check_number,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			9 );
+
+		ledger = journal_ledger_new(
+				strdup( local_full_name ),
+				strdup( local_street_address ),
+				strdup( local_transaction_date_time ),
 				cash_account_name );
-#endif
 
-	existing_cash_journal_ledger_list =
-		ledger_get_check_number_journal_ledger_list(
-				application_name,
-				minimum_transaction_date
-					/* minimum_transaction_date_time */,
-				cash_account_name );
+		ledger_journal_ledger_partial_parse(
+			&ledger->transaction_count,
+			&ledger->database_transaction_count,
+			&ledger->previous_balance,
+			&ledger->database_previous_balance,
+			&ledger->debit_amount,
+			&ledger->credit_amount,
+			&ledger->balance,
+			&ledger->database_balance,
+			input_buffer );
 
-	return existing_cash_journal_ledger_list;
+		if ( *check_number )
+		{
+			ledger->check_number = atoi( check_number );
+		}
 
-} /* bank_upload_fetch_existing_cash_journal_ledger_list() */
+		list_append_pointer( journal_ledger_list, ledger );
+	}
+
+	pclose( input_pipe );
+
+	return journal_ledger_list;
+
+} /* bank_upload_existing_cash_journal_ledger_list() */
 
 /* ------------------------------------------------------------ */
 /* Sets bank_upload->feeder_check_number_existing_journal_ledger*/
 /* or								*/
-/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
-/* or								*/
 /* Sets bank_upload->feeder_match_existing_journal_ledger_list	*/
+/* or								*/
+/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
 /* ------------------------------------------------------------ */
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
-				char *application_name,
-				char *fund_name,
 				LIST *reoccurring_transaction_list,
-				LIST *existing_cash_journal_ledger_list,
-				LIST *uncleared_checks_transaction_list )
+				LIST *existing_cash_journal_ledger_list )
 {
 	bank_upload_check_number_existing_journal_ledger(
 		bank_upload_list,
-		application_name,
-		fund_name,
-		existing_cash_journal_ledger_list,
-		uncleared_checks_transaction_list );
+		existing_cash_journal_ledger_list );
 
 	bank_upload_match_sum_existing_journal_ledger_list(
 		bank_upload_list,
@@ -1173,26 +1251,23 @@ void bank_upload_set_transaction(
 
 	bank_upload_feeder_phrase_match_build_transaction(
 		bank_upload_list,
-		reoccurring_transaction_list,
-		existing_cash_journal_ledger_list );
+		reoccurring_transaction_list );
 
 } /* bank_upload_set_transaction() */
 
 void bank_upload_check_number_existing_journal_ledger(
 			LIST *bank_upload_list,
-			char *application_name,
-			char *fund_name,
-			LIST *existing_cash_journal_ledger_list,
-			LIST *uncleared_checks_transaction_list )
+			LIST *existing_cash_journal_ledger_list )
 {
 	BANK_UPLOAD *bank_upload;
 	JOURNAL_LEDGER *journal_ledger;
-	TRANSACTION *transaction;
 
 	if ( !list_rewind( bank_upload_list ) ) return;
 
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
+
+		if ( bank_upload->existing_bank_upload ) continue;
 
 		if ( !bank_upload->check_number ) continue;
 
@@ -1216,28 +1291,6 @@ void bank_upload_check_number_existing_journal_ledger(
 			journal_ledger->check_number =
 				bank_upload->check_number;
 		}
-		else
-		if ( ( transaction =
-				feeder_check_number_existing_transaction(
-					uncleared_checks_transaction_list,
-					bank_upload->check_number ) ) )
-		{
-			if ( ( journal_ledger =
-				ledger_seek_uncleared_journal_ledger(
-					application_name,
-					fund_name,
-					transaction->journal_ledger_list ) ) )
-			{
-				bank_upload->
-				  feeder_check_number_existing_journal_ledger =
-					journal_ledger;
-
-				journal_ledger->match_sum_taken = 1;
-
-				journal_ledger->check_number =
-					bank_upload->check_number;
-			}
-		}
 
 	} while( list_next( bank_upload_list ) );
 
@@ -1245,18 +1298,16 @@ void bank_upload_check_number_existing_journal_ledger(
 
 void bank_upload_feeder_phrase_match_build_transaction(
 				LIST *bank_upload_list,
-				LIST *reoccurring_transaction_list,
-				LIST *existing_cash_journal_ledger_list )
+				LIST *reoccurring_transaction_list )
 {
 	BANK_UPLOAD *bank_upload;
-	REOCCURRING_TRANSACTION *reoccurring_transaction;
-	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
 
 	if ( !list_rewind( bank_upload_list ) ) return;
 
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
+
+		if ( bank_upload->existing_bank_upload ) continue;
 
 		if ( bank_upload->feeder_check_number_existing_journal_ledger
 		||   bank_upload->feeder_match_sum_existing_journal_ledger_list)
@@ -1264,74 +1315,16 @@ void bank_upload_feeder_phrase_match_build_transaction(
 			continue;
 		}
 
-		if ( ! ( reoccurring_transaction =
-				reoccurring_seek_bank_upload_feeder_phrase(
+		bank_upload->
+			feeder_phrase_match_build_transaction =
+				feeder_phrase_match_build_transaction(
 					reoccurring_transaction_list,
-					bank_upload->bank_description ) ) )
-		{
-			continue;
-		}
-
-		if ( ledger_exists_journal_ledger(
-				existing_cash_journal_ledger_list,
-				reoccurring_transaction->full_name,
-				reoccurring_transaction->street_address,
-				bank_upload->bank_date
-					/* transaction_date */,
-				bank_upload->bank_amount
-					/* transaction_amount */ ) )
-		{
-			bank_upload->existing_transaction = 1;
-			continue;
-		}
-
-		transaction =
-			ledger_transaction_new(
-				reoccurring_transaction->full_name,
-				reoccurring_transaction->street_address,
-				ledger_get_transaction_date_time(
-					bank_upload->bank_date
-						/* transaction_date */ ),
-				(char *)0 /* memo */ );
-
-		transaction->transaction_amount =
-			float_abs( bank_upload->bank_amount );
-
-		bank_upload->feeder_phrase_match_build_transaction =
-			transaction;
-
-		transaction->journal_ledger_list = list_new();
-
-		/* Set the debit account */
-		/* --------------------- */
-		journal_ledger =
-			journal_ledger_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				reoccurring_transaction->debit_account );
-
-		journal_ledger->debit_amount = transaction->transaction_amount;
-
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-
-		/* Set the credit account */
-		/* ---------------------- */
-		journal_ledger =
-			journal_ledger_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				reoccurring_transaction->credit_account );
-
-		journal_ledger->credit_amount =
-			transaction->transaction_amount;
-
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
+				 	bank_upload->bank_date,
+					bank_upload->
+						bank_description_embedded,
+					timlib_abs_double(
+						bank_upload->bank_amount )
+						/* abs_bank_amount */ );
 
 	} while( list_next( bank_upload_list ) );
 
@@ -1352,10 +1345,7 @@ void bank_upload_transaction_insert(	char *application_name,
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
 
-		if ( bank_upload->existing_transaction )
-		{
-			continue;
-		}
+		if ( bank_upload->existing_transaction ) continue;
 
 		if ( !bank_upload->feeder_phrase_match_build_transaction )
 			continue;
@@ -1441,10 +1431,7 @@ void bank_upload_transaction_text_display( LIST *bank_upload_list )
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
 
-		if ( bank_upload->existing_transaction )
-		{
-			continue;
-		}
+		if ( bank_upload->existing_transaction ) continue;
 
 		transaction =
 			bank_upload->
@@ -1489,10 +1476,7 @@ void bank_upload_transaction_table_display( LIST *bank_upload_list )
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
 
-		if ( bank_upload->existing_transaction )
-		{
-			continue;
-		}
+		if ( bank_upload->existing_transaction ) continue;
 
 		transaction =
 			bank_upload->
@@ -2094,7 +2078,7 @@ LIST *bank_upload_get_general_transaction_list(
 		 cash_account,
 		 amount_column,
 		 date_display( d ),
-		 bank_upload_full_name_todo_subquery(),
+		 bank_upload_transaction_journal_ledger_subquery(),
 		 exact_where );
 
 	order = "transaction_date_time";
@@ -2274,7 +2258,7 @@ join_where,
 		 cash_account,
 		 amount_column,
 		 date_display( d ),
-		 bank_upload_full_name_todo_subquery(),
+		 bank_upload_transaction_journal_ledger_subquery(),
 		 exact_where,
 		 join_where );
 
@@ -2498,7 +2482,7 @@ LIST *bank_upload_get_reconciled_transaction_list(
 
 } /* bank_upload_get_reconciled_transaction_list() */
 
-char *bank_upload_bank_date_todo_subquery( void )
+char *bank_upload_transaction_bank_upload_subquery( void )
 {
 	char *subquery;
 
@@ -2512,9 +2496,9 @@ char *bank_upload_bank_date_todo_subquery( void )
 
 	return subquery;
 
-} /* bank_upload_bank_date_todo_subquery() */
+} /* bank_upload_transaction_bank_upload_subquery() */
 
-char *bank_upload_full_name_todo_subquery( void )
+char *bank_upload_transaction_journal_ledger_subquery( void )
 {
 	char *subquery;
 
@@ -2531,7 +2515,7 @@ char *bank_upload_full_name_todo_subquery( void )
 
 	return subquery;
 
-} /* bank_upload_full_name_todo_subquery() */
+} /* bank_upload_transaction_journal_ledger_subquery() */
 
 void bank_upload_transaction_balance_propagate(
 			char *bank_date )
@@ -2916,6 +2900,8 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
+
+		if ( bank_upload->existing_bank_upload ) continue;
 
 		if ( bank_upload->feeder_check_number_existing_journal_ledger
 		||   bank_upload->feeder_phrase_match_build_transaction )

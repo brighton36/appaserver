@@ -2739,8 +2739,8 @@ void bank_upload_cleared_checks_update(
 				 a->full_name,
 				 a->street_address,
 				 a->transaction_date_time,
-				 cash_account,
-				 a->account_name );
+				 uncleared_checks_account,
+				 cash_account );
 
 			if ( !first_transaction_date_time )
 				first_transaction_date_time =

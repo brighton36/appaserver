@@ -312,7 +312,7 @@ int load_bank_spreadsheet(
 	/* Sets bank_upload->feeder_match_existing_journal_ledger_list	*/
 	/* ------------------------------------------------------------ */
 	bank_upload_set_transaction(
-		bank_upload_structure->file.bank_upload_file_list,
+		bank_upload_structure->file.bank_upload_list,
 		bank_upload_structure->
 			reoccurring_structure->
 			reoccurring_transaction_list,
@@ -343,18 +343,18 @@ int load_bank_spreadsheet(
 			application_name,
 			bank_upload_structure->
 				file.
-				bank_upload_file_list );
+				bank_upload_list );
 
 		bank_upload_transaction_table_display(
 			bank_upload_structure->
 				file.
-				bank_upload_file_list );
+				bank_upload_list );
 
 		*transaction_count =
 			bank_upload_feeder_phrase_match_transaction_count(
 				bank_upload_structure->
 				file.
-				bank_upload_file_list );
+				bank_upload_list );
 	}
 	else
 	/* ------------ */
@@ -366,7 +366,7 @@ int load_bank_spreadsheet(
 					fund_name,
 					bank_upload_structure->
 						file.
-						bank_upload_file_list
+						bank_upload_list
 						   /* bank_upload_list */,
 					bank_upload_structure->
 						bank_upload_date_time ) ) )
@@ -393,7 +393,7 @@ int load_bank_spreadsheet(
 			fund_name,
 			bank_upload_structure->
 				file.
-				bank_upload_file_list
+				bank_upload_list
 					/* bank_upload_list */,
 			bank_upload_structure->
 				bank_upload_date_time );
@@ -405,32 +405,35 @@ int load_bank_spreadsheet(
 		/* ------------------------------------------ */
 		bank_upload_transaction_insert(
 			application_name,
-			bank_upload_structure->file.bank_upload_file_list );
+			bank_upload_structure->file.bank_upload_list );
 
 		bank_upload_transaction_table_display(
-			bank_upload_structure->file.bank_upload_file_list );
+			bank_upload_structure->file.bank_upload_list );
 
 		*transaction_count =
 			bank_upload_feeder_phrase_match_transaction_count(
 				bank_upload_structure->
 					file.
-					bank_upload_file_list );
+					bank_upload_list );
 
 		/* Insert into BANK_UPLOAD_TRANSACTION */
 		/* ----------------------------------- */
 		bank_upload_direct_bank_upload_transaction_insert(
 			bank_upload_structure->
 				file.
-				bank_upload_file_list );
+				bank_upload_list );
 
-		/* Update JOURNAL_LEDGER */
-		/* --------------------- */
+		/* ----------------------------- */
+		/* Update JOURNAL_LEDGER.account */
+		/* ----------------------------- */
+		/* Does ledger_propagate()	 */
+		/* ----------------------------- */
 		bank_upload_cleared_checks_update(
 			application_name,
 			bank_upload_structure->fund_name,
 			bank_upload_structure->
 				file.
-				bank_upload_file_list );
+				bank_upload_list );
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )

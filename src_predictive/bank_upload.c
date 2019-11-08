@@ -137,7 +137,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		bank_upload->bank_amount
 		bank_upload->bank_running_balance
 */
-	p->file.bank_upload_file_list =
+	p->file.bank_upload_list =
 		bank_upload_fetch_file_list(
 			p->file.error_line_list,
 			&p->file.file_sha256sum,
@@ -175,7 +175,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 
 	p->file.file_row_count =
 		bank_upload_get_file_row_count(
-			p->file.bank_upload_file_list );
+			p->file.bank_upload_list );
 
 	p->existing_cash_journal_ledger_list =
 		bank_upload_existing_cash_journal_ledger_list(
@@ -271,8 +271,6 @@ LIST *bank_upload_fetch_file_list(
 			 input_filename );
 	}
 
-/* sprintf( sys_string, "cat \"%s\"", input_filename ); */
-
 	input_pipe = popen( sys_string, "r" );
 
 	if ( minimum_bank_date )
@@ -332,16 +330,6 @@ LIST *bank_upload_fetch_file_list(
 		{
 			strcpy(	local_minimum_bank_date,
 				bank_date_international );
-		}
-		else
-		{
-			if ( strcmp( 
-				bank_date_international,
-				local_minimum_bank_date ) < 0 )
-			{
-				strcpy(	local_minimum_bank_date,
-					bank_date_international );
-			}
 		}
 
 		/* =============== */
@@ -481,12 +469,11 @@ LIST *bank_upload_fetch_file_list(
 					bank_upload->bank_amount,
 					bank_upload->bank_running_balance );
 
-		/* Need to cache this */
-		/* ------------------ */
 		if ( bank_upload_exists(
 			application_name,
 			bank_upload->bank_date,
-			bank_upload->bank_description_embedded ) )
+			bank_upload->bank_description_embedded,
+			local_minimum_bank_date ) )
 		{
 			bank_upload->existing_bank_upload = 1;
 		}
@@ -2693,10 +2680,12 @@ int bank_upload_parse_check_number( char *bank_description )
 
 } /* bank_upload_parse_check_number() */
 
+/* Does ledger_propagate() */
+/* ----------------------- */
 void bank_upload_cleared_checks_update(
 				char *application_name,
 				char *fund_name,
-				LIST *bank_upload_table_list )
+				LIST *bank_upload_list )
 {
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
@@ -2707,7 +2696,7 @@ void bank_upload_cleared_checks_update(
 	char *uncleared_checks_account;
 	char *first_transaction_date_time = {0};
 
-	if ( !list_rewind( bank_upload_table_list ) ) return;
+	if ( !list_rewind( bank_upload_list ) ) return;
 
 	cash_account =
 		ledger_get_hard_coded_account_name(
@@ -2738,7 +2727,7 @@ void bank_upload_cleared_checks_update(
 	output_pipe = popen( sys_string, "w" );
 
 	do {
-		bank_upload = list_get_pointer( bank_upload_table_list );
+		bank_upload = list_get_pointer( bank_upload_list );
 
 		if ( bank_upload->feeder_check_number_existing_journal_ledger )
 		{
@@ -2750,7 +2739,7 @@ void bank_upload_cleared_checks_update(
 				 a->full_name,
 				 a->street_address,
 				 a->transaction_date_time,
-				 uncleared_checks_account,
+				 cash_account,
 				 a->account_name );
 
 			if ( !first_transaction_date_time )
@@ -2758,7 +2747,7 @@ void bank_upload_cleared_checks_update(
 					a->transaction_date_time;
 		}
 
-	} while( list_next( bank_upload_table_list ) );
+	} while( list_next( bank_upload_list ) );
 
 	pclose( output_pipe );
 
@@ -2832,24 +2821,53 @@ char *bank_upload_get_insert_bank_upload_filename(
 
 boolean bank_upload_exists(	char *application_name,
 				char *bank_date,
-				char *bank_description_embedded )
+				char *bank_description_embedded,
+				char *minimum_bank_date )
 {
-	BANK_UPLOAD *b;
+	static LIST *bank_upload_key_list = {0};
+	char key[ 1024 ];
 
-	if ( ( b = bank_upload_fetch(
-			application_name,
-			bank_date,
-			bank_description_embedded ) ) )
+	if ( !bank_upload_key_list )
 	{
-		bank_upload_free( b );
-		return 1;
+		bank_upload_key_list =
+			bank_upload_fetch_key_list(
+				application_name,
+				minimum_bank_date );
 	}
-	else
-	{
-		return 0;
-	}
+
+	sprintf( key, "%s^%s", bank_date, bank_description_embedded );
+
+	return list_string_exists( bank_upload_key_list, key );
 
 } /* bank_upload_exists() */
+
+LIST *bank_upload_fetch_key_list(
+				char *application_name,
+				char *minimum_bank_date )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char where[ 128 ];
+
+	select = "bank_date,bank_description";
+
+	sprintf( where,
+		 "bank_date >= '%s'",
+		 minimum_bank_date );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 BANK_UPLOAD_TABLE_NAME,
+		 where );
+
+	return pipe2list( sys_string );
+
+} /* bank_upload_fetch_key_list() */
 
 /* Returns strdup() */
 /* ---------------- */

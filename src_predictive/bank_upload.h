@@ -23,7 +23,7 @@ enum bank_upload_exception {	bank_upload_exception_none,
 /* --------- */
 #define BANK_UPLOAD_DESCRIPTION_SIZE	140
 #define BANK_UPLOAD_FILENAME_SIZE	80
-#define BANK_UPLOAD_TABLE_NAME	"bank_upload"
+#define BANK_UPLOAD_TABLE_NAME		"bank_upload"
 
 /* Need to run bank_upload_transaction_insert within a month. */
 /* ---------------------------------------------------------- */
@@ -67,9 +67,7 @@ typedef struct
 
 typedef struct
 {
-	/* Gets populated from input_filename */
-	/* ---------------------------------- */
-	LIST *bank_upload_file_list;
+	LIST *bank_upload_list;
 	char *input_filename;
 	char *file_sha256sum;
 	char *minimum_bank_date;
@@ -382,10 +380,12 @@ void bank_upload_set_reoccurring_transaction(
 int bank_upload_parse_check_number(
 				char *bank_description );
 
+/* Does ledger_propagate() */
+/* ----------------------- */
 void bank_upload_cleared_checks_update(
 				char *application_name,
 				char *fund_name,
-				LIST *bank_upload_table_list );
+				LIST *bank_upload_list );
 
 void bank_upload_cleared_journal_text_display(
 		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger );
@@ -400,7 +400,8 @@ void bank_upload_direct_bank_upload_transaction_insert(
 
 boolean bank_upload_exists(	char *application_name,
 				char *bank_date,
-				char *bank_description_embedded );
+				char *bank_description_embedded,
+				char *minimum_bank_date );
 
 void bank_upload_free(		BANK_UPLOAD *b );
 
@@ -423,5 +424,10 @@ void bank_upload_feeder_phrase_match_build_transaction(
 void bank_upload_check_number_existing_journal_ledger(
 				LIST *bank_upload_list,
 				LIST *existing_cash_journal_ledger_list );
+
+LIST *bank_upload_fetch_key_list(
+				char *application_name,
+				char *minimum_bank_date );
+
 #endif
 

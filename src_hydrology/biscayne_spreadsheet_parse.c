@@ -67,7 +67,7 @@ DATATYPE *new_datatype(			char *datatype_name );
 boolean datatype_exists(		char *application_name,
 					char *datatype_name );
 
-void biscayne_spreadsheet_parse(	 char *filename,
+void biscayne_spreadsheet_parse(	char *filename,
 					char *station );
 
 boolean station_filename_synchronized(	char *station,
@@ -195,7 +195,7 @@ void biscayne_spreadsheet_parse(
 	if ( ! ( input_file = fopen( filename, "r" ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 "ERROR in %s/%s()/%d: cannot open [%s] for read.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -350,7 +350,8 @@ DATATYPE *new_datatype( char *datatype_name )
 
 	datatype->datatype_name = datatype_name;
 	return datatype;
-} /* datatype_new() */
+
+} /* new_datatype() */
 
 LIST *get_datatype_list(	char *filename,
 				boolean is_odd_station )
@@ -361,7 +362,7 @@ LIST *get_datatype_list(	char *filename,
 	if ( ! ( input_file = fopen( filename, "r" ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 "ERROR in %s/%s()/%d: cannot open [%s] for read.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,

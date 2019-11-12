@@ -52,22 +52,19 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+void output_bad_records(
+		 			char *bad_parse_file,
+		 			char *bad_range_file,
+		 			char *bad_frequency_file,
+		 			char *bad_insert_file );
+
 boolean get_is_odd_station(		char *station );
-
-LIST *with_input_buffer_get_datatype_list(
-					char *input_buffer,
-					boolean is_odd_station );
-
-LIST *get_datatype_list(		char *input_filespecification,
-					boolean is_odd_station );
-
-DATATYPE *new_datatype(			char *datatype_name );
 
 boolean datatype_exists(		char *application_name,
 					char *datatype_name );
 
 void load_biscayne_ysi_data(
-					char *application_name,
+					char *appaserver_data_directory,
 					char *filename,
 					char *station,
 					char *begin_date_string,
@@ -126,8 +123,19 @@ int main( int argc, char **argv )
 		appaserver_parameter_file->
 			appaserver_mount_point );
 
+	/* Display the title and run stamp. */
+	/* -------------------------------- */
 	printf( "<h1>%s</h1>\n",
-	 	format_initial_capital( format_buffer, process_name ) );
+	 	format_initial_capital(
+			format_buffer,
+			process_name ) );
+
+	printf( "<h2>" );
+	fflush( stdout );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
+	fflush( stdout );
+	printf( "</h2>\n" );
+	fflush( stdout );
 
 	if ( !*station
 	||   strcmp( station, "station" ) == 0
@@ -200,7 +208,8 @@ int main( int argc, char **argv )
 	}
 
 	load_biscayne_ysi_data(
-			application_name,
+			appaserver_parameter_file->
+				appaserver_data_directory,
 			filename,
 			station,
 			begin_date_string,
@@ -230,7 +239,7 @@ int main( int argc, char **argv )
 } /* main() */
 
 void load_biscayne_ysi_data(
-			char *application_name,
+			char *appaserver_data_directory,
 			char *filename,
 			char *station,
 			char *begin_date_string,
@@ -239,26 +248,75 @@ void load_biscayne_ysi_data(
 			char *end_time_string,
 			boolean execute )
 {
+	char sys_string[ 2048 ];
+	char bad_parse[ 128 ];
+	char bad_range[ 128 ];
+	char bad_frequency[ 128 ];
+	char bad_insert[ 128 ];
+	pid_t pid;
+	char *dir;
+
+	pid = getpid();
+	dir = appaserver_data_directory;
+
+	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
+	sprintf( bad_range, "%s/range_%d.dat", dir, pid );
+	sprintf( bad_frequency, "%s/reject_%d.dat", dir, pid );
+	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
+
+	sprintf( sys_string,
+"biscayne_spreadsheet_parse \"%s\" \"%s\" 2>%s				|"
+"measurement_adjust_time_to_sequence 					|"
+"measurement_date_within_range	begin_date=%s				 "
+"				begin_time=%s				 "
+"				end_date=%s				 "
+"				end_time=%s 2>%s			|"
+"measurement_frequency_reject %s %s '^' 2>%s				|"
+"measurement_insert bypass=y begin=%s end=%s execute=%c 2>%s		|"
+"cat									 ",
+		 filename,
+		 station,
+		 bad_parse,
+		 begin_date_string,
+		 begin_time_string,
+		 end_date_string,
+		 end_time_string,
+		 bad_range,
+		 begin_date_string,
+		 end_date_string,
+		 bad_frequency,
+		 begin_date_string,
+		 end_date_string,
+		 (execute) ? 'y' : 'n',
+		 bad_insert );
+
+	if ( system( sys_string ) ) {};
+
+	output_bad_records(
+		 bad_parse,
+		 bad_range,
+		 bad_frequency,
+		 bad_insert );
 
 } /* void load_biscayne_ysi_data */
 
 boolean station_filename_synchronized(
 					char *station,
-					char *input_filespecification )
+					char *filename )
 {
 	int station_number;
 	int file_number;
-	char *filename;
 	char file_number_string[ 3 ];
+	char *base_filename;
 
 	if ( instr( "BISC", station, 1 ) == -1 ) return 1;
 
-	filename = basename_get_filename( input_filespecification );
+	base_filename = basename_get_filename( filename );
 
-	if ( strlen( filename ) < 3 ) return 1;
+	if ( strlen( base_filename ) < 3 ) return 1;
 
-	*file_number_string = *filename;
-	*(file_number_string + 1 ) = *(filename + 1);
+	*file_number_string = *base_filename;
+	*(file_number_string + 1 ) = *(base_filename + 1);
 	*(file_number_string + 2 ) = '\0';
 	file_number = atoi( file_number_string );
 
@@ -269,6 +327,7 @@ boolean station_filename_synchronized(
 	if ( !station_number ) return 1;
 
 	return ( station_number == file_number );
+
 } /* station_filename_synchronized() */
 
 boolean datatype_exists( char *application_name, char *datatype_name )
@@ -285,138 +344,10 @@ boolean datatype_exists( char *application_name, char *datatype_name )
 		 "			where=\"%s\"			",
 		 application_name,
 		 where_clause );
+
 	return atoi( pipe2string( sys_string ) );
+
 } /* datatype_exists() */
-
-DATATYPE *new_datatype( char *datatype_name )
-{
-	DATATYPE *datatype;
-
-	if ( ! ( datatype = (DATATYPE *)calloc( 1, sizeof( DATATYPE ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	datatype->datatype_name = datatype_name;
-	return datatype;
-} /* datatype_new() */
-
-LIST *get_datatype_list(	char *input_filespecification,
-				boolean is_odd_station )
-{
-	FILE *input_file;
-	char input_buffer[ 1024 ];
-
-	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 input_filespecification );
-		exit( 1 );
-	}
-
-	while( get_line( input_buffer, input_file ) )
-	{
-		if ( instr( "Date", input_buffer, 1 ) != -1 )
-		{
-			fclose( input_file );
-			return with_input_buffer_get_datatype_list(
-						input_buffer,
-						is_odd_station );
-		}
-	}
-	fclose( input_file );
-	return (LIST *)0;
-} /* get_datatype_list() */
-
-LIST *with_input_buffer_get_datatype_list(	char *input_buffer,
-						boolean is_odd_station )
-{
-	LIST *datatype_list = list_new();
-	DATATYPE *datatype;
-	char datatype_heading[ 128 ];
-	int column_number;
-
-	for(	column_number = 0;
-		column(	datatype_heading,
-			column_number,
-			input_buffer );
-		column_number++ )
-	{
-		if ( strcmp( datatype_heading, "Date" ) == 0 )
-		{
-			continue;
-		}
-		else
-		if ( strcmp( datatype_heading, "Time" ) == 0 )
-		{
-			continue;
-		}
-		else
-		if ( strcmp( datatype_heading, "Battery" ) == 0 )
-		{
-			continue;
-		}
-		else
-		if ( strcmp(	datatype_heading,
-				TEMPERATURE_HEADING ) == 0 )
-		{
-			if ( is_odd_station )
-			{
-				datatype =
-					new_datatype(
-					SURFACE_TEMPERATURE_DATATYPE );
-			}
-			else
-			{
-				datatype =
-					new_datatype(
-					BOTTOM_TEMPERATURE_DATATYPE );
-			}
-			datatype->column_number = column_number;
-		}
-		else
-		if ( strcmp(	datatype_heading,
-				DEPTH_HEADING ) == 0 )
-		{
-			datatype = new_datatype( DEPTH_DATATYPE );
-			datatype->column_number = column_number;
-		}
-		else
-		if ( strcmp(	datatype_heading,
-				SALINITY_HEADING ) == 0 )
-		{
-			datatype = new_datatype( SALINITY_DATATYPE );
-			datatype->column_number = column_number;
-		}
-		else
-		if ( strcmp(	datatype_heading,
-				CONDUCTIVITY_HEADING ) == 0 )
-		{
-			datatype = new_datatype( CONDUCTIVITY_DATATYPE );
-			datatype->column_number = column_number;
-		}
-		else
-		{
-			printf(
-			"<h3>Error: cannot recognize heading of %s.</h3>\n",
-				datatype_heading );
-			document_close();
-			exit( 0 );
-		}
-
-		list_append_pointer( datatype_list, datatype );
-	}
-	return datatype_list;
-} /* with_input_buffer_get_datatype_list() */
 
 boolean get_is_odd_station( char *station )
 {
@@ -440,4 +371,23 @@ boolean get_is_odd_station( char *station )
 	}
 
 } /* get_is_odd_station() */
+
+void output_bad_records(
+		 	char *bad_parse_file,
+		 	char *bad_range_file,
+		 	char *bad_frequency_file,
+		 	char *bad_insert_file )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"cat %s %s %s %s | html_table.e '^^Bad Records' '' ''",
+	 	bad_parse_file,
+	 	bad_range_file,
+	 	bad_frequency_file,
+	 	bad_insert_file );
+
+	if ( system( sys_string ) ){};
+
+} /* output_bad_records() */
 

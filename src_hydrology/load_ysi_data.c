@@ -49,13 +49,12 @@ typedef struct
 /* ---------- */
 void output_bad_records(
 		 		char *bad_parse_file,
-		 		char *bad_time_file,
 		 		char *bad_range_file,
 		 		char *bad_frequency_file,
 		 		char *bad_insert_file );
 
 void load_ysi_filespecification(
-					char *input_filespecification,
+					char *filename,
 					char *station,
 					char execute_yn,
 					char is_exo_yn,
@@ -66,22 +65,22 @@ void load_ysi_filespecification(
 					char *appaserver_data_directory );
 
 char *station_fetch(			char *application_name,
-					char *input_filespecification );
+					char *filename );
 
 char *station_label_fetch(		char *application_name,
-					char *input_filespecification );
+					char *filename );
 
 /* Check column piece=3 */
 /* -------------------- */
 char *station_column_fetch(		char *application_name,
-					char *input_filespecification );
+					char *filename );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char is_exo_yn;
 	char execute_yn;
-	char *input_filespecification;
+	char *filename;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *input_directory;
@@ -111,7 +110,7 @@ int main( int argc, char **argv )
 	}
 
 	process_name = argv[ 1 ];
-	input_filespecification = argv[ 2 ];
+	filename = argv[ 2 ];
 	station = argv[ 3 ];
 	begin_date_string = argv[ 4 ];
 	begin_time_string = argv[ 5 ];
@@ -148,7 +147,7 @@ int main( int argc, char **argv )
 	printf( "</h2>\n" );
 	fflush( stdout );
 
-	input_directory = basename_get_directory( input_filespecification );
+	input_directory = basename_get_directory( filename );
 
 	if ( !input_directory || !*input_directory )
 	{
@@ -163,7 +162,7 @@ int main( int argc, char **argv )
 		if ( ! ( station =
 				station_fetch(
 					application_name,
-					input_filespecification ) ) )
+					filename ) ) )
 		{
 			printf(
 			"<h3>ERROR: Could not identify the station.</h3>\n" );
@@ -195,7 +194,7 @@ int main( int argc, char **argv )
 	if ( !isdigit( *end_time_string ) ) end_time_string = "2359";
 
 	load_ysi_filespecification(
-			input_filespecification,
+			filename,
 			station,
 			execute_yn,
 			is_exo_yn,
@@ -226,7 +225,7 @@ int main( int argc, char **argv )
 } /* main() */
 
 void load_ysi_filespecification(
-			char *input_filespecification,
+			char *filename,
 			char *station,
 			char execute_yn,
 			char is_exo_yn,
@@ -238,7 +237,6 @@ void load_ysi_filespecification(
 {
 	char sys_string[ 2048 ];
 	char bad_parse[ 128 ];
-	char bad_time[ 128 ];
 	char bad_range[ 128 ];
 	char bad_frequency[ 128 ];
 	char bad_insert[ 128 ];
@@ -251,7 +249,6 @@ void load_ysi_filespecification(
 	dir = appaserver_data_directory;
 
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
-	sprintf( bad_time, "%s/time_%d.dat", dir, pid );
 	sprintf( bad_range, "%s/range_%d.dat", dir, pid );
 	sprintf( bad_frequency, "%s/reject_%d.dat", dir, pid );
 	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
@@ -265,7 +262,7 @@ void load_ysi_filespecification(
 
 	sprintf( sys_string,
 "spreadsheet_parse file=\"%s\" station=\"%s\" date=%s two=%s 2>%s	|"
-"measurement_adjust_time_to_sequence 2>%s				|"
+"measurement_adjust_time_to_sequence 					|"
 "measurement_date_within_range	begin_date=%s				 "
 "				begin_time=%s				 "
 "				end_date=%s				 "
@@ -273,12 +270,11 @@ void load_ysi_filespecification(
 "measurement_frequency_reject %s %s '^' 2>%s				|"
 "measurement_insert bypass=y begin=%s end=%s execute=%c 2>%s		|"
 "cat									 ",
-		 input_filespecification,
+		 filename,
 		 station,
 		 date_heading_label,
 		 two_lines,
 		 bad_parse,
-		 bad_time,
 		 begin_date_string,
 		 begin_time_string,
 		 end_date_string,
@@ -296,7 +292,6 @@ void load_ysi_filespecification(
 
 	output_bad_records(
 		 bad_parse,
-		 bad_time,
 		 bad_range,
 		 bad_frequency,
 		 bad_insert );
@@ -305,7 +300,6 @@ void load_ysi_filespecification(
 
 void output_bad_records(
 		 	char *bad_parse_file,
-		 	char *bad_time_file,
 		 	char *bad_range_file,
 		 	char *bad_frequency_file,
 		 	char *bad_insert_file )
@@ -313,9 +307,8 @@ void output_bad_records(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"cat %s %s %s %s %s | html_table.e '^^Bad Records' '' ''",
+	"cat %s %s %s %s | html_table.e '^^Bad Records' '' ''",
 	 	bad_parse_file,
-	 	bad_time_file,
 	 	bad_range_file,
 	 	bad_frequency_file,
 	 	bad_insert_file );
@@ -325,14 +318,14 @@ void output_bad_records(
 } /* output_bad_records() */
 
 char *station_fetch(		char *application_name,
-				char *input_filespecification )
+				char *filename )
 {
 	char *station;
 
 	if ( ( station =
 		station_label_fetch(
 			application_name,
-			input_filespecification ) ) )
+			filename ) ) )
 	{
 		return station;
 	}
@@ -342,7 +335,7 @@ char *station_fetch(		char *application_name,
 		/* -------------------- */
 		return station_column_fetch(
 			application_name,
-			input_filespecification );
+			filename );
 	}
 
 } /* station_fetch() */
@@ -350,21 +343,21 @@ char *station_fetch(		char *application_name,
 /* Check column piece=3 */
 /* -------------------- */
 char *station_column_fetch(	char *application_name,
-				char *input_filespecification )
+				char *filename )
 {
 	char station[ 128 ];
 	FILE *input_file;
 	char input_buffer[ 1024 ];
 	boolean found_header = 0;
 
-	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+	if ( ! ( input_file = fopen( filename, "r" ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 input_filespecification );
+			 filename );
 		return 0;
 	}
 
@@ -413,20 +406,20 @@ char *station_column_fetch(	char *application_name,
 } /* station_column_fetch() */
 
 char *station_label_fetch(	char *application_name,
-				char *input_filespecification )
+				char *filename )
 {
 	char station[ 128 ];
 	FILE *input_file;
 	char input_buffer[ 1024 ];
 
-	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+	if ( ! ( input_file = fopen( filename, "r" ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 input_filespecification );
+			 filename );
 		return 0;
 	}
 

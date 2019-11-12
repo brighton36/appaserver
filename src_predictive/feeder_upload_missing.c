@@ -38,7 +38,7 @@ void feeder_upload_missing_pipe(
 				double bank_amount );
 
 void feeder_upload_missing_execute(
-				LIST *bank_upload_file_list );
+				LIST *bank_upload_list );
 
 void feeder_upload_missing(	
 				char *application_name,
@@ -269,12 +269,12 @@ void feeder_upload_missing(
 	feeder_upload_missing_execute(
 		bank_upload_structure->
 			file.
-			bank_upload_file_list );
+			bank_upload_list );
 
 } /* feeder_upload_missing() */
 
 void feeder_upload_missing_execute(
-			LIST *bank_upload_file_list )
+			LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;
 	char sys_string[ 1024 ];
@@ -283,7 +283,7 @@ void feeder_upload_missing_execute(
 	LIST *duplicate_line_list = list_new();
 	LIST *possible_description_list;
 
-	if ( !list_rewind( bank_upload_file_list ) ) return;
+	if ( !list_rewind( bank_upload_list ) ) return;
 
 	heading = "bank_date,bank_description,amount";
 
@@ -294,7 +294,7 @@ void feeder_upload_missing_execute(
 	output_pipe = popen( sys_string, "w" );
 
 	do {
-		bank_upload = list_get_pointer( bank_upload_file_list );
+		bank_upload = list_get_pointer( bank_upload_list );
 
 		possible_description_list =
 			feeder_upload_get_possible_description_list(
@@ -316,7 +316,7 @@ void feeder_upload_missing_execute(
 
 		list_free_string_list( possible_description_list );
 
-	} while( list_next( bank_upload_file_list ) );
+	} while( list_next( bank_upload_list ) );
 
 	pclose( output_pipe );
 

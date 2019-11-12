@@ -371,7 +371,6 @@ TRANSACTION *feeder_phrase_match_build_transaction(
 		transaction->journal_ledger_list,
 		journal_ledger );
 
-
 	return transaction;
 
 } /* feeder_phrase_match_build_transaction() */

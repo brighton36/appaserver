@@ -229,6 +229,11 @@ boolean list_search_string( LIST *list, char *string )
 	return list_exists_string( list, string );
 }
 
+boolean list_string_exists( LIST *list, char *string )
+{
+	return item_exists( list, string, list_strcmp );
+}
+
 boolean list_exists_string( LIST *list, char *string )
 {
 	return item_exists( list, string, list_strcmp );

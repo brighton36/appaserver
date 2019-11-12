@@ -71,15 +71,25 @@ int list_count( LIST *list );
 int list_length( LIST *list );
 int next_item( LIST *list );
 int list_next( LIST *list );
+
 int list_item_exists( LIST *list, char *item, int (*match_fn)() );
+
 void *list_fetch( LIST *list, char *string, int (*match_fn)() );
+
 boolean item_exists( LIST *list, char *item, int (*match_fn)() );
+
 boolean list_exists( LIST *list, char *item, int (*match_fn)() );
 
 boolean list_exists_string(	LIST *list,
 				char *string );
 
-boolean list_exists_string_beginning( LIST *list, char *string );
+boolean list_string_exists(	LIST *list,
+				char *string );
+
+boolean list_exists_string_beginning(
+				LIST *list,
+				char *string );
+
 LIST *create_list( void );
 LIST *list_new( void );
 LIST *list_new_list( void );

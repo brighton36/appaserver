@@ -223,21 +223,18 @@ int main( int argc, char **argv )
 			balance_piece_offset,
 			execute );
 
+	if ( !minimum_bank_date )
+	{
+		printf(
+		"<h3>Error: could not fetch the minimum bank date.</h3>\n" );
+		document_close();
+		exit( 1 );
+	}
+
 	if ( execute )
 	{
-		if ( !minimum_bank_date )
-		{
-			fprintf( stderr,
-		"Warning in %s/%s()/%d: did not fetch minimum_bank_date.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-		}
-		else
-		{
-			bank_upload_transaction_balance_propagate(
+		bank_upload_transaction_balance_propagate(
 				minimum_bank_date );
-		}
 
 		process_increment_execution_count(
 			application_name,
@@ -302,6 +299,26 @@ int load_bank_spreadsheet(
 
 	if ( !bank_upload_structure ) return 0;
 
+	*minimum_bank_date =
+		bank_upload_structure->
+			file.
+			minimum_bank_date;
+
+	/* ------------------------------------------------------------ */
+	/* Sets bank_upload->feeder_check_number_existing_journal_ledger*/
+	/* or								*/
+	/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
+	/* or								*/
+	/* Sets bank_upload->feeder_match_existing_journal_ledger_list	*/
+	/* ------------------------------------------------------------ */
+	bank_upload_set_transaction(
+		bank_upload_structure->file.bank_upload_list,
+		bank_upload_structure->
+			reoccurring_structure->
+			reoccurring_transaction_list,
+		bank_upload_structure->
+			existing_cash_journal_ledger_list );
+
 	if ( bank_upload_sha256sum_exists(
 			application_name,
 			bank_upload_structure->file.file_sha256sum ) )
@@ -322,41 +339,22 @@ int load_bank_spreadsheet(
 
 	if ( !execute )
 	{
-	/* ------------------------------------------------------------ */
-	/* Sets bank_upload->feeder_check_number_existing_journal_ledger*/
-	/* or								*/
-	/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
-	/* or								*/
-	/* Sets bank_upload->feeder_match_existing_journal_ledger_list	*/
-	/* ------------------------------------------------------------ */
-		bank_upload_set_transaction(
-			bank_upload_structure->file.bank_upload_file_list,
-			application_name,
-			bank_upload_structure->fund_name,
-			bank_upload_structure->
-				reoccurring_structure->
-				reoccurring_transaction_list,
-			bank_upload_structure->
-				existing_cash_journal_ledger_list,
-			bank_upload_structure->
-				uncleared_checks_transaction_list );
-
 		bank_upload_table_display(
 			application_name,
 			bank_upload_structure->
 				file.
-				bank_upload_file_list );
+				bank_upload_list );
 
 		bank_upload_transaction_table_display(
 			bank_upload_structure->
 				file.
-				bank_upload_file_list );
+				bank_upload_list );
 
 		*transaction_count =
 			bank_upload_feeder_phrase_match_transaction_count(
 				bank_upload_structure->
 				file.
-				bank_upload_file_list );
+				bank_upload_list );
 	}
 	else
 	/* ------------ */
@@ -368,7 +366,7 @@ int load_bank_spreadsheet(
 					fund_name,
 					bank_upload_structure->
 						file.
-						bank_upload_file_list
+						bank_upload_list
 						   /* bank_upload_list */,
 					bank_upload_structure->
 						bank_upload_date_time ) ) )
@@ -395,29 +393,10 @@ int load_bank_spreadsheet(
 			fund_name,
 			bank_upload_structure->
 				file.
-				bank_upload_file_list
+				bank_upload_list
 					/* bank_upload_list */,
 			bank_upload_structure->
 				bank_upload_date_time );
-
-	/* ------------------------------------------------------------ */
-	/* Sets bank_upload->feeder_check_number_existing_journal_ledger*/
-	/* or								*/
-	/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
-	/* or								*/
-	/* Sets bank_upload->feeder_match_existing_journal_ledger_list	*/
-	/* ------------------------------------------------------------ */
-		bank_upload_set_transaction(
-			bank_upload_structure->file.bank_upload_file_list,
-			application_name,
-			bank_upload_structure->fund_name,
-			bank_upload_structure->
-				reoccurring_structure->
-				reoccurring_transaction_list,
-			bank_upload_structure->
-				existing_cash_journal_ledger_list,
-			bank_upload_structure->
-				uncleared_checks_transaction_list );
 
 		/* ------------------------------------------ */
 		/* Insert into TRANSACTION and JOURNAL_LEDGER */
@@ -426,32 +405,35 @@ int load_bank_spreadsheet(
 		/* ------------------------------------------ */
 		bank_upload_transaction_insert(
 			application_name,
-			bank_upload_structure->file.bank_upload_file_list );
+			bank_upload_structure->file.bank_upload_list );
 
 		bank_upload_transaction_table_display(
-			bank_upload_structure->file.bank_upload_file_list );
+			bank_upload_structure->file.bank_upload_list );
 
 		*transaction_count =
 			bank_upload_feeder_phrase_match_transaction_count(
 				bank_upload_structure->
 					file.
-					bank_upload_file_list );
+					bank_upload_list );
 
 		/* Insert into BANK_UPLOAD_TRANSACTION */
 		/* ----------------------------------- */
 		bank_upload_direct_bank_upload_transaction_insert(
 			bank_upload_structure->
 				file.
-				bank_upload_file_list );
+				bank_upload_list );
 
-		/* Update JOURNAL_LEDGER */
-		/* --------------------- */
+		/* ----------------------------- */
+		/* Update JOURNAL_LEDGER.account */
+		/* ----------------------------- */
+		/* Does ledger_propagate()	 */
+		/* ----------------------------- */
 		bank_upload_cleared_checks_update(
 			application_name,
 			bank_upload_structure->fund_name,
 			bank_upload_structure->
 				file.
-				bank_upload_file_list );
+				bank_upload_list );
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -465,11 +447,6 @@ int load_bank_spreadsheet(
 
 		printf( "\n" );
 	}
-
-	*minimum_bank_date =
-		bank_upload_structure->
-			file.
-			minimum_bank_date;
 
 	if ( bank_upload_exception == duplicated_spreadsheet_file )
 		return 0;

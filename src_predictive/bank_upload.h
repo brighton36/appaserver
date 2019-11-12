@@ -23,7 +23,7 @@ enum bank_upload_exception {	bank_upload_exception_none,
 /* --------- */
 #define BANK_UPLOAD_DESCRIPTION_SIZE	140
 #define BANK_UPLOAD_FILENAME_SIZE	80
-#define BANK_UPLOAD_TABLE_NAME	"bank_upload"
+#define BANK_UPLOAD_TABLE_NAME		"bank_upload"
 
 /* Need to run bank_upload_transaction_insert within a month. */
 /* ---------------------------------------------------------- */
@@ -67,9 +67,7 @@ typedef struct
 
 typedef struct
 {
-	/* Gets populated from input_filename */
-	/* ---------------------------------- */
-	LIST *bank_upload_file_list;
+	LIST *bank_upload_list;
 	char *input_filename;
 	char *file_sha256sum;
 	char *minimum_bank_date;
@@ -85,14 +83,9 @@ typedef struct
 
 typedef struct
 {
-	LIST *bank_upload_table_list;
-} BANK_UPLOAD_TABLE;
-
-typedef struct
-{
 	BANK_UPLOAD_FILE file;
-	BANK_UPLOAD_TABLE table;
 	LIST *existing_cash_journal_ledger_list;
+	LIST *non_reconciled_cash_journal_ledger_list;
 	LIST *uncleared_checks_transaction_list;
 	REOCCURRING_STRUCTURE *reoccurring_structure;
 	int starting_sequence_number;
@@ -157,7 +150,7 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 					char *bank_date,
 					char *bank_description );
 
-LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
+LIST *bank_upload_existing_cash_journal_ledger_list(
 					char *application_name,
 					char *minimum_transaction_date,
 					char *fund_name );
@@ -169,11 +162,8 @@ LIST *bank_upload_fetch_uncleared_checks_transaction_list(
 
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
-				char *application_name,
-				char *fund_name,
 				LIST *reoccurring_transaction_list,
-				LIST *existing_cash_journal_ledger_list,
-				LIST *uncleared_checks_transaction_list );
+				LIST *existing_cash_journal_ledger_list );
 
 /* Insert into TRANSACTION and JOURNAL_LEDGER */
 /* ------------------------------------------ */
@@ -344,9 +334,11 @@ LIST *bank_upload_get_general_transaction_list(
 					double exact_value,
 					boolean select_debit );
 
-char *bank_upload_bank_date_todo_subquery( void );
+char *bank_upload_transaction_bank_upload_subquery(
+					void );
 
-char *bank_upload_full_name_todo_subquery( void );
+char *bank_upload_transaction_journal_ledger_subquery(
+					void );
 
 LIST *bank_upload_transaction_list_string_parse(
 	/* ------------------------------------------------------------ */
@@ -380,30 +372,20 @@ LIST *bank_upload_fetch_transaction_date_time_list(
 					char *minimum_transaction_date,
 					char *account_name );
 
-/*
-void bank_upload_set_purchase_order_check(
-				LIST *bank_upload_list,
-				char *application_name,
-				char *fund_name,
-				LIST *uncleared_checks_transaction_list );
-
-void bank_upload_set_non_purchase_order_check(
-				LIST *bank_upload_list,
-				LIST *existing_cash_journal_ledger_list );
-*/
-
 void bank_upload_set_reoccurring_transaction(
 				LIST *bank_upload_list,
 				LIST *reoccurring_transaction_list,
-				LIST *existing_cash_journal_ledger_list );
+				LIST *non_reconciled_cash_journal_ledger_list );
 
 int bank_upload_parse_check_number(
 				char *bank_description );
 
+/* Does ledger_propagate() */
+/* ----------------------- */
 void bank_upload_cleared_checks_update(
 				char *application_name,
 				char *fund_name,
-				LIST *bank_upload_table_list );
+				LIST *bank_upload_list );
 
 void bank_upload_cleared_journal_text_display(
 		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger );
@@ -418,7 +400,8 @@ void bank_upload_direct_bank_upload_transaction_insert(
 
 boolean bank_upload_exists(	char *application_name,
 				char *bank_date,
-				char *bank_description_embedded );
+				char *bank_description_embedded,
+				char *minimum_bank_date );
 
 void bank_upload_free(		BANK_UPLOAD *b );
 
@@ -428,28 +411,23 @@ int bank_upload_get_file_row_count(
 /* Returns strdup() */
 /* ---------------- */
 char *bank_upload_journal_ledger_list_html(
-			LIST *match_sum_existing_journal_ledger_list );
+				LIST *match_sum_existing_journal_ledger_list );
 
 void bank_upload_match_sum_existing_journal_ledger_list(
-			LIST *bank_upload_list,
-			LIST *existing_cash_journal_ledger_list );
-
-void bank_upload_uncleared_checks_transaction_list(
 				LIST *bank_upload_list,
-				char *application_name,
-				char *fund_name,
-				LIST *uncleared_checks_transaction_list );
+				LIST *existing_cash_journal_ledger_list );
 
 void bank_upload_feeder_phrase_match_build_transaction(
 				LIST *bank_upload_list,
-				LIST *reoccurring_transaction_list,
-				LIST *existing_cash_journal_ledger_list );
+				LIST *reoccurring_transaction_list );
 
 void bank_upload_check_number_existing_journal_ledger(
 				LIST *bank_upload_list,
+				LIST *existing_cash_journal_ledger_list );
+
+LIST *bank_upload_fetch_key_list(
 				char *application_name,
-				char *fund_name,
-				LIST *existing_cash_journal_ledger_list,
-				LIST *uncleared_checks_transaction_list );
+				char *minimum_bank_date );
+
 #endif
 

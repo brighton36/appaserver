@@ -145,7 +145,6 @@ post_change_inventory_purchase_return
 transaction_date_time
 transaction_balance_report
 bank_upload_transaction_insert
-bank_upload_journal_ledger_insert
 tax_recover_fixed_assets
 tax_recover_prior_fixed_assets
 tax_dvr

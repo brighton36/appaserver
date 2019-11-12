@@ -49,7 +49,7 @@ int main( int argc, char **argv )
 	if ( argc < 2 )
 	{
 		fprintf( stderr,
-"Usage: %s deposit|withdrawal|both|bank_date^bank_description_embedded|bank_date^bank_description_embedded^full_name^street_address^transaction_date_time [fund]\n",
+"Usage: %s bank_date^bank_description_embedded^full_name^street_address^transaction_date_time [fund]\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
@@ -66,185 +66,34 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( strcmp( operation, "deposit" ) == 0
-	||   strcmp( operation, "both" ) == 0 )
+	delimiter_count =
+		timlib_count_delimiters(
+			'^', operation );
+
+	/* ---------------------------- */
+	/* This is called from		*/
+	/* direct_transaction_assign.sh	*/
+	/* ---------------------------- */
+	if ( delimiter_count == 4 )
 	{
-/*
-		bank_upload_transaction_insert_deposit( application_name );
-*/
-	}
+		piece( bank_date, '^', operation, 0 );
 
-	if ( strcmp( operation, "withdrawal" ) == 0
-	||   strcmp( operation, "both" ) == 0 )
-	{
-		seek_withdrawal( application_name, fund_name );
-	}
-	else
-	{
-		delimiter_count =
-			timlib_count_delimiters(
-				'^', operation );
+		piece( bank_description_embedded, '^', operation, 1 );
 
-		/* Doesn't do the propagate */
-		/* ------------------------ */
-		if ( delimiter_count == 1 )
-		{
-			double bank_amount;
-			BANK_UPLOAD *bank_upload;
+		piece( full_name, '^', operation, 2 );
+		piece( street_address, '^', operation, 3 );
+		piece( transaction_date_time, '^', operation, 4 );
 
-			piece( bank_date, '^', operation, 0 );
-
-			piece( bank_description_embedded, '^', operation, 1 );
-
-			bank_amount =
-				bank_upload_fetch_bank_amount(
-					application_name,
-					bank_date,
-					bank_description_embedded );
-
-			bank_upload =
-				bank_upload_new(
-					strdup( bank_date ),
-					strdup( bank_description_embedded ) );
-
-			bank_upload->bank_amount = bank_amount;
-
-			bank_upload->reconciled_transaction_list =
-				bank_upload_get_reconciled_transaction_list(
-				   application_name,
-				   fund_name,
-				   bank_upload->bank_date,
-				   bank_upload->bank_description
-					/* bank_description_embedded */,
-				   bank_upload->bank_amount );
-
-			if ( list_length( bank_upload->
-						reconciled_transaction_list ) )
-			{
-				/* Insert into BANK_UPLOAD_TRANSACTION */
-				/* ----------------------------------- */
-				bank_upload_reconciliation_transaction_insert(
-					bank_upload->bank_date,
-					bank_upload->bank_description
-						/* bank_description_embedded */,
-					bank_upload->
-						reconciled_transaction_list );
-			}
-		}
-		else
-		/* ---------------------------------------------------- */
-		/* This is called from					*/
-		/* bank_upload_reconciliation_transaction_insert()	*/
-		/* Or not anymore?					*/
-		/* ---------------------------------------------------- */
-		if ( delimiter_count == 4 )
-		{
-			piece( bank_date, '^', operation, 0 );
-
-			piece( bank_description_embedded, '^', operation, 1 );
-
-			piece( full_name, '^', operation, 2 );
-			piece( street_address, '^', operation, 3 );
-			piece( transaction_date_time, '^', operation, 4 );
-
-			bank_upload_transaction_direct_insert(
-				application_name,
-				bank_date,
-				bank_description_embedded,
-				full_name,
-				street_address,
-				transaction_date_time );
-		}
+		bank_upload_transaction_direct_insert(
+			application_name,
+			bank_date,
+			bank_description_embedded,
+			full_name,
+			street_address,
+			transaction_date_time );
 	}
 
 	return 0;
 
 } /* main() */
-
-void seek_withdrawal(	char *application_name,
-			char *fund_name )
-{
-	char sys_string[ 1024 ];
-	char *select;
-	char *folder;
-	char where[ 512 ];
-	char *order;
-	FILE *input_pipe;
-	char input_buffer[ 1024 ];
-	char bank_date[ 128 ];
-	char bank_description_embedded[ 256 ];
-	char bank_amount[ 32 ];
-	BANK_UPLOAD *bank_upload;
-
-	select = "bank_date, bank_description, bank_amount";
-	folder = "bank_upload";
-	order = "sequence_number,bank_date";
-
-	sprintf( where,
-		 "bank_amount < 0 and %s",
-		 bank_upload_bank_date_todo_subquery() );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		 "
-		 "			select=\"%s\"		 "
-		 "			folder=%s		 "
-		 "			where=\"%s\"		 "
-		 "			order=%s		 ",
-		 application_name,
-		 select,
-		 folder,
-		 where,
-		 order );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		piece( bank_date, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-
-		piece(	bank_description_embedded,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			1 );
-
-		bank_upload =
-			bank_upload_new(
-				strdup( bank_date ),
-				strdup( bank_description_embedded ) );
-
-		piece(	bank_amount,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			2 );
-
-		bank_upload->bank_amount = atof( bank_amount );
-
-		bank_upload->reconciled_transaction_list =
-			bank_upload_get_reconciled_transaction_list(
-				application_name,
-				fund_name,
-				bank_upload->bank_date,
-				bank_upload->bank_description
-					/* bank_description_embedded */,
-				bank_upload->bank_amount );
-
-		if ( list_length( bank_upload->reconciled_transaction_list ) )
-		{
-			/* Insert into BANK_UPLOAD_TRANSACTION */
-			/* ----------------------------------- */
-			bank_upload_reconciliation_transaction_insert(
-				bank_upload->bank_date,
-				bank_upload->bank_description
-					/* bank_description_embedded */,
-				bank_upload->reconciled_transaction_list );
-
-			/* Just do one */
-			/* ----------- */
-			break;
-		}
-	}
-
-	pclose( input_pipe );
-
-} /* seek_withdrawal() */
 

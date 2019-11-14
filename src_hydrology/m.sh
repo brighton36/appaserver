@@ -1,6 +1,6 @@
 :
 
-make spreadsheet_parse
+make sl2_upload
 
 #cd - && make parse_alias_data
 

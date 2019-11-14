@@ -555,6 +555,7 @@ void hydrology_parse_begin_end_dates(
 	static char local_begin_measurement_date[ 32 ];
 	static char local_end_measurement_date[ 32 ];
 	DATE *measurement_date = date_calloc();
+boolean first_time = 1;
 
 	*begin_measurement_date = local_begin_measurement_date;
 	*end_measurement_date = local_end_measurement_date;
@@ -583,7 +584,17 @@ void hydrology_parse_begin_end_dates(
 				date_piece,
 				'"' );
 
-		if ( !got_heading )
+if ( first_time )
+{
+fprintf( stderr, "%s/%s()/%d: got first measurement_date_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+measurement_date_string );
+fflush( stderr );
+first_time = 0;
+}
+		if ( date_heading_label && !got_heading )
 		{
 			if ( hydrology_got_heading_label(
 				date_heading_label,
@@ -647,7 +658,6 @@ void hydrology_parse_begin_end_dates(
 				date_display_yyyymmdd(
 					measurement_date ) );
 		}
-
 	}
 
 	fclose( input_file );

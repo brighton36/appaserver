@@ -24,6 +24,7 @@
 #include "process.h"
 #include "session.h"
 #include "application.h"
+#include "hydrology.h"
 #include "appaserver_error.h"
 
 /* Constants */
@@ -49,7 +50,7 @@ void output_bad_records(char *bad_insert_file );
 
 char *get_station(	char *full_filename );
 
-void satlink_upload(	char *full_filename,
+void satlink_upload(	char *filename,
 			char *shef_bad_file,
 			boolean execute,
 			char *station_name,
@@ -61,7 +62,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *station_name;
-	char *full_filename;
+	char *filename;
 	boolean execute;
 	DOCUMENT *document;
 	char *argv_0;
@@ -91,7 +92,7 @@ int main( int argc, char **argv )
 	/* application_name = argv[ 1 ]; */
 	process_name = argv[ 2 ];
 	station_name = argv[ 3 ];
-	full_filename = argv[ 4 ];
+	filename = argv[ 4 ];
 
 	execute = ( *argv[ 5 ] == 'y' );
 
@@ -101,7 +102,10 @@ int main( int argc, char **argv )
 
 	if ( !*station_name || strcmp( station_name, "station" ) == 0 )
 	{
-		station_name = get_station( full_filename );
+		station_name =
+			get_station(
+				filename
+					/* full_filename */ );
 
 		if ( !station_name ) station_name = "unknown";
 	}
@@ -142,7 +146,7 @@ int main( int argc, char **argv )
 
 	} /* if !nohtml */
 
-	if ( !*full_filename || strcmp( full_filename, "filename" ) == 0 )
+	if ( !*filename || strcmp( filename, "filename" ) == 0 )
 	{
 		printf( "<h3> Please upload a file.</h3>\n" );
 		document_close();
@@ -155,7 +159,7 @@ int main( int argc, char **argv )
 		 	appaserver_data_directory,
 		 getpid() );
 
-	satlink_upload(	full_filename, 
+	satlink_upload(	filename, 
 			shef_bad_file,
 			execute,
 			station_name,
@@ -182,7 +186,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void satlink_upload(	char *full_filename,
+void satlink_upload(	char *filename,
 			char *shef_bad_file,
 			boolean execute,
 			char *station_name,
@@ -190,9 +194,24 @@ void satlink_upload(	char *full_filename,
 			boolean nohtml )
 {
 	char insert_process[ 512 ];
-	char *shef_process;
+	char shef_process[ 128 ];
 	char sys_string[ 1024 ];
+	char *begin_measurement_date = {0};
+	char *end_measurement_date = {0};
 
+	hydrology_parse_begin_end_dates(
+					&begin_measurement_date,
+					&end_measurement_date,
+					filename,
+					(char *)0 /* date_heading_label */,
+					1 /* date_piece */ );
+
+	if ( !begin_measurement_date || !*begin_measurement_date )
+	{
+		printf( "<h3>Could not extract the begin/end dates.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
 
 	if ( nohtml )
 	{
@@ -201,21 +220,30 @@ void satlink_upload(	char *full_filename,
 	else
 	{
 		sprintf(insert_process,
-"measurement_insert station=%s begin=begin end=end bypass=yes execute=%c",
-			station_name,
-		 	(execute) ? 'y' : 'n' );
+"measurement_insert begin=%s end=%s bypass=yes delimiter=',' execute=%s",
+			begin_measurement_date,
+			end_measurement_date,
+		 	(execute) ? "yes" : "no" );
 	}
 
 	if ( strcmp( argv_0, "sl2_upload" ) == 0 )
-		shef_process = "sl2_shef_to_comma_delimited";
+	{
+		sprintf( shef_process,
+			 "sl2_shef_to_comma_delimited ignored %s",
+			 station_name );
+	}
 	else
-		shef_process = "sl3_shef_to_comma_delimited";
+	{
+		sprintf( shef_process,
+			 "sl3_shef_to_comma_delimited ignored %s",
+			 station_name );
+	}
 
 	sprintf( sys_string,
 	"cat %s			      	     	|"
 	"%s					|"
 	"%s 2>%s		  	      	 ",
-			 full_filename,
+			 filename,
 			 shef_process,
 			 insert_process,
 			 shef_bad_file );

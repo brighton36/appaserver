@@ -397,7 +397,7 @@ FILE *measurement_open_insert_pipe( char *application_name )
 	table_name = get_table_name( application_name, "measurement" );
 
 	sprintf(sys_string,
-		"insert_statement.e table=%s field=%s del='|' replace=n |"
+		"insert_statement.e table=%s field=%s del='|' replace=y |"
 		"sql.e 						 	 ",
 		table_name,
 		MEASUREMENT_INSERT_LIST );

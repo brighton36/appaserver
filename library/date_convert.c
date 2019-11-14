@@ -658,15 +658,29 @@ char *date_convert_american2international( char *american )
 	piece( day, delimiter, american, 1 );
 	piece( year, delimiter, american, 2 );
 
-	if ( strlen( year ) == 2 )
-		strcpy( year, julian_make_y2k_year( year ) );
+	/* If like: 2019/08/25 */
+	/* ------------------- */
+	if ( strlen( month ) == 4 )
+	{
+		search_replace_character( american, '/', '-' );
+		strcpy( international, american );
+	}
+	else
+	{ 
+		if ( strlen( year ) == 2 )
+		{
+			strcpy( year, julian_make_y2k_year( year ) );
+		}
 
-	sprintf(international,
-		"%s-%.2d-%.2d",
-		year,
-		atoi( month ),
-		atoi( day ) );
+		sprintf(international,
+			"%s-%.2d-%.2d",
+			year,
+			atoi( month ),
+			atoi( day ) );
+	}
+
 	return international;
+
 } /* date_convert_american2international() */
 
 enum date_convert_format date_convert_get_date_convert_format(

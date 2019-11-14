@@ -1345,7 +1345,10 @@ shef_upload: shef_upload.c shef_datatype_code.o
 		shef_upload.c						\
 		-o shef_upload
 
-sl2_upload: sl2_upload.c shef_datatype_code.o
+sl2_upload: sl2_upload.c shef_datatype_code.o				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-I${SOURCE_EVERGLADES}					\

@@ -144,6 +144,7 @@ void post_change_enrollment_payment_insert(
 			char *payment_date_time )
 {
 	CAMP *camp;
+	ENROLLMENT_PAYMENT *e;
 
 	if ( ! ( camp =
 			camp_fetch(
@@ -181,50 +182,46 @@ void post_change_enrollment_payment_insert(
 		exit( 1 );
 	}
 
-	if ( ! ( camp->enrollment->camp_enrollment_transaction =
-			camp_enrollment_transaction(
-				application_name,
-				fund_name,
-				camp->enrollment->full_name,
-				camp->enrollment->street_address,
-				camp->enrollment_cost ) ) )
+	if ( ! ( e = camp_enrollment_payment_seek(
+			camp->enrollment->camp_enrollment_payment_list,
+			payment_date_time ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: camp_enrollment_transaction() failed.\n",
+	"ERROR in %s/%s()/%d: cannot camp_enrollment_payment_seek(%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__ );
+			 __LINE__,
+			 payment_date_time );
 		exit( 1 );
 	}
 
-	camp->enrollment->camp_enrollment_transaction->transaction_date_time =
+	e->camp_enrollment_payment_transaction =
+		camp_enrollment_payment_transaction(
+			application_name,
+			fund_name,
+			camp->enrollment->full_name,
+			camp->enrollment->street_address,
+			e->payment_amount );
+
+	e->camp_enrollment_payment_transaction->transaction_date_time =
 		/* -------------------------------------- */
 		/* Returns inserted transaction_date_time */
 		/* -------------------------------------- */
 		ledger_transaction_refresh(
 			application_name,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				full_name,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				street_address,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
+			e->camp_enrollment_payment_transaction->full_name,
+			e->camp_enrollment_payment_transaction->street_address,
+			e->
+				camp_enrollment_payment_transaction->
 				transaction_date_time,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
+			e->
+				camp_enrollment_payment_transaction->
 				transaction_amount,
 			(char *)0 /* memo */,
 			0 /* check_number */,
 			1 /* lock_transaction */,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
+			e->
+				camp_enrollment_payment_transaction->
 				journal_ledger_list );
 
 	camp->enrollment->camp_enrollment_total_payment_amount =
@@ -262,6 +259,7 @@ void post_change_enrollment_payment_update(
 			char *payment_date_time )
 {
 	CAMP *camp;
+	ENROLLMENT_PAYMENT *e;
 
 	if ( ! ( camp =
 			camp_fetch(
@@ -299,52 +297,50 @@ void post_change_enrollment_payment_update(
 		exit( 1 );
 	}
 
-	if ( ! ( camp->enrollment->camp_enrollment_transaction =
-			camp_enrollment_transaction(
-				application_name,
-				fund_name,
-				camp->enrollment->full_name,
-				camp->enrollment->street_address,
-				camp->enrollment_cost ) ) )
+	if ( ! ( e = camp_enrollment_payment_seek(
+			camp->enrollment->camp_enrollment_payment_list,
+			payment_date_time ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: camp_enrollment_transaction(%s,%s) failed.\n",
+	"ERROR in %s/%s()/%d: cannot camp_enrollment_payment_seek(%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 camp->enrollment->full_name,
-			 camp->enrollment->street_address );
+			 payment_date_time );
 		exit( 1 );
 	}
 
-	camp->enrollment->camp_enrollment_transaction->transaction_date_time =
+	e->camp_enrollment_payment_transaction =
+		camp_enrollment_payment_transaction(
+			application_name,
+			fund_name,
+			camp->enrollment->full_name,
+			camp->enrollment->street_address,
+			e->payment_amount );
+
+	e->camp_enrollment_payment_transaction->transaction_date_time =
 		/* -------------------------------------- */
 		/* Returns inserted transaction_date_time */
 		/* -------------------------------------- */
 		ledger_transaction_refresh(
 			application_name,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
+			e->
+				camp_enrollment_payment_transaction->
 				full_name,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
+			e->
+				camp_enrollment_payment_transaction->
 				street_address,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
+			e->
+				camp_enrollment_payment_transaction->
 				transaction_date_time,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
+			e->
+				camp_enrollment_payment_transaction->
 				transaction_amount,
 			(char *)0 /* memo */,
 			0 /* check_number */,
 			1 /* lock_transaction */,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
+			e->
+				camp_enrollment_payment_transaction->
 				journal_ledger_list );
 
 	camp->enrollment->camp_enrollment_total_payment_amount =
@@ -381,6 +377,7 @@ void post_change_enrollment_payment_predelete(
 			char *payment_date_time )
 {
 	CAMP *camp;
+	ENROLLMENT_PAYMENT *e;
 
 	if ( ! ( camp =
 			camp_fetch(
@@ -418,17 +415,27 @@ void post_change_enrollment_payment_predelete(
 		exit( 1 );
 	}
 
-	if ( !camp->enrollment->camp_enrollment_transaction )
+	if ( ! ( e = camp_enrollment_payment_seek(
+			camp->enrollment->camp_enrollment_payment_list,
+			payment_date_time ) ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: no transaction for (%s,%s,%s,%s)\n",
+	"ERROR in %s/%s()/%d: cannot camp_enrollment_payment_seek(%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 camp->camp_begin_date,
-			 camp->camp_title,
-			 camp->enrollment->full_name,
-			 camp->enrollment->street_address );
+			 payment_date_time );
+		exit( 1 );
+	}
+
+	if ( !e->camp_enrollment_payment_transaction )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: no transaction for (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 payment_date_time );
 		exit( 1 );
 	}
 
@@ -436,22 +443,21 @@ void post_change_enrollment_payment_predelete(
 			TRANSACTION_FOLDER_NAME,
 			camp->enrollment->full_name,
 			camp->enrollment->street_address,
-			camp->enrollment->
-				camp_enrollment_transaction->
+			e->
+				camp_enrollment_payment_transaction->
 				transaction_date_time );
 
 	ledger_delete(	application_name,
 			LEDGER_FOLDER_NAME,
 			camp->enrollment->full_name,
 			camp->enrollment->street_address,
-			camp->enrollment->
-				camp_enrollment_transaction->
+			e->
+				camp_enrollment_payment_transaction->
 				transaction_date_time );
 
 	ledger_journal_ledger_list_propagate( 
-		camp->
-			enrollment->
-			camp_enrollment_transaction->
+		e->
+			camp_enrollment_payment_transaction->
 			journal_ledger_list,
 		application_name );
 

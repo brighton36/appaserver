@@ -481,3 +481,29 @@ double camp_enrollment_amount_due(
 {
 	return enrollment_cost - camp_enrollment_total_payment_amount;
 }
+
+ENROLLMENT_PAYMENT *camp_enrollment_payment_seek(
+				LIST *camp_enrollment_payment_list,
+				char *payment_date_time )
+{
+	ENROLLMENT_PAYMENT *e;
+
+	if ( !list_rewind( camp_enrollment_payment_list ) )
+		return (ENROLLMENT_PAYMENT *)0;
+
+	do {
+		e = list_get( camp_enrollment_payment_list );
+
+		if ( timlib_strcmp(
+			e->payment_date_time,
+			payment_date_time ) == 0 )
+		{
+			return e;
+		}
+
+	} while ( list_next( camp_enrollment_payment_list ) );
+
+	return (ENROLLMENT_PAYMENT *)0;
+
+} /* camp_enrollment_payment_seek() */
+

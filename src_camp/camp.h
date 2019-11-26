@@ -121,5 +121,9 @@ TRANSACTION *camp_enrollment_payment_transaction(
 				char *street_address,
 				double payment_amount );
 
+ENROLLMENT_PAYMENT *camp_enrollment_payment_seek(
+				LIST *camp_enrollment_payment_list,
+				char *payment_date_time );
+
 #endif
 

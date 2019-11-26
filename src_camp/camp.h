@@ -72,6 +72,10 @@ TRANSACTION *camp_enrollment_transaction(
 				char *street_address,
 				double enrollment_cost );
 
+CAMP *camp_fetch(		char *application_name,
+				char *camp_begin_date,
+				char *camp_title );
+
 ENROLLMENT *camp_enrollment_fetch(
 				char *application_name,
 				char *camp_begin_date,

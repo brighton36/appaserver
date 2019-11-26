@@ -25,39 +25,36 @@
 
 void post_change_enrollment_insert(
 				char *application_name,
+				char *fund_name,
+				char *camp_begin_date,
+				char *camp_title,
 				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *inventory_name,
-				char *return_date_time );
+				char *street_address );
 
 void post_change_enrollment_update(
 				char *application_name,
+				char *fund_name,
+				char *camp_begin_date,
+				char *camp_title,
 				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *inventory_name,
-				char *return_date_time,
-				char *preupdate_inventory_name );
+				char *street_address );
 
 void post_change_enrollment_predelete(
 				char *application_name,
+				char *camp_begin_date,
+				char *camp_title,
 				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *inventory_name,
-				char *return_date_time );
+				char *street_address );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *fund_name;
+	char *camp_begin_date;
+	char *camp_title;
 	char *full_name;
 	char *street_address;
-	char *sale_date_time;
-	char *inventory_name;
-	char *return_date_time;
 	char *state;
-	char *preupdate_inventory_name;
 
 	/* exit() if it fails. */
 	/* ------------------- */
@@ -160,7 +157,7 @@ void post_change_enrollment_insert(
 				application_name,
 				camp->camp_begin_date,
 				camp->camp_title,
-				first_name,
+				full_name,
 				street_address ) ) )
 	{
 		fprintf( stderr,
@@ -170,20 +167,28 @@ void post_change_enrollment_insert(
 			 __LINE__,
 			 camp->camp_begin_date,
 			 camp->camp_title,
-			 first_name,
+			 full_name,
 			 street_address );
 		exit( 1 );
 	}
 
-	camp->enrollment->camp_enrollment_transaction =
-		camp_enrollment_transaction(
-			application_name,
-			fund_name,
-			camp->enrollment->full_name,
-			camp->enrollment->street_address,
-			camp->enrollment_cost );
+	if ( ! ( camp->enrollment->camp_enrollment_transaction =
+			camp_enrollment_transaction(
+				application_name,
+				fund_name,
+				camp->enrollment->full_name,
+				camp->enrollment->street_address,
+				camp->enrollment_cost ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: camp_enrollment_transaction() failed.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
-	camp->enrollment->transaction_date_time =
+	camp->enrollment->camp_enrollment_transaction->transaction_date_time =
 		ledger_journal_ledger_refresh(
 			application_name,
 			camp->
@@ -207,19 +212,29 @@ void post_change_enrollment_insert(
 				camp_enrollment_transaction->
 				journal_ledger_list );
 
-	/* Update ENROLLMENT.transaction_date_time */
-	/* --------------------------------------- */
+	camp->enrollment->camp_enrollment_total_payment_amount =
+		camp_enrollment_total_payment_amount(
+			camp->
+				enrollment->
+				camp_enrollment_payment_list );
+
+	camp->enrollment->camp_enrollment_amount_due =
+		camp_enrollment_amount_due(
+			camp->enrollment->camp_enrollment_total_payment_amount,
+			enrollment_cost );
+
 	camp_enrollment_update(
 		application_name,
 		camp->camp_begin_date,
 		camp->camp_title,
 		camp->enrollment->full_name,
 		camp->enrollment->street_address,
+		camp->enrollment->camp_enrollment_amount_due,
+		camp->enrollment->camp_enrollment_total_payment_amount,
 		camp->
 			enrollment->
 			camp_enrollment_transaction->
-			transaction_date_time,
-		(char *)0 /* database_transaction_date_time */ );
+			transaction_date_time );
 
 } /* post_change_enrollment_insert() */
 
@@ -254,7 +269,7 @@ void post_change_enrollment_update(
 				application_name,
 				camp->camp_begin_date,
 				camp->camp_title,
-				first_name,
+				full_name,
 				street_address ) ) )
 	{
 		fprintf( stderr,
@@ -264,12 +279,12 @@ void post_change_enrollment_update(
 			 __LINE__,
 			 camp->camp_begin_date,
 			 camp->camp_title,
-			 first_name,
+			 full_name,
 			 street_address );
 		exit( 1 );
 	}
 
-	if ( ! ( camp->enrollment->transaction =
+	if ( ! ( camp->enrollment->camp_enrollment_transaction =
 			camp_enrollment_transaction(
 				application_name,
 				fund_name,
@@ -278,7 +293,7 @@ void post_change_enrollment_update(
 				camp->enrollment_cost ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot camp_enrollment_transaction(%s,%s).\n",
+	"ERROR in %s/%s()/%d: camp_enrollment_transaction() failed.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -287,25 +302,53 @@ void post_change_enrollment_update(
 		exit( 1 );
 	}
 
-	camp->enrollment->transaction->transaction_date_time =
+	camp->enrollment->camp_enrollment_transaction->transaction_date_time =
 		ledger_journal_ledger_refresh(
 			application_name,
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			transaction->transaction_amount,
-			transaction->journal_ledger_list );
+			camp->
+				enrollment->
+				camp_enrollment_transaction->
+				full_name,
+			camp->
+				enrollment->
+				camp_enrollment_transaction->
+				street_address,
+			camp->
+				enrollment->
+				camp_enrollment_transaction->
+				transaction_date_time,
+			camp->
+				enrollment->
+				camp_enrollment_transaction->
+				transaction_amount,
+			camp->
+				enrollment->
+				camp_enrollment_transaction->
+				journal_ledger_list );
 
-	/* Update ENROLLMENT.transaction_date_time */
-	/* --------------------------------------- */
+	camp->enrollment->camp_enrollment_total_payment_amount =
+		camp_enrollment_total_payment_amount(
+			camp->
+				enrollment->
+				camp_enrollment_payment_list );
+
+	camp->enrollment->camp_enrollment_amount_due =
+		camp_enrollment_amount_due(
+			camp->enrollment->camp_enrollment_total_payment_amount,
+			enrollment_cost );
+
 	camp_enrollment_update(
 		application_name,
 		camp->camp_begin_date,
 		camp->camp_title,
 		camp->enrollment->full_name,
 		camp->enrollment->street_address,
-		camp->enrollment->transaction->transaction_date_time,
-		camp->enrollment->database_transaction_date_time );
+		camp->enrollment->camp_enrollment_amount_due,
+		camp->enrollment->camp_enrollment_total_payment_amount,
+		camp->
+			enrollment->
+			camp_enrollment_transaction->
+			transaction_date_time );
 
 } /* post_change_enrollment_update() */
 
@@ -314,7 +357,7 @@ void post_change_enrollment_predelete(
 			char *camp_begin_date,
 			char *camp_title,
 			char *full_name,
-			char *street_address );
+			char *street_address )
 {
 	CAMP *camp;
 
@@ -339,7 +382,7 @@ void post_change_enrollment_predelete(
 				application_name,
 				camp->camp_begin_date,
 				camp->camp_title,
-				first_name,
+				full_name,
 				street_address ) ) )
 	{
 		fprintf( stderr,
@@ -349,12 +392,12 @@ void post_change_enrollment_predelete(
 			 __LINE__,
 			 camp->camp_begin_date,
 			 camp->camp_title,
-			 first_name,
+			 full_name,
 			 street_address );
 		exit( 1 );
 	}
 
-	if ( !camp->enrollment->transaction )
+	if ( !camp->enrollment->camp_enrollment_transaction )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: no transaction for (%s,%s,%s,%s)\n",
@@ -363,23 +406,23 @@ void post_change_enrollment_predelete(
 			 __LINE__,
 			 camp->camp_begin_date,
 			 camp->camp_title,
-			 camp->enrollment->first_name,
+			 camp->enrollment->full_name,
 			 camp->enrollment->street_address );
 		exit( 1 );
 	}
 
 	ledger_delete(	application_name,
 			TRANSACTION_FOLDER_NAME,
-			camp->enrollment->transaction->full_name,
-			camp->enrollment->transaction->street_address,
+			camp->enrollment->full_name,
+			camp->enrollment->street_address,
 			camp->enrollment->
 				camp_enrollment_transaction->
 				transaction_date_time );
 
 	ledger_delete(	application_name,
 			LEDGER_FOLDER_NAME,
-			camp->enrollment->transaction->full_name,
-			camp->enrollment->transaction->street_address,
+			camp->enrollment->full_name,
+			camp->enrollment->street_address,
 			camp->enrollment->
 				camp_enrollment_transaction->
 				transaction_date_time );

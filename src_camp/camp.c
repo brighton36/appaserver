@@ -146,6 +146,57 @@ TRANSACTION *camp_enrollment_payment_transaction(
 
 } /* camp_enrollment_payment_transaction() */
 
+CAMP *camp_fetch(		char *application_name,
+				char *camp_begin_date,
+				char *camp_title )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char where[ 512 ];
+	char buffer[ 256 ];
+	CAMP *c;
+	char *results;
+
+	sprintf( where,
+		 "camp_begin_date = '%s' and	"
+		 "camp_title = '%s'		",
+		 camp_begin_date,
+		 escape_character(	buffer,
+					camp_title,
+					'\'' ) );
+
+	select = "enrollment_cost";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=camp		"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 where );
+
+	if ( ! ( results = pipe2string( sys_string ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot fetch where = [%s].\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 where );
+		exit( 1 );
+	}
+
+	c = camp_new(
+		camp_begin_date,
+		camp_title );
+
+	c->enrollment_cost = atof( results );
+
+	return c;
+
+} /* camp_fetch() */
+
 ENROLLMENT *camp_enrollment_fetch(
 				char *application_name,
 				char *camp_begin_date,

@@ -657,6 +657,7 @@ char *ledger_get_supply_expense_account(
 				char *supply_name );
 
 void ledger_order_entry_account_names(
+				char **checking_account,
 				char **receivable_account,
 				char **revenue_account,
 				char *application_name,
@@ -1139,6 +1140,15 @@ void ledger_transaction_delete_propagate(
 				char *street_address,
 				char *transaction_date_time,
 				LIST *journal_ledger_list );
+
+TRANSACTION *ledger_binary_transaction(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *debit_account,
+				char *credit_account,
+				double transaction_amount,
+				char *memo );
 
 LIST *ledger_build_binary_ledger_list(
 				char *full_name,

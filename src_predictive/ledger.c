@@ -4137,12 +4137,22 @@ char *ledger_get_hard_coded_dictionary_key(
 } /* ledger_get_hard_coded_dictionary_key() */
 
 void ledger_order_entry_account_names(
+				char **checking_account,
 				char **receivable_account,
 				char **revenue_account,
 				char *application_name,
 				char *fund_name )
 {
 	char *key;
+
+	key = LEDGER_CASH_KEY;
+	*checking_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	key = LEDGER_ACCOUNT_RECEIVABLE_KEY;
 	*receivable_account =
@@ -9904,6 +9914,25 @@ void ledger_transaction_delete_propagate(
 			application_name );
 
 } /* ledger_transaction_delete_propagate() */
+
+TRANSACTION *ledger_binary_transaction(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account,
+			double transaction_amount,
+			char *memo )
+{
+	return ledger_build_binary_transaction(
+			full_name,
+			street_address,
+			transaction_date_time,
+			debit_account,
+			credit_account,
+			transaction_amount,
+			memo );
+}
 
 TRANSACTION *ledger_build_binary_transaction(
 			char *full_name,

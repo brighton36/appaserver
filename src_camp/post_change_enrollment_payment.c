@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_camp/post_change_enrollment.c			*/
+/* $APPASERVER_HOME/src_camp/post_change_enrollment_payment.c		*/
 /* -------------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -23,28 +23,31 @@
 /* Prototypes */
 /* ---------- */
 
-void post_change_enrollment_insert(
+void post_change_enrollment_payment_insert(
 				char *application_name,
 				char *fund_name,
 				char *camp_begin_date,
 				char *camp_title,
 				char *full_name,
-				char *street_address );
+				char *street_address,
+				char *payment_date_time );
 
-void post_change_enrollment_update(
+void post_change_enrollment_payment_update(
 				char *application_name,
 				char *fund_name,
 				char *camp_begin_date,
 				char *camp_title,
 				char *full_name,
-				char *street_address );
+				char *street_address,
+				char *payment_date_time );
 
-void post_change_enrollment_predelete(
+void post_change_enrollment_payment_predelete(
 				char *application_name,
 				char *camp_begin_date,
 				char *camp_title,
 				char *full_name,
-				char *street_address );
+				char *street_address,
+				char *payment_date_time );
 
 int main( int argc, char **argv )
 {
@@ -54,6 +57,7 @@ int main( int argc, char **argv )
 	char *camp_title;
 	char *full_name;
 	char *street_address;
+	char *payment_date_time;
 	char *state;
 
 	/* exit() if it fails. */
@@ -65,10 +69,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 7 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s fund camp_begin_date camp_title full_name street_address state\n",
+"Usage: %s fund camp_begin_date camp_title full_name street_address payment_date_time state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -78,20 +82,22 @@ int main( int argc, char **argv )
 	camp_title = argv[ 3 ];
 	full_name = argv[ 4 ];
 	street_address = argv[ 5 ];
-	state = argv[ 6 ];
+	payment_date_time = argv[ 6 ];
+	state = argv[ 7 ];
 
 	/* ------------------------------------------------------------ */
-	/* ENROLLMENT.transaction_date_time DOES exist, 		*/
+	/* ENROLLMENT_PAYMENT.transaction_date_time DOES exist, 	*/
 	/* so execute predelete.					*/
 	/* ------------------------------------------------------------ */
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		post_change_enrollment_predelete(
+		post_change_enrollment_payment_predelete(
 			application_name,
 			camp_begin_date,
 			camp_title,
 			full_name,
-			street_address );
+			street_address,
+			payment_date_time );
 	}
 	else
 	if ( strcmp( state, "delete" ) == 0 )
@@ -103,36 +109,39 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		post_change_enrollment_insert(
+		post_change_enrollment_payment_insert(
 			application_name,
 			fund_name,
 			camp_begin_date,
 			camp_title,
 			full_name,
-			street_address );
+			street_address,
+			payment_date_time );
 	}
 	else
 	{
-		post_change_enrollment_update(
+		post_change_enrollment_payment_update(
 			application_name,
 			fund_name,
 			camp_begin_date,
 			camp_title,
 			full_name,
-			street_address );
+			street_address,
+			payment_date_time );
 	}
 
 	return 0;
 
 } /* main() */
 
-void post_change_enrollment_insert(
+void post_change_enrollment_payment_insert(
 			char *application_name,
 			char *fund_name,
 			char *camp_begin_date,
 			char *camp_title,
 			char *full_name,
-			char *street_address )
+			char *street_address,
+			char *payment_date_time )
 {
 	CAMP *camp;
 
@@ -241,15 +250,16 @@ void post_change_enrollment_insert(
 			camp_enrollment_transaction->
 			transaction_date_time );
 
-} /* post_change_enrollment_insert() */
+} /* post_change_enrollment_payment_insert() */
 
-void post_change_enrollment_update(
+void post_change_enrollment_payment_update(
 			char *application_name,
 			char *fund_name,
 			char *camp_begin_date,
 			char *camp_title,
 			char *full_name,
-			char *street_address )
+			char *street_address,
+			char *payment_date_time )
 {
 	CAMP *camp;
 
@@ -360,14 +370,15 @@ void post_change_enrollment_update(
 			camp_enrollment_transaction->
 			transaction_date_time );
 
-} /* post_change_enrollment_update() */
+} /* post_change_enrollment_payment_update() */
 
-void post_change_enrollment_predelete(
+void post_change_enrollment_payment_predelete(
 			char *application_name,
 			char *camp_begin_date,
 			char *camp_title,
 			char *full_name,
-			char *street_address )
+			char *street_address,
+			char *payment_date_time )
 {
 	CAMP *camp;
 
@@ -444,5 +455,5 @@ void post_change_enrollment_predelete(
 			journal_ledger_list,
 		application_name );
 
-} /* post_change_enrollment_predelete() */
+} /* post_change_enrollment_payment_predelete() */
 

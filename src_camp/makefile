@@ -22,7 +22,8 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hashtbl.o
 
-EXECUTABLES=	post_change_enrollment
+EXECUTABLES=	post_change_enrollment					\
+		post_change_enrollment_payment
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -68,7 +69,17 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/validation_form.o				\
 		${LIBRARY}/post2dictionary.o				\
-		${LIBRARY}/dictionary2file.o
+		${LIBRARY}/dictionary2file.o				\
+		${PREDICTIVEBOOKS_LIBRARY}/ledger.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/accrual.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/purchase.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/depreciation.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/customer.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/inventory.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/inventory_purchase_return.o	\
+		${PREDICTIVEBOOKS_LIBRARY}/inventory_sale_return.o	\
+		${PREDICTIVEBOOKS_LIBRARY}/fixed_asset.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/entity.o
 
 SOURCE_LIBRARY= 							\
 		camp.o
@@ -89,6 +100,15 @@ post_change_enrollment: post_change_enrollment.c			\
 		${SOURCE_LIBRARY}					\
 		post_change_enrollment.c				\
 		-o post_change_enrollment
+
+post_change_enrollment_payment: post_change_enrollment_payment.c	\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_enrollment_payment.c			\
+		-o post_change_enrollment_payment
 
 camp.o: camp.c								\
 		camp.h

@@ -67,6 +67,7 @@
 #define LEDGER_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
 #define LEDGER_SALES_TAX_PAYABLE_KEY	"sales_tax_payable_key"
 #define LEDGER_ACCOUNT_PAYABLE_KEY	"account_payable_key"
+#define LEDGER_REVENUE_KEY		"revenue_key"
 #define LEDGER_ACCOUNT_RECEIVABLE_KEY	"account_receivable_key"
 #define LEDGER_CLOSING_KEY		"closing_key"
 #define LEDGER_UNCLEARED_CHECKS_KEY	"uncleared_checks_key"
@@ -654,6 +655,12 @@ char *ledger_get_account_subclassification_name(
 char *ledger_get_supply_expense_account(
 				char *application_name,
 				char *supply_name );
+
+void ledger_order_entry_account_names(
+				char **receivable_account,
+				char **revenue_account,
+				char *application_name,
+				char *fund_name );
 
 void ledger_get_depreciation_account_names(
 				char **depreciation_expense_account,

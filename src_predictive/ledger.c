@@ -4136,6 +4136,34 @@ char *ledger_get_hard_coded_dictionary_key(
 
 } /* ledger_get_hard_coded_dictionary_key() */
 
+void ledger_order_entry_account_names(
+				char **receivable_account,
+				char **revenue_account,
+				char *application_name,
+				char *fund_name )
+{
+	char *key;
+
+	key = LEDGER_ACCOUNT_RECEIVABLE_KEY;
+	*receivable_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */,
+			__FUNCTION__ );
+
+	key = LEDGER_REVENUE_KEY;
+	*revenue_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */,
+			__FUNCTION__ );
+
+} /* ledger_order_entry_account_names() */
+
 void ledger_get_depreciation_account_names(
 				char **depreciation_expense_account,
 				char **accumulated_depreciation_account,

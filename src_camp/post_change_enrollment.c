@@ -421,6 +421,15 @@ void post_change_enrollment_predelete(
 		exit( 1 );
 	}
 
+
+fprintf( stderr, "%s/%s()/%d: transaction_date_time = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+camp->enrollment->
+camp_enrollment_transaction->
+transaction_date_time );
+
 	ledger_delete(	application_name,
 			TRANSACTION_FOLDER_NAME,
 			camp->enrollment->full_name,

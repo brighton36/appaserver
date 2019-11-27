@@ -242,9 +242,18 @@ void post_change_enrollment_payment_insert(
 		camp->enrollment->street_address,
 		camp->enrollment->camp_enrollment_amount_due,
 		camp->enrollment->camp_enrollment_total_payment_amount,
-		camp->
-			enrollment->
-			camp_enrollment_transaction->
+		e->
+			camp_enrollment_payment_transaction->
+			transaction_date_time );
+
+	camp_enrollment_payment_update(
+		camp->camp_begin_date,
+		camp->camp_title,
+		camp->enrollment->full_name,
+		camp->enrollment->street_address,
+		payment_date_time,
+		e->
+			camp_enrollment_payment_transaction->
 			transaction_date_time );
 
 } /* post_change_enrollment_payment_insert() */
@@ -364,6 +373,16 @@ void post_change_enrollment_payment_update(
 		camp->
 			enrollment->
 			camp_enrollment_transaction->
+			transaction_date_time );
+
+	camp_enrollment_payment_update(
+		camp->camp_begin_date,
+		camp->camp_title,
+		camp->enrollment->full_name,
+		camp->enrollment->street_address,
+		payment_date_time,
+		e->
+			camp_enrollment_payment_transaction->
 			transaction_date_time );
 
 } /* post_change_enrollment_payment_update() */

@@ -266,7 +266,8 @@ ENROLLMENT *camp_enrollment_fetch(
 				application_name,
 				full_name,
 				street_address,
-				buffer1 /* transaction_date_time */ );
+				strdup( buffer1 )
+					/* transaction_date_time */ );
 	}
 
 	e->camp_enrollment_payment_list =
@@ -348,7 +349,8 @@ LIST *camp_enrollment_payment_list(
 					application_name,
 					full_name,
 					street_address,
-					buffer1 /* transaction_date_time */ );
+					strdup( buffer1 )
+						/* transaction_date_time */ );
 		}
 
 		list_append_pointer( payment_list, e );

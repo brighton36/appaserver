@@ -102,9 +102,16 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "delete" ) == 0 )
 	{
-		/* ---------- */
-		/* Do nothing */
-		/* ---------- */
+		/* Update ENROLLMENT.amount_due and total_payment */
+		/* ---------------------------------------------- */
+		post_change_enrollment_payment_update(
+			application_name,
+			fund_name,
+			camp_begin_date,
+			camp_title,
+			full_name,
+			street_address,
+			payment_date_time );
 	}
 	else
 	if ( strcmp( state, "insert" ) == 0 )
@@ -242,8 +249,9 @@ void post_change_enrollment_payment_insert(
 		camp->enrollment->street_address,
 		camp->enrollment->camp_enrollment_amount_due,
 		camp->enrollment->camp_enrollment_total_payment_amount,
-		e->
-			camp_enrollment_payment_transaction->
+		camp->
+			enrollment->
+			camp_enrollment_transaction->
 			transaction_date_time );
 
 	camp_enrollment_payment_update(
@@ -306,51 +314,48 @@ void post_change_enrollment_payment_update(
 		exit( 1 );
 	}
 
-	if ( ! ( e = camp_enrollment_payment_seek(
+	/* --------------------------------------------------------- */
+	/* This fails when deleting a parent. Still, need to update. */
+	/* --------------------------------------------------------- */
+	e = camp_enrollment_payment_seek(
 			camp->enrollment->camp_enrollment_payment_list,
-			payment_date_time ) ) )
+			payment_date_time );
+
+	if ( e )
 	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot camp_enrollment_payment_seek(%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 payment_date_time );
-		exit( 1 );
-	}
+		e->camp_enrollment_payment_transaction =
+			camp_enrollment_payment_transaction(
+				application_name,
+				fund_name,
+				camp->enrollment->full_name,
+				camp->enrollment->street_address,
+				e->payment_amount );
 
-	e->camp_enrollment_payment_transaction =
-		camp_enrollment_payment_transaction(
-			application_name,
-			fund_name,
-			camp->enrollment->full_name,
-			camp->enrollment->street_address,
-			e->payment_amount );
-
-	e->camp_enrollment_payment_transaction->transaction_date_time =
-		/* -------------------------------------- */
-		/* Returns inserted transaction_date_time */
-		/* -------------------------------------- */
-		ledger_transaction_refresh(
-			application_name,
-			e->
-				camp_enrollment_payment_transaction->
-				full_name,
-			e->
-				camp_enrollment_payment_transaction->
-				street_address,
-			e->
-				camp_enrollment_payment_transaction->
-				transaction_date_time,
-			e->
-				camp_enrollment_payment_transaction->
-				transaction_amount,
-			(char *)0 /* memo */,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			e->
+		e->camp_enrollment_payment_transaction->transaction_date_time =
+			/* -------------------------------------- */
+			/* Returns inserted transaction_date_time */
+			/* -------------------------------------- */
+			ledger_transaction_refresh(
+				application_name,
+				e->
+					camp_enrollment_payment_transaction->
+					full_name,
+				e->
+					camp_enrollment_payment_transaction->
+					street_address,
+				e->
+					camp_enrollment_payment_transaction->
+					transaction_date_time,
+				e->
+					camp_enrollment_payment_transaction->
+					transaction_amount,
+				(char *)0 /* memo */,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				e->
 				camp_enrollment_payment_transaction->
 				journal_ledger_list );
+	}
 
 	camp->enrollment->camp_enrollment_total_payment_amount =
 		camp_enrollment_total_payment_amount(
@@ -375,15 +380,18 @@ void post_change_enrollment_payment_update(
 			camp_enrollment_transaction->
 			transaction_date_time );
 
-	camp_enrollment_payment_update(
-		camp->camp_begin_date,
-		camp->camp_title,
-		camp->enrollment->full_name,
-		camp->enrollment->street_address,
-		payment_date_time,
-		e->
-			camp_enrollment_payment_transaction->
-			transaction_date_time );
+	if ( e )
+	{
+		camp_enrollment_payment_update(
+			camp->camp_begin_date,
+			camp->camp_title,
+			camp->enrollment->full_name,
+			camp->enrollment->street_address,
+			payment_date_time,
+			e->
+				camp_enrollment_payment_transaction->
+				transaction_date_time );
+	}
 
 } /* post_change_enrollment_payment_update() */
 
@@ -457,15 +465,6 @@ void post_change_enrollment_payment_predelete(
 			 payment_date_time );
 		exit( 1 );
 	}
-
-
-fprintf( stderr, "%s/%s()/%d: transaction_date_time = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-			e->
-				camp_enrollment_payment_transaction->
-				transaction_date_time );
 
 	ledger_delete(	application_name,
 			TRANSACTION_FOLDER_NAME,

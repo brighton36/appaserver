@@ -85,7 +85,7 @@ tar xf $master_archive --wildcards "$archive_expression"
 
 if [ $? -ne 0 ]
 then
-	echo "$0 exiting: failed to extract from $master_archive" 1>&2
+	echo "$0 exiting: failed to extract [$archive_expression] from [$master_archive]" 1>&2
 	exit 1
 fi
 

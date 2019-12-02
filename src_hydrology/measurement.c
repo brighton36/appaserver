@@ -397,8 +397,9 @@ FILE *measurement_open_insert_pipe( char *application_name )
 	table_name = get_table_name( application_name, "measurement" );
 
 	sprintf(sys_string,
-		"insert_statement.e table=%s field=%s del='|' replace=y |"
-		"sql.e 						 	 ",
+		"insert_statement.e table=%s field=%s del='|' replace=n |"
+		"sql.e 2>&1					 	|"
+		"html_paragraph_wrapper.e				 ",
 		table_name,
 		MEASUREMENT_INSERT_LIST );
 
@@ -425,7 +426,7 @@ void measurement_update(	char *application_name,
 		"	 and datatype = '%s'			 "
 		"	 and measurement_date = '%s'		 "
 		"	 and measurement_time = '%s';\"		|"
-		"sql 2>&1					|"
+		"sql.e 2>&1					|"
 		"html_paragraph_wrapper.e		 	 ",
 		table_name,
 		value,

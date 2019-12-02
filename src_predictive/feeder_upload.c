@@ -302,11 +302,11 @@ TRANSACTION *feeder_check_number_existing_transaction(
 }
 
 JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger(
-				LIST *journal_ledger_list,
+				LIST *existing_cash_journal_ledger_list,
 				int check_number )
 {
 	return ledger_check_number_seek_journal_ledger(
-			journal_ledger_list,
+			existing_cash_journal_ledger_list,
 			check_number );
 }
 

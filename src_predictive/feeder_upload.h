@@ -78,7 +78,7 @@ TRANSACTION *feeder_phrase_match_new_transaction(
 					double bank_amount );
 
 JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger(
-				LIST *journal_ledger_list,
+				LIST *existing_cash_journal_ledger_list,
 				int check_number );
 
 TRANSACTION *feeder_phrase_match_build_transaction(

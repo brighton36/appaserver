@@ -152,7 +152,6 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 
 LIST *bank_upload_existing_cash_journal_ledger_list(
 					char *application_name,
-					char *minimum_transaction_date,
 					char *fund_name );
 
 LIST *bank_upload_fetch_uncleared_checks_transaction_list(

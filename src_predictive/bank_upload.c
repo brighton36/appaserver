@@ -180,8 +180,6 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 	p->existing_cash_journal_ledger_list =
 		bank_upload_existing_cash_journal_ledger_list(
 			application_name,
-			p->file.minimum_bank_date
-				/* minimum_transaction_date */,
 			p->fund_name );
 
 	uncleared_checks_back_date =
@@ -1047,57 +1045,14 @@ void bank_upload_fetch_parse(	char **bank_date,
 
 } /* bank_upload_fetch_parse() */
 
-#ifdef NOT_DEFINED
-LIST *bank_upload_fetch_uncleared_checks_transaction_list(
-					char *application_name,
-					char *minimum_transaction_date,
-					char *fund_name )
-{
-	char *uncleared_checks_account;
-	LIST *uncleared_checks_transaction_date_time_list;
-	char where_clause[ 65536 ];
-	char *in_clause;
-
-	uncleared_checks_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			LEDGER_UNCLEARED_CHECKS_KEY,
-			0 /* not warning_only */,
-			__FUNCTION__ );
-
-	uncleared_checks_transaction_date_time_list =
-		bank_upload_fetch_transaction_date_time_list(
-			application_name,
-			minimum_transaction_date,
-			uncleared_checks_account );
-
-	if ( !list_length( uncleared_checks_transaction_date_time_list ) )
-		return (LIST *)0;
-
-	in_clause =
-		timlib_with_list_get_in_clause( 
-			uncleared_checks_transaction_date_time_list );
-
-	sprintf(	where_clause,
-			"transaction_date_time in (%s)",
-			in_clause );
-
-	return ledger_fetch_transaction_list(
-			application_name,
-			where_clause );
-
-} /* bank_upload_fetch_uncleared_checks_transaction_list() */
-#endif
-
 LIST *bank_upload_existing_cash_journal_ledger_list(
 					char *application_name,
-					char *minimum_transaction_date,
 					char *fund_name )
 {
 	LIST *journal_ledger_list;
 	char sys_string[ 2048 ];
 	char *cash_account_name;
+	char *uncleared_checks_account;
 	char where[ 1024 ];
 	char *join_where;
 	char *subquery_join;
@@ -1121,6 +1076,14 @@ LIST *bank_upload_existing_cash_journal_ledger_list(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
+	uncleared_checks_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			LEDGER_UNCLEARED_CHECKS_KEY,
+			0 /* not warning_only */,
+			__FUNCTION__ );
+
 /*
 "full_name,street_address,transaction_date_time,account,transaction_count,previous_balance,debit_amount,credit_amount,balance,check_number";
 */
@@ -1135,10 +1098,10 @@ LIST *bank_upload_existing_cash_journal_ledger_list(
 		bank_upload_transaction_journal_ledger_subquery();
 
 	sprintf(where,
-	 	"transaction.transaction_date_time >= '%s' and	"
-		"account = '%s' and %s and %s			",
-	 	minimum_transaction_date,
+		"(account = '%s' or account = '%s') and		"
+		"%s and %s					",
 		cash_account_name,
+		uncleared_checks_account,
 		join_where,
 		subquery_join );
 

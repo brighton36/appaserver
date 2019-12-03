@@ -1129,12 +1129,6 @@ LIST *bank_upload_existing_cash_journal_ledger_list(
 		 where,
 		 "transaction_date_time" );
 
-fprintf( stderr, "%s/%s()/%d: sys_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-
 	input_pipe = popen( sys_string, "r" );
 
 	journal_ledger_list = list_new();

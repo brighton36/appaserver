@@ -1067,6 +1067,7 @@ LIST *bank_upload_existing_cash_journal_ledger_list(
 	char *folder_list_string;
 	JOURNAL_LEDGER *ledger;
 	char check_number[ 16 ];
+	char *timriley_where;
 
 	cash_account_name =
 		ledger_get_hard_coded_account_name(
@@ -1097,13 +1098,24 @@ LIST *bank_upload_existing_cash_journal_ledger_list(
 	subquery_join =
 		bank_upload_transaction_journal_ledger_subquery();
 
+	if ( strcmp( application_name, "timriley" ) == 0 )
+	{
+		timriley_where =
+			"transaction.transaction_date_time >= '2019-01-01'";
+	}
+	else
+	{
+		timriley_where = "1 = 1";
+	}
+
 	sprintf(where,
 		"(account = '%s' or account = '%s') and		"
-		"%s and %s					",
+		"%s and %s and %s				",
 		cash_account_name,
 		uncleared_checks_account,
 		join_where,
-		subquery_join );
+		subquery_join,
+		timriley_where );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -1116,6 +1128,12 @@ LIST *bank_upload_existing_cash_journal_ledger_list(
 		 folder_list_string,
 		 where,
 		 "transaction_date_time" );
+
+fprintf( stderr, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
 
 	input_pipe = popen( sys_string, "r" );
 

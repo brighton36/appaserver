@@ -15,6 +15,7 @@
 
 /* Constants */
 /* --------- */
+#define FEEDER_KEYS_MATCH_SUM_MAX 	18
 
 /* Structures */
 /* ---------- */

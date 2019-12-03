@@ -1152,7 +1152,7 @@ LIST *bank_upload_existing_cash_journal_ledger_list(
 				strdup( local_full_name ),
 				strdup( local_street_address ),
 				strdup( local_transaction_date_time ),
-				cash_account_name );
+				strdup( local_account_name ) );
 
 		ledger_journal_ledger_partial_parse(
 			&ledger->transaction_count,

@@ -394,6 +394,7 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 	char street_address[ 128 ];
 	char transaction_date_time [ 32 ];
 	char sys_string[ 512 ];
+	int count = 0;
 
 	if ( !list_rewind( existing_cash_journal_ledger_list ) )
 		return (LIST *)0;
@@ -424,6 +425,9 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 			continue;
 		}
 
+		if ( journal_ledger->check_number )
+			continue;
+
 		fprintf(output_pipe,
 		 	"%s^%s^%s|%.2lf\n",
 			journal_ledger->full_name,
@@ -433,6 +437,9 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 				? journal_ledger->debit_amount
 				: journal_ledger->credit_amount );
 		
+		if ( ++count == FEEDER_KEYS_MATCH_SUM_MAX )
+			break;
+
 	} while ( list_next( existing_cash_journal_ledger_list ) );
 
 	pclose( output_pipe );

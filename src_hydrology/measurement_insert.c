@@ -201,10 +201,10 @@ void fetch_parameters(	char **begin_date,
 {
 	*begin_date = fetch_arg( arg, "begin_date" );
 	*end_date = fetch_arg( arg, "end_date" );
-	*bypass_reject_yn = fetch_arg( arg, "bypass_reject_yn" );
-	*replace_yn = fetch_arg( arg, "replace_yn" );
+	*bypass_reject_yn = fetch_arg( arg, "bypass_reject" );
+	*replace_yn = fetch_arg( arg, "replace" );
 	*delimiter = fetch_arg( arg, "delimiter" );
-	*execute_yn = fetch_arg( arg, "execute_yn" );
+	*execute_yn = fetch_arg( arg, "execute" );
 
 } /* fetch_parameters() */
 

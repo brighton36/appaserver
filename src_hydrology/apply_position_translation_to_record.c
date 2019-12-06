@@ -31,14 +31,14 @@ void output_results( 		STATION_PARSE *station,
 
 void apply_position_translation_to_record( 
 				STATION_PARSE *station,
-				char delimiter );
+				char delimiter,
+				char *argv_0 );
 
 int main( int argc, char **argv )
 {
 	char *entity;
 	STATION_PARSE *station;
 	char delimiter;
-	char *database_string = {0};
 
 	if ( argc != 4 )
 	{
@@ -53,33 +53,20 @@ int main( int argc, char **argv )
 	station = station_parse_new( strdup( argv[ 2 ] ) );
 	delimiter = *argv[ 3 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						entity ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				entity );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( entity );
-
 	load_position_translation( station, entity );
-	apply_position_translation_to_record( station, delimiter );
 
-	exit( 0 );
+	apply_position_translation_to_record(
+		station,
+		delimiter,
+		argv[ 0 ] );
+
+	return 0;
+
 } /* main() */
 
-
 void apply_position_translation_to_record( 	STATION_PARSE *station, 
-						char delimiter )
+						char delimiter,
+						char *argv_0 )
 {
 	char buffer[ 1024 ];
 	char measurement[ 128 ];
@@ -91,10 +78,9 @@ void apply_position_translation_to_record( 	STATION_PARSE *station,
 
 	while( get_line( buffer, stdin ) )
 	{
-
 		if ( !*buffer || *buffer == '#' )
 		{
-			fprintf( stderr, "%s\n", buffer );
+			fprintf( stderr, "%s reject1: %s\n", argv_0, buffer );
 			continue;
 		}
 
@@ -103,7 +89,7 @@ void apply_position_translation_to_record( 	STATION_PARSE *station,
 				buffer, 
 				RECORD_TYPE_OFFSET ) )
 		{
-			fprintf( stderr, "%s\n", buffer );
+			fprintf( stderr, "%s reject2: %s\n", argv_0, buffer );
 			continue;
 		}
 
@@ -112,7 +98,7 @@ void apply_position_translation_to_record( 	STATION_PARSE *station,
 				buffer, 
 				FULL_DATE_OFFSET ) )
 		{
-			fprintf( stderr, "%s\n", buffer );
+			fprintf( stderr, "%s reject3: %s\n", argv_0, buffer );
 			continue;
 		}
 
@@ -121,7 +107,7 @@ void apply_position_translation_to_record( 	STATION_PARSE *station,
 				buffer, 
 				TIME_OFFSET ) )
 		{
-			fprintf( stderr, "%s\n", buffer );
+			fprintf( stderr, "%s reject4: %s\n", argv_0, buffer );
 			continue;
 		}
 
@@ -143,7 +129,8 @@ void apply_position_translation_to_record( 	STATION_PARSE *station,
 				time,
 				delimiter,
 				buffer );
-	} /* while( gets() ) */
+	}
+
 } /* apply_position_translation_to_record() */
 
 void output_results( 		STATION_PARSE *station, 
@@ -158,26 +145,15 @@ void output_results( 		STATION_PARSE *station,
 	int i;
 
 	record_type = get_record_type( station, record_type_int );
+
 	if ( !record_type )
 	{
-		fprintf( stderr, "%s\n", input_buffer );
+		fprintf( stderr,
+			 "PARSE error record_type=%d: %s\n",
+			 record_type_int,
+			 input_buffer );
 		return;
 	}
-
-/*
-	if ( 	record_type->number_measurements_expected != 
-		station->number_measurements )
-	{
-		fprintf( stderr,
-"Warning: For station %s and record type = %d,\n",
-			 station->station,
-			 record_type_int );
-		fprintf( stderr, 
-"The position file has %d slots and the data file has %d measurements\n",
-			 record_type->number_measurements_expected,
-			 station->number_measurements );
-	}
-*/
 
 	for( i = 0; i < station->number_measurements; i++ )
 	{
@@ -200,6 +176,7 @@ void output_results( 		STATION_PARSE *station,
 			delimiter,
 			station->measurement_array[ i ] );
 	}
+
 } /* output_results() */
 
 void load_position_translation( STATION_PARSE *station, char *entity )
@@ -223,9 +200,8 @@ void load_position_translation( STATION_PARSE *station, char *entity )
 
 	p = popen( buffer, "r" );
 
-	while( fgets( buffer, 1023, p ) )
+	while( timlib_getline( buffer, p, 1024 ) )
 	{
-		buffer[ strlen( buffer ) - 1 ] = '\0';
 		if ( !*buffer ) continue;
 
 		piece( record_type_string, '|', buffer, 0 );
@@ -258,6 +234,8 @@ void load_position_translation( STATION_PARSE *station, char *entity )
 			append_record_type_datatype( record_type, datatype );
 		}
 	}
+
 	pclose( p );
+
 } /* load_position_translation() */
 

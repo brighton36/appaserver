@@ -138,7 +138,13 @@ char *low_string(		char * );
 
 int get_line( char *destination, FILE *infile );
 
-boolean timlib_get_line( char *destination, FILE *infile, int buffer_size );
+boolean timlib_get_line(	char *destination,
+				FILE *infile,
+				int buffer_size );
+
+boolean timlib_getline(		char *destination,
+				FILE *infile,
+				int buffer_size );
 
 void skip_line( FILE *infile );
 

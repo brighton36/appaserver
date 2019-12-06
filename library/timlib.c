@@ -1046,6 +1046,15 @@ int timlib_get_line(	char *in_line,
 } /* timlib_get_line() */
 #endif
 
+boolean timlib_getline(		char *destination,
+				FILE *infile,
+				int buffer_size )
+{
+	return timlib_get_line(	destination,
+				infile,
+				buffer_size );
+}
+
 /* This works, but there's a CSV file that won't load. */
 /* --------------------------------------------------- */
 int timlib_get_line(	char *in_line,

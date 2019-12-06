@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_hydrology/load_cr10_single.c			*/
+/* $APPASERVER_HOME/src_hydrology/load_cr10_single.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -29,212 +29,213 @@
 
 /* Constants */
 /* --------- */
-#define PROCESS_NAME			"load_cr10_single_file"
-#define FILENAME_STEM			"load_cr10"
-#define PROMPT	"&lt;Left Click&gt; to view bad records or &lt;Right Click&gt; to save."
 
 /* Prototypes */
 /* ---------- */
-void load_cr10_file(
-			char *application_name,
+void parse_begin_end_dates(
+			char **begin_date_string,
+			char **end_date_string,
+			char *filename,
+			char *station );
+
+void output_bad_records(
+		 	char *bad_parse_file,
+		 	char *bad_insert_file );
+
+void load_cr10_single(	char *appaserver_data_directory,
+			char *filename,
 			char *station,
-			char *input_filename,
-			char really_yn,
-			char *document_root_directory,
-			char *with_shift_left_yn );
+			boolean change_existing_data,
+			boolean execute );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char really_yn;
-	char *input_filename;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	char *process_name;
+	char *filename;
 	char *station;
-	char *database_string = {0};
-	char *with_shift_left_yn = "";
+	boolean change_existing_data;
+	boolean execute;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	char buffer[ 512 ];
 
-	if ( argc < 8 )
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
+	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s application ignored ignored ignored filename station really_yn [with_shift_left]\n",
+"Usage: %s process filename station change_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	/* session = argv[ 2 ]; */
-	/* login_name = argv[ 3 ]; */
-	/* role_name = argv[ 4 ]; */
-	input_filename = argv[ 5 ];
-	station = argv[ 6 ];
-	really_yn = *argv[ 7 ];
-
-	if ( argc == 9 ) with_shift_left_yn = argv[ 8 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
+	process_name = argv[ 1 ];
+	filename = argv[ 2 ];
+	station = argv[ 3 ];
+	change_existing_data = (*argv[ 4 ] == 'y');
+	execute = (*argv[ 5 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	load_cr10_file(
-			application_name,
-			station,
-			input_filename,
-			really_yn,
-			appaserver_parameter_file->
-				document_root,
-			with_shift_left_yn );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
-	process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
-} /* main() */
+	printf( "<h1>%s<br></h1>\n",
+		format_initial_capital(
+			buffer,
+			process_name ) );
+	
+	printf( "<h2>\n" );
+	fflush( stdout );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
+	fflush( stdout );
+	printf( " Station: %s</h2>\n",
+		station );
+	fflush( stdout );
 
-void load_cr10_file(
-			char *application_name,
-			char *station,
-			char *input_filename,
-			char really_yn,
-			char *document_root_directory,
-			char *with_shift_left_yn )
-{
-	char *original_directory;
-	char sys_string[ 1024 ];
-	char process_filename[ 1024 ];
-	char process_directory[ 1024 ];
-	char *ftp_filename;
-	int process_id = getpid();
-	APPASERVER_LINK_FILE *appaserver_link_file;
-
-	appaserver_link_file =
-		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-			document_root_directory,
-			FILENAME_STEM,
-			application_name,
-			process_id,
-			(char *)0 /* session */,
-			"DAT" );
-
-	original_directory = basename_get_directory( input_filename );
-
-	if ( !original_directory || !*original_directory )
+	if ( !*filename || strcmp( filename, "filename" ) == 0 )
 	{
-		document_quick_output_body(
-			application_name,
-			(char *)0 /* appaserver_mount_point */ );
-
-		printf(
-			"<h3>ERROR: could not locate file.\n" );
+		printf( "<h3> Please upload a file.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
 
-	if ( really_yn == 'y' )
+	load_cr10_single(
+			appaserver_parameter_file->
+				appaserver_data_directory,
+			filename,
+			station,
+			change_existing_data,
+			execute );
+
+	if ( execute )
 	{
-		strcpy(	process_filename, 
-			appaserver_link_get_abbreviated_output_filename(
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+		printf( "<p>Process complete.\n" );
 
-		strcpy(	process_directory,
-			appaserver_link_get_source_directory(
-				document_root_directory,
-				application_name ) );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		sprintf(sys_string,
-			"cp %s %s/%s",
-			input_filename,
-			process_directory,
-			process_filename );
-	
-		system( sys_string );
+		process_increment_execution_count(
+			application_name,
+			process_name,
+			appaserver_parameter_file_get_dbms() );
 	}
 	else
 	{
-		strcpy( process_directory, original_directory );
-		strcpy( process_filename,
-			basename_get_filename( input_filename ) );
+		printf( "<p>Process NOT executed.\n" );
 	}
 
-	sprintf(sys_string,
-"load_cr10 %s %s %s %s date_offset_comma_list y email_address %c '%s'",
-		application_name,
-		process_directory,
-		process_filename,
-		station,
-		really_yn,
-		with_shift_left_yn );
+	document_close();
+	return 0;
 
-	system( sys_string );
+} /* main() */
 
-	if ( really_yn == 'y' )
+void load_cr10_single(	char *appaserver_data_directory,
+			char *filename,
+			char *station,
+			boolean change_existing_data,
+			boolean execute )
+{
+	char sys_string[ 2048 ];
+	char bad_parse[ 128 ];
+	char bad_insert[ 128 ];
+	pid_t pid;
+	char *dir;
+	char *begin_date_string = {0};
+	char *end_date_string = {0};
+
+	parse_begin_end_dates(
+		&begin_date_string,
+		&end_date_string,
+		filename,
+		station );
+
+	if ( !begin_date_string )
 	{
-		char process_filespec[ 512 ];
-
-		sprintf( process_filespec,
-			 "%s/%s",
-			 process_directory,
-			 process_filename );
-
-		if ( timlib_file_populated( process_filespec ) )
-		{
-			printf( "<br>" );
-			appaserver_library_output_ftp_prompt(
-					ftp_filename, 
-					PROMPT,
-					(char *)0 /* target */,
-					(char *)0 /* application_type */ );
-		}
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot get begin_date_string.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
+
+	pid = getpid();
+	dir = appaserver_data_directory;
+
+	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
+	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
+
+	sprintf( sys_string,
+"cr10_parse \"%s\" \"%s\" n 2>%s					|"
+"measurement_insert begin=%s end=%s replace=%c execute=%c del=',' 2>%s	|"
+"cat									 ",
+		 filename,
+		 station,
+		 bad_parse,
+		 begin_date_string,
+		 end_date_string,
+		 (change_existing_data) ? 'y' : 'n',
+		 (execute) ? 'y' : 'n',
+		 bad_insert );
+
+	if ( system( sys_string ) ) {};
+
+	output_bad_records(
+		 bad_parse,
+		 bad_insert );
 
 } /* load_cr10_file() */
+
+void output_bad_records(
+		 	char *bad_parse_file,
+		 	char *bad_insert_file )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"cat %s %s | html_table.e '^^Bad Records' '' ''",
+	 	bad_parse_file,
+	 	bad_insert_file );
+
+	if ( system( sys_string ) ){};
+
+} /* output_bad_records() */
+
+void parse_begin_end_dates(
+			char **begin_date_string,
+			char **end_date_string,
+			char *filename,
+			char *station )
+{
+	char sys_string[ 1024 ];
+	FILE *input_pipe;
+	char input_buffer[ 128 ];
+
+	sprintf( sys_string,
+		 "cr10_parse \"%s\" \"%s\" y",
+		 filename,
+		 station );
+
+	input_pipe = popen( sys_string, "r" );
+
+	if ( get_line( input_buffer, input_pipe ) )
+	{
+		*begin_date_string = strdup( input_buffer );
+	}
+
+	if ( get_line( input_buffer, input_pipe ) )
+	{
+		*end_date_string = strdup( input_buffer );
+	}
+
+	pclose( input_pipe );
+
+} /* parse_begin_end_dates() */
 

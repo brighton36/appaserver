@@ -93,6 +93,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		load_biscayne_ysi_data					\
 		load_ysi_data						\
 		load_cr300_data						\
+		cr10_parse						\
 		sfwmd_spreadsheet_parse					\
 		sfwmd_breakpoint_parse					\
 		biscayne_spreadsheet_parse				\
@@ -384,6 +385,16 @@ load_sfwmd_breakpoint_data: load_sfwmd_breakpoint_data.c		\
 		load_sfwmd_breakpoint_data.c				\
 		sfwmd_station_datatype.o				\
 		-o load_sfwmd_breakpoint_data
+
+cr10_parse: cr10_parse.c						\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		cr10_parse.c						\
+		${SOURCE_LIBS}						\
+		-o cr10_parse
 
 spreadsheet_parse: spreadsheet_parse.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}

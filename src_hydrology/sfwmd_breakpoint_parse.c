@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_hydrology/sfwmd_breakpoint_parse.c		*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/sfwmd_breakpoint_parse.c	*/
+/* -------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>

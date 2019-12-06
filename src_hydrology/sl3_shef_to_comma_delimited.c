@@ -55,11 +55,9 @@ int main( int argc, char **argv )
 	char minute[ 1024 ];
 	char measurement_value_string[ 1024 ];
 	char status[ 1024 ];
-	SHEF_DATATYPE_CODE *shef_datatype_code;
 	char *datatype_name;
 	char *station_name;
 	char *application_name;
-	char *database_string = {0};
 	SHEF_UPLOAD_AGGREGATE_MEASUREMENT *shef_upload_aggregate_measurement;
 
 	/* Exits if failure. */
@@ -71,21 +69,15 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 3 )
+	if ( argc != 2 )
 	{
 		fprintf( stderr, 
-			 "Usage: %s ignored station\n",
+			 "Usage: %s station\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	/* application_name = argv[ 1 ]; */
-
-	station_name = argv[ 2 ];
-
-	shef_datatype_code = 
-		shef_datatype_code_new(
-			application_name );
+	station_name = argv[ 1 ];
 
 	while( get_line( input_line, stdin ) )
 	{

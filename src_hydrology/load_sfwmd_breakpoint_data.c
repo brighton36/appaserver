@@ -37,6 +37,7 @@
 /* ---------- */
 void load_sfwmd_breakpoint_data(	char *appaserver_data_directory,
 					char *filename,
+					boolean change_existing_data,
 					boolean execute );
 
 void output_bad_records(
@@ -46,6 +47,7 @@ void output_bad_records(
 int main( int argc, char **argv )
 {
 	char *application_name;
+	boolean change_existing_data;
 	boolean execute;
 	char *filename;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -60,17 +62,18 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 4 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr, 
-			 "Usage: %s process filename execute_yn\n",
+	"Usage: %s process filename change_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
 	filename = argv[ 2 ];
-	execute = ( *argv[ 3 ] == 'y' );
+	change_existing_data = ( *argv[ 3 ] == 'y' );
+	execute = ( *argv[ 4 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -83,6 +86,7 @@ int main( int argc, char **argv )
 		appaserver_parameter_file->
 			appaserver_mount_point,
 		filename,
+		change_existing_data,
 		execute );
 
 	if ( execute )
@@ -108,6 +112,7 @@ int main( int argc, char **argv )
 void load_sfwmd_breakpoint_data(
 			char *appaserver_data_directory,
 			char *filename,
+			boolean change_existing_data,
 			boolean execute )
 {
 	char sys_string[ 1024 ];
@@ -124,11 +129,11 @@ void load_sfwmd_breakpoint_data(
 	dir = appaserver_data_directory;
 
 	hydrology_parse_begin_end_dates(
-					&begin_measurement_date,
-					&end_measurement_date,
-					filename,
-					date_heading_label,
-					0 /* date_piece */ );
+		&begin_measurement_date,
+		&end_measurement_date,
+		filename,
+		date_heading_label,
+		0 /* date_piece */ );
 
 	if ( !begin_measurement_date || !*begin_measurement_date )
 	{
@@ -142,12 +147,13 @@ void load_sfwmd_breakpoint_data(
 
 	sprintf( sys_string,
 "sfwmd_breakpoint_parse \"%s\" 2>%s					|"
-"measurement_insert begin=%s end=%s bypass=yes execute=%c 2>%s		|"
+"measurement_insert begin=%s end=%s bypass=y replace=%c execute=%c 2>%s	|"
 "cat									 ",
 		 filename,
 		 bad_parse,
 		 begin_measurement_date,
 		 end_measurement_date,
+		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n',
 		 bad_insert );
 

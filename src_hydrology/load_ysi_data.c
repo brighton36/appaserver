@@ -56,6 +56,7 @@ void output_bad_records(
 void load_ysi_filespecification(
 					char *filename,
 					char *station,
+					char change_existing_data_yn,
 					char execute_yn,
 					char is_exo_yn,
 					char *begin_date_string,
@@ -79,9 +80,9 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char is_exo_yn;
+	char change_existing_data_yn;
 	char execute_yn;
 	char *filename;
-	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *input_directory;
 	char *station;
@@ -101,10 +102,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 10 )
+	if ( argc != 11 )
 	{
 		fprintf( stderr, 
-"Usage: %s process filename station begin_date begin_time end_date end_time is_exo_yn execute_yn\n",
+"Usage: %s process filename station begin_date begin_time end_date end_time is_exo_yn change_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -117,27 +118,15 @@ int main( int argc, char **argv )
 	end_date_string = argv[ 6 ];
 	end_time_string = argv[ 7 ];
 	is_exo_yn = *argv[ 8 ];
-	execute_yn = *argv[ 9 ];
+	change_existing_data_yn = *argv[ 9 ];
+	execute_yn = *argv[ 10 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-		document->application_name,
-		document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	printf( "<h1>%s</h1>\n",
 	 	format_initial_capital( format_buffer, process_name ) );
@@ -196,6 +185,7 @@ int main( int argc, char **argv )
 	load_ysi_filespecification(
 			filename,
 			station,
+			change_existing_data_yn,
 			execute_yn,
 			is_exo_yn,
 			begin_date_string,
@@ -227,6 +217,7 @@ int main( int argc, char **argv )
 void load_ysi_filespecification(
 			char *filename,
 			char *station,
+			char change_existing_data_yn,
 			char execute_yn,
 			char is_exo_yn,
 			char *begin_date_string,
@@ -268,7 +259,7 @@ void load_ysi_filespecification(
 "				end_date=%s				 "
 "				end_time=%s 2>%s			|"
 "measurement_frequency_reject %s %s '^' 2>%s				|"
-"measurement_insert bypass=y begin=%s end=%s execute=%c 2>%s		|"
+"measurement_insert bypass=y begin=%s end=%s replace=%c execute=%c 2>%s	|"
 "cat									 ",
 		 filename,
 		 station,
@@ -285,6 +276,7 @@ void load_ysi_filespecification(
 		 bad_frequency,
 		 begin_date_string,
 		 end_date_string,
+		 (change_existing_data_yn == 'y') ? 'y' : 'n',
 		 (execute_yn == 'y') ? 'y' : 'n',
 		 bad_insert );
 

@@ -64,6 +64,7 @@ void shef_upload(	char *station_bad_file,
 			char *insert_bad_file,
 			char *application_name,
 			char *shef_filename,
+			boolean change_existing_data,
 			boolean execute );
 
 int main( int argc, char **argv )
@@ -71,13 +72,13 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *shef_filename;
+	boolean change_existing_data;
 	boolean execute;
-	DOCUMENT *document;
 	char station_bad_file[ 128 ];
 	char shef_bad_file[ 128 ];
 	char insert_bad_file[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *session;
+	pid_t pid;
 	char *dir;
 
 	/* Exits if failure. */
@@ -85,54 +86,43 @@ int main( int argc, char **argv )
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 5 )
 	{
 		fprintf(stderr,
-		"Usage: %s process_name session shef_filename execute_yn\n",
+"Usage: %s process_name shef_filename change_existing_data_yn execute_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	session = argv[ 2 ];
-	shef_filename = argv[ 3 ];
+	shef_filename = argv[ 2 ];
+	change_existing_data = (*argv[ 3 ] == 'y');
 	execute = (*argv[ 4 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	dir = appaserver_parameter_file->appaserver_data_directory;
+	pid = getpid();
 
-	sprintf( station_bad_file, "%s/station_bad_%s.dat", dir, session );
-	sprintf( shef_bad_file, "%s/shef_bad_%s.dat", dir, session );
-	sprintf( insert_bad_file, "%s/insert_bad_%s.dat", dir, session );
+	sprintf( station_bad_file, "%s/station_bad_%d.dat", dir, pid );
+	sprintf( shef_bad_file, "%s/shef_bad_%d.dat", dir, pid );
+	sprintf( insert_bad_file, "%s/insert_bad_%d.dat", dir, pid );
 
 	shef_upload(	station_bad_file, 
 			shef_bad_file,
 			insert_bad_file,
 			application_name,
 			shef_filename,
+			change_existing_data,
 			execute );
 
 	if ( execute )
@@ -159,6 +149,7 @@ void shef_upload(	char *station_bad_file,
 			char *insert_bad_file,
 			char *application_name,
 			char *shef_filename,
+			boolean change_existing_data,
 			boolean execute )
 
 {
@@ -183,9 +174,10 @@ void shef_upload(	char *station_bad_file,
 	}
 
 	sprintf( insert_process,
-"measurement_insert begin=%s end=%s execute=%c",
+"measurement_insert begin=%s end=%s replace=%c execute=%c",
 		 begin_measurement_date,
 		 end_measurement_date,
+		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n' );
 
 	sprintf( sys_string,

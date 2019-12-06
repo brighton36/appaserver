@@ -388,7 +388,8 @@ FILE *measurement_open_html_table_pipe(	void )
 
 } /* measurement_open_html_table_pipe() */
 
-FILE *measurement_open_insert_pipe( char *application_name )
+FILE *measurement_open_insert_pipe(	char *application_name,
+					boolean replace )
 
 {
 	char sys_string[ 4096 ];
@@ -397,11 +398,12 @@ FILE *measurement_open_insert_pipe( char *application_name )
 	table_name = get_table_name( application_name, "measurement" );
 
 	sprintf(sys_string,
-		"insert_statement.e table=%s field=%s del='|' replace=n |"
-		"sql.e 2>&1					 	|"
-		"html_paragraph_wrapper.e				 ",
+		"insert_statement.e table=%s field=%s del='|' replace=%c |"
+		"sql.e						 	 |"
+		"cat							  ",
 		table_name,
-		MEASUREMENT_INSERT_LIST );
+		MEASUREMENT_INSERT_LIST,
+		(replace) ? 'y' : 'n' );
 
 	return popen( sys_string, "w" );
 

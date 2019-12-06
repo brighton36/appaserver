@@ -71,6 +71,7 @@ void load_biscayne_ysi_data(
 					char *begin_time_string,
 					char *end_date_string,
 					char *end_time_string,
+					boolean change_existing_data,
 					boolean execute );
 
 boolean station_filename_synchronized(	char *station,
@@ -79,6 +80,7 @@ boolean station_filename_synchronized(	char *station,
 int main( int argc, char **argv )
 {
 	char *application_name;
+	boolean change_existing_data;
 	boolean execute;
 	char *filename;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -95,14 +97,14 @@ int main( int argc, char **argv )
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc != 9 )
+	if ( argc != 10 )
 	{
 		fprintf( stderr, 
-"Usage: %s process filename station begin_date begin_time end_date end_time execute_yn\n",
+"Usage: %s process filename station begin_date begin_time end_date end_time change_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -114,7 +116,8 @@ int main( int argc, char **argv )
 	begin_time_string = argv[ 5 ];
 	end_date_string = argv[ 6 ];
 	end_time_string = argv[ 7 ];
-	execute = ( *argv[ 8 ] == 'y' );
+	change_existing_data = ( *argv[ 8 ] == 'y' );
+	execute = ( *argv[ 9 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -216,6 +219,7 @@ int main( int argc, char **argv )
 			begin_time_string,
 			end_date_string,
 			end_time_string,
+			change_existing_data,
 			execute );
 
 	if ( execute )
@@ -246,6 +250,7 @@ void load_biscayne_ysi_data(
 			char *begin_time_string,
 			char *end_date_string,
 			char *end_time_string,
+			boolean change_existing_data,
 			boolean execute )
 {
 	char sys_string[ 2048 ];
@@ -272,7 +277,7 @@ void load_biscayne_ysi_data(
 "				end_date=%s				 "
 "				end_time=%s 2>%s			|"
 "measurement_frequency_reject %s %s '^' 2>%s				|"
-"measurement_insert bypass=y begin=%s end=%s execute=%c 2>%s		|"
+"measurement_insert bypass=y begin=%s end=%s replace=%c execute=%c 2>%s	|"
 "cat									 ",
 		 filename,
 		 station,
@@ -287,6 +292,7 @@ void load_biscayne_ysi_data(
 		 bad_frequency,
 		 begin_date_string,
 		 end_date_string,
+		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n',
 		 bad_insert );
 

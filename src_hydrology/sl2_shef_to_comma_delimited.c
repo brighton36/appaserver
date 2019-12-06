@@ -1,5 +1,5 @@
-/* $APPASERVER_HOME/src_hydrology/sl2_to_comma_delimited.c */
-/* ------------------------------------------------------- */
+/* $APPASERVER_HOME/src_hydrology/sl2_shef_to_comma_delimited.c */
+/* ------------------------------------------------------------ */
 
 #include <stdio.h>
 #include <string.h>
@@ -61,19 +61,19 @@ int main( int argc, char **argv )
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc != 3 )
+	if ( argc != 2 )
 	{
 		fprintf( stderr, 
-			 "Usage: %s ignored station\n",
+			 "Usage: %s station\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	station_name = argv[ 2 ];
+	station_name = argv[ 1 ];
 
 	while( get_line( input_line, stdin ) )
 	{

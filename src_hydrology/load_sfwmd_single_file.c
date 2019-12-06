@@ -21,6 +21,7 @@
 #include "process.h"
 #include "dictionary.h"
 #include "session.h"
+#include "hydrology.h"
 #include "application.h"
 #include "basename.h"
 
@@ -38,14 +39,15 @@ void output_bad_records(
 		 	char *bad_insert_file );
 
 void load_sfwmd_single_file(
-			char *application_name,
 			char *appaserver_data_directory,
 			char *filename,
+			boolean change_existing_data,
 			boolean execute );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
+	boolean change_existing_data;
 	boolean execute;
 	char *filename;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -60,16 +62,17 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 4 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-			 "Usage: %s process filename execute_yn\n",
+	"Usage: %s process filename change_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
 	filename = argv[ 2 ];
+	change_existing_data = ( *argv[ 4 ] == 'y' );
 	execute = ( *argv[ 3 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -80,10 +83,10 @@ int main( int argc, char **argv )
 			appaserver_mount_point );
 
 	load_sfwmd_single_file(
-		application_name,
 		appaserver_parameter_file->
 			appaserver_mount_point,
 		filename,
+		change_existing_data,
 		execute );
 
 	if ( execute )
@@ -107,9 +110,9 @@ int main( int argc, char **argv )
 } /* main() */
 
 void load_sfwmd_single_file(
-			char *application_name,
 			char *appaserver_data_directory,
 			char *filename,
+			boolean change_existing_data,
 			boolean execute )
 {
 	char sys_string[ 1024 ];
@@ -127,11 +130,11 @@ void load_sfwmd_single_file(
 	dir = appaserver_data_directory;
 
 	hydrology_parse_begin_end_dates(
-					&begin_measurement_date,
-					&end_measurement_date,
-					filename,
-					date_heading_label,
-					0 /* date_piece */ );
+		&begin_measurement_date,
+		&end_measurement_date,
+		filename,
+		date_heading_label,
+		0 /* date_piece */ );
 
 	if ( !begin_measurement_date || !*begin_measurement_date )
 	{
@@ -148,7 +151,7 @@ void load_sfwmd_single_file(
 "sfwmd_spreadsheet_parse \"%s\" 2>%s					|"
 "measurement_adjust_time_to_sequence					|"
 "measurement_frequency_reject %s %s '^' 2>%s				|"
-"measurement_insert begin=%s end=%s bypass=yes execute=%c 2>%s		|"
+"measurement_insert begin=%s end=%s bypass=y replace=%c execute=%c 2>%s	|"
 "cat									 ",
 		 filename,
 		 bad_parse,
@@ -157,6 +160,7 @@ void load_sfwmd_single_file(
 		 bad_frequency,
 		 begin_measurement_date,
 		 end_measurement_date,
+		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n',
 		 bad_insert );
 

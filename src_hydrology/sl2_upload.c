@@ -52,6 +52,7 @@ char *get_station(	char *full_filename );
 
 void satlink_upload(	char *filename,
 			char *shef_bad_file,
+			boolean change_existing_data,
 			boolean execute,
 			char *station_name,
 			char *argv_0,
@@ -63,8 +64,8 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *station_name;
 	char *filename;
+	boolean change_existing_data;
 	boolean execute;
-	DOCUMENT *document;
 	char *argv_0;
 	char shef_bad_file[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -83,17 +84,16 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored process station filename execute_yn|nohtml\n",
+"Usage: %s process station filename change_existing_data_yn execute_yn|nohtml\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	argv_0 = argv[ 0 ];
-	/* application_name = argv[ 1 ]; */
-	process_name = argv[ 2 ];
-	station_name = argv[ 3 ];
-	filename = argv[ 4 ];
-
+	process_name = argv[ 1 ];
+	station_name = argv[ 2 ];
+	filename = argv[ 3 ];
+	change_existing_data = ( *argv[ 4 ] == 'y' );
 	execute = ( *argv[ 5 ] == 'y' );
 
 	nohtml = (strcmp( argv[ 5 ], "nohtml" ) == 0);
@@ -112,25 +112,11 @@ int main( int argc, char **argv )
 
 	if ( !nohtml )
 	{
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-	
-		document_output_head(
-				document->application_name,
-				document->title,
-				document->output_content_type,
-				appaserver_parameter_file->
-					appaserver_mount_point,
-				document->javascript_module_list,
-				document->stylesheet_filename,
-				application_get_relative_source_directory(
-					application_name ),
-				0 /* not with_dynarch_menu */ );
-	
-		document_output_body(
-				document->application_name,
-				document->onload_control_string );
-	
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+
 		printf( "<h1>%s<br></h1>\n",
 			format_initial_capital(
 				buffer,
@@ -161,6 +147,7 @@ int main( int argc, char **argv )
 
 	satlink_upload(	filename, 
 			shef_bad_file,
+			change_existing_data,
 			execute,
 			station_name,
 			argv_0,
@@ -188,6 +175,7 @@ int main( int argc, char **argv )
 
 void satlink_upload(	char *filename,
 			char *shef_bad_file,
+			boolean change_existing_data,
 			boolean execute,
 			char *station_name,
 			char *argv_0,
@@ -200,11 +188,11 @@ void satlink_upload(	char *filename,
 	char *end_measurement_date = {0};
 
 	hydrology_parse_begin_end_dates(
-					&begin_measurement_date,
-					&end_measurement_date,
-					filename,
-					(char *)0 /* date_heading_label */,
-					1 /* date_piece */ );
+		&begin_measurement_date,
+		&end_measurement_date,
+		filename,
+		(char *)0 /* date_heading_label */,
+		1 /* date_piece */ );
 
 	if ( !begin_measurement_date || !*begin_measurement_date )
 	{
@@ -220,22 +208,23 @@ void satlink_upload(	char *filename,
 	else
 	{
 		sprintf(insert_process,
-"measurement_insert begin=%s end=%s bypass=yes delimiter=',' execute=%s",
+"measurement_insert begin=%s end=%s bypass=y delimiter=',' replace=%c execute=%c",
 			begin_measurement_date,
 			end_measurement_date,
-		 	(execute) ? "yes" : "no" );
+		 	(change_existing_data) ? 'y' : 'n',
+		 	(execute) ? 'y' : 'n' );
 	}
 
 	if ( strcmp( argv_0, "sl2_upload" ) == 0 )
 	{
 		sprintf( shef_process,
-			 "sl2_shef_to_comma_delimited ignored %s",
+			 "sl2_shef_to_comma_delimited %s",
 			 station_name );
 	}
 	else
 	{
 		sprintf( shef_process,
-			 "sl3_shef_to_comma_delimited ignored %s",
+			 "sl3_shef_to_comma_delimited %s",
 			 station_name );
 	}
 

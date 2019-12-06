@@ -40,6 +40,7 @@ void output_bad_records(
 void LT_upload(		
 				char *filename,
 				char *station,
+				boolean change_existing_data,
 				boolean execute,
 				char *appaserver_data_directory );
 
@@ -48,9 +49,9 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *station;
+	boolean change_existing_data;
 	boolean execute;
 	char *filename;
-	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
 
@@ -59,14 +60,14 @@ int main( int argc, char **argv )
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
-		fprintf( stderr, 
-			 "Usage: %s process_name station filename execute_yn\n",
+		fprintf( stderr,
+"Usage: %s process_name station filename change_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -74,27 +75,15 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	station = argv[ 2 ];
 	filename = argv[ 3 ];
-	execute = (*argv[ 4 ] == 'y');
+	change_existing_data = (*argv[ 4 ] == 'y');
+	execute = (*argv[ 5 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	printf( "<h2>%s\n", format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
@@ -112,6 +101,7 @@ int main( int argc, char **argv )
 	LT_upload(
 		filename,
 		station,
+		change_existing_data,
 		execute,
 		appaserver_parameter_file->
 			appaserver_data_directory );
@@ -138,6 +128,7 @@ int main( int argc, char **argv )
 
 void LT_upload(		char *filename,
 			char *station,
+			boolean change_existing_data,
 			boolean execute,
 			char *appaserver_data_directory )
 {
@@ -155,11 +146,11 @@ void LT_upload(		char *filename,
 	dir = appaserver_data_directory;
 
 	hydrology_parse_begin_end_dates(
-					&begin_measurement_date,
-					&end_measurement_date,
-					filename,
-					date_heading_label,
-					0 /* date_piece */ );
+		&begin_measurement_date,
+		&end_measurement_date,
+		filename,
+		date_heading_label,
+		0 /* date_piece */ );
 
 	if ( !begin_measurement_date || !*begin_measurement_date )
 	{
@@ -173,13 +164,14 @@ void LT_upload(		char *filename,
 
 	sprintf( sys_string,
 "spreadsheet_parse file=\"%s\" station=\"%s\" time=no 2>%s		|"
-"measurement_insert begin=%s end=%s execute=%c 2>%s			|"
+"measurement_insert begin=%s end=%s replace=%c execute=%c 2>%s		|"
 "cat									 ",
 		 filename,
 		 station,
 		 bad_parse,
 		 begin_measurement_date,
 		 end_measurement_date,
+		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n',
 		 bad_insert );
 

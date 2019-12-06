@@ -26,6 +26,7 @@ void fetch_parameters(	char **begin_date,
 			char **end_date,
 			char **bypass_reject_yn,
 			char **delimiter,
+			char **replace_yn,
 			char **execute_yn,
 			NAME_ARG *arg );
 
@@ -37,13 +38,15 @@ int main( int argc, char **argv )
 	char delimited_record[ 1024 ];
 	char *delimiter;
 	char *bypass_reject_yn;
+	char *replace_yn;
 	char *execute_yn;
+	boolean bypass_reject;
+	boolean replace;
+	boolean execute;
 	MEASUREMENT_STRUCTURE *m;
 	MEASUREMENT_FREQUENCY *measurement_frequency = {0};
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_station_datatype;
-	boolean bypass_reject;
-	boolean execute;
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
 	int row_number = 0;
@@ -69,11 +72,12 @@ int main( int argc, char **argv )
 		&end_measurement_date,
 		&bypass_reject_yn,
 		&delimiter,
+		&replace_yn,
 		&execute_yn,
 		arg );
 
 	bypass_reject = ( *bypass_reject_yn == 'y' );
-
+	replace = ( *replace_yn == 'y' );
 	execute = ( *execute_yn == 'y' );
 
 	m = measurement_structure_new( application_name );
@@ -92,7 +96,8 @@ int main( int argc, char **argv )
 	{
 		m->insert_pipe = 
 			measurement_open_insert_pipe(
-				m->application_name );
+				m->application_name,
+			replace );
 	}
 
 	sprintf( sys_string,
@@ -190,12 +195,14 @@ void fetch_parameters(	char **begin_date,
 			char **end_date,
 			char **bypass_reject_yn,
 			char **delimiter,
+			char **replace_yn,
 			char **execute_yn,
 			NAME_ARG *arg )
 {
 	*begin_date = fetch_arg( arg, "begin_date" );
 	*end_date = fetch_arg( arg, "end_date" );
 	*bypass_reject_yn = fetch_arg( arg, "bypass_reject_yn" );
+	*replace_yn = fetch_arg( arg, "replace_yn" );
 	*delimiter = fetch_arg( arg, "delimiter" );
 	*execute_yn = fetch_arg( arg, "execute_yn" );
 
@@ -208,18 +215,23 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         ticket = add_valid_option( arg, "begin_date" );
         ticket = add_valid_option( arg, "end_date" );
 
-        ticket = add_valid_option( arg, "bypass_reject_yn" );
-        add_valid_value( arg, ticket, "yes" );
-        add_valid_value( arg, ticket, "no" );
-        set_default_value( arg, ticket, "no" );
+        ticket = add_valid_option( arg, "replace" );
+        add_valid_value( arg, ticket, "y" );
+        add_valid_value( arg, ticket, "n" );
+        set_default_value( arg, ticket, "n" );
+
+        ticket = add_valid_option( arg, "bypass_reject" );
+        add_valid_value( arg, ticket, "y" );
+        add_valid_value( arg, ticket, "n" );
+        set_default_value( arg, ticket, "n" );
 
         ticket = add_valid_option( arg, "delimiter" );
         set_default_value( arg, ticket, "^" );
 
-        ticket = add_valid_option( arg, "execute_yn" );
-        add_valid_value( arg, ticket, "yes" );
-        add_valid_value( arg, ticket, "no" );
-        set_default_value( arg, ticket, "no" );
+        ticket = add_valid_option( arg, "execute" );
+        add_valid_value( arg, ticket, "y" );
+        add_valid_value( arg, ticket, "n" );
+        set_default_value( arg, ticket, "n" );
 
         ins_all( arg, argc, argv );
 

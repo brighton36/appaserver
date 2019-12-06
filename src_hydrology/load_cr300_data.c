@@ -40,8 +40,6 @@
 /* Constants */
 /* --------- */
 #define QUEUE_TOP_BOTTOM_LINES		100
-#define FILENAME_STEM			"load_cr300_bad"
-#define PROMPT				"Bad Records File."
 
 /* Prototypes */
 /* ---------- */
@@ -51,15 +49,16 @@ void output_bad_records(
 
 void load_cr300_filespecification(	char *filename,
 					char *station,
+					boolean change_existing_data,
 					boolean execute,
 					char *appaserver_data_directory );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
+	boolean change_existing_data;
 	boolean execute;
 	char *filename;
-	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *input_directory;
 	char *station;
@@ -71,14 +70,14 @@ int main( int argc, char **argv )
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-			 "Usage: %s process filename station execute_yn\n",
+"Usage: %s process filename station change_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -86,27 +85,15 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	filename = argv[ 2 ];
 	station = argv[ 3 ];
-	execute = ( *argv[ 4 ] == 'y' );
+	change_existing_data = ( *argv[ 4 ] == 'y' );
+	execute = ( *argv[ 5 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-		document->application_name,
-		document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	/* Display the title and run stamp. */
 	/* -------------------------------- */
@@ -143,6 +130,7 @@ int main( int argc, char **argv )
 	load_cr300_filespecification(
 		filename,
 		station,
+		change_existing_data,
 		execute,
 		appaserver_parameter_file->
 			appaserver_data_directory );
@@ -170,6 +158,7 @@ int main( int argc, char **argv )
 void load_cr300_filespecification(
 			char *filename,
 			char *station,
+			boolean change_existing_data,
 			boolean execute,
 			char *appaserver_data_directory )
 {
@@ -209,7 +198,7 @@ void load_cr300_filespecification(
 "			station=\"%s\"					"
 "			date_heading_label=%s				"
 "			time=no 2>%s					|"
-"measurement_insert begin=%s end=%s execute=%c 2>%s			|"
+"measurement_insert begin=%s end=%s replace=%c execute=%c 2>%s		|"
 "cat									 ",
 		 filename,
 		 station,
@@ -217,6 +206,7 @@ void load_cr300_filespecification(
 		 bad_parse,
 		 begin_measurement_date,
 		 end_measurement_date,
+		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n',
 		 bad_insert );
 

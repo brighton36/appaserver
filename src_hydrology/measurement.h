@@ -129,7 +129,8 @@ void measurement_output_insert_pipe(	FILE *insert_pipe,
 					double value,
 					boolean null_value );
 
-FILE *measurement_open_insert_pipe(	char *application_name );
+FILE *measurement_open_insert_pipe(	char *application_name,
+					boolean replace );
 
 FILE *measurement_open_html_table_pipe(	void );
 

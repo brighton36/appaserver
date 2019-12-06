@@ -38,6 +38,7 @@ void output_bad_records(
 void load_turkey_point_file(	char *appaserver_data_directory,
 				char *station,
 				char *input_filename,
+				boolean change_existing_data,
 				boolean execute );
 
 int main( int argc, char **argv )
@@ -45,9 +46,9 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *station_name;
+	boolean change_existing_data;
 	boolean execute;
 	char *input_filename;
-	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
 
@@ -60,10 +61,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-			 "Usage: %s process station filename execute_yn\n",
+"Usage: %s process station filename change_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -71,27 +72,15 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	station_name = argv[ 2 ];
 	input_filename = argv[ 3 ];
-	execute = (*argv[ 4 ] == 'y');
+	change_existing_data = (*argv[ 4 ] == 'y');
+	execute = (*argv[ 5 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	printf( "<h1>%s</h1>\n",
 		format_initial_capital( buffer, process_name ) );
@@ -113,6 +102,7 @@ int main( int argc, char **argv )
 			appaserver_data_directory,
 		station_name,
 		input_filename,
+		change_existing_data,
 		execute );
 
 	if ( execute )
@@ -138,6 +128,7 @@ int main( int argc, char **argv )
 void load_turkey_point_file(	char *appaserver_data_directory,
 				char *station_name,
 				char *input_filename,
+				boolean change_existing_data,
 				boolean execute )
 {
 	char sys_string[ 1024 ];
@@ -156,11 +147,11 @@ void load_turkey_point_file(	char *appaserver_data_directory,
 	dir = appaserver_data_directory;
 
 	hydrology_parse_begin_end_dates(
-					&begin_measurement_date,
-					&end_measurement_date,
-					input_filename,
-					date_heading_label,
-					1 /* date_piece */ );
+		&begin_measurement_date,
+		&end_measurement_date,
+		input_filename,
+		date_heading_label,
+		1 /* date_piece */ );
 
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
 	sprintf( bad_time, "%s/time_%d.dat", dir, pid );
@@ -171,7 +162,7 @@ void load_turkey_point_file(	char *appaserver_data_directory,
 "spreadsheet_parse file=\"%s\" station=\"%s\" time=no date_piece=1 2>%s	|"
 "measurement_adjust_time_to_sequence 2>%s				|"
 "measurement_frequency_reject %s %s '^' 2>%s				|"
-"measurement_insert bypass=y begin=%s end=%s execute=%c 2>%s		|"
+"measurement_insert bypass=y begin=%s end=%s replace=%c execute=%c 2>%s	|"
 "cat									 ",
 		 input_filename,
 		 station_name,
@@ -182,6 +173,7 @@ void load_turkey_point_file(	char *appaserver_data_directory,
 		 bad_frequency,
 		 begin_measurement_date,
 		 end_measurement_date,
+		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n',
 		 bad_insert );
 

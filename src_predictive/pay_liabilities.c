@@ -43,7 +43,7 @@ PAY_LIABILITIES *pay_liabilities_new(
 				LIST *street_address_list,
 				int starting_check_number,
 				double dialog_box_payment_amount,
-				char *memo )
+				char *transaction_memo )
 {
 	PAY_LIABILITIES *p;
 	char *checking_account = {0};
@@ -150,7 +150,7 @@ PAY_LIABILITIES *pay_liabilities_new(
 			p->process.liability_account_entity_list,
 			p->input.credit_account_name,
 			p->input.loss_account_name,
-			memo );
+			transaction_memo );
 
 	list_append_list(
 		p->output.transaction_list,
@@ -158,7 +158,7 @@ PAY_LIABILITIES *pay_liabilities_new(
 			p->process.entity_list,
 			p->input.credit_account_name,
 			p->input.loss_account_name,
-			memo,
+			transaction_memo,
 			list_length( p->output.transaction_list )
 				/* seconds_to_add */ ) );
 
@@ -1230,3 +1230,33 @@ LIST *pay_liabilities_fetch_liability_account_list(
 	return pipe2list( sys_string );
 
 } /* pay_liabilities_fetch_liability_account_list() */
+
+/* -------------------------------- */
+/* Returns memo or strdup() memory. */
+/* -------------------------------- */
+char *pay_liabilities_transaction_memo(	char *application_name,
+					char *fund_name,
+					char *memo )
+{
+	static char *uncleared_checks_account = {0};
+
+	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
+	{
+		return memo;
+	}
+
+	if ( !uncleared_checks_account )
+	{
+		uncleared_checks_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				LEDGER_UNCLEARED_CHECKS_KEY,
+				0 /* not warning_only */,
+				__FUNCTION__ );
+	}
+
+	return uncleared_checks_account;
+
+} /* pay_liabilities_transaction_memo() */
+

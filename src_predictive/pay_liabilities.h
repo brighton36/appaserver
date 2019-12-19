@@ -68,7 +68,7 @@ PAY_LIABILITIES *pay_liabilities_new(
 				LIST *street_address_list,
 				int starting_check_number,
 				double dialog_box_payment_amount,
-				char *memo );
+				char *transaction_memo );
 
 LIST *pay_liabilities_input_get_entity_list(
 				char *application_name,
@@ -148,5 +148,10 @@ void pay_liabilities_set_lock_transaction(
 
 LIST *pay_liabilities_fetch_liability_account_list(
 				char *application_name );
+
+char *pay_liabilities_transaction_memo(
+				char *application_name,
+				char *fund_name,
+				char *memo );
 
 #endif

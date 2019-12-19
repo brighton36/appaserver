@@ -483,7 +483,13 @@ void print_checks_post(
 				street_address_list,
 				starting_check_number,
 				dialog_box_payment_amount,
-				memo ) ) )
+				/* -------------------------------- */
+				/* Returns memo or strdup() memory. */
+				/* -------------------------------- */
+				pay_liabilities_transaction_memo(
+					application_name,
+					fund_name,
+					memo ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot load pay liabilities.\n",
@@ -655,15 +661,29 @@ void print_checks_transaction_display(
 	TRANSACTION *transaction;
 	char transaction_memo[ 256 ];
 
-	pay_liabilities =
-		pay_liabilities_new(
-			application_name,
-			fund_name,
-			full_name_list,
-			street_address_list,
-			starting_check_number,
-			dialog_box_payment_amount,
-			memo );
+	if ( ! ( pay_liabilities =
+			pay_liabilities_new(
+				application_name,
+				fund_name,
+				full_name_list,
+				street_address_list,
+				starting_check_number,
+				dialog_box_payment_amount,
+				/* -------------------------------- */
+				/* Returns memo or strdup() memory. */
+				/* -------------------------------- */
+				pay_liabilities_transaction_memo(
+					application_name,
+					fund_name,
+					memo ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load pay liabilities.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	if ( !list_rewind( pay_liabilities->output.transaction_list ) )
 		return;

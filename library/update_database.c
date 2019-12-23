@@ -312,7 +312,7 @@ UPDATE_FOLDER *update_database_update_folder_new(
 
 } /* update_database_update_folder_new() */
 
-LIST *update_database_get_update_row_list(
+LIST *update_database_update_row_list(
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
 			FOLDER *folder,
@@ -378,7 +378,7 @@ LIST *update_database_get_update_row_list(
 
 	return update_row_list;
 
-} /* update_database_get_update_row_list() */
+} /* update_database_update_row_list() */
 
 UPDATE_ROW *update_database_get_update_row(
 			int row,
@@ -739,7 +739,8 @@ LIST *update_database_get_where_attribute_list(
 				foreign_attribute_dictionary,
 				where_attribute_name ) )
 		&&     *alternative_attribute_name
-		&&     strcmp( alternative_attribute_name, "null" ) != 0 )
+		&&     strcmp(	alternative_attribute_name,
+				NULL_STRING ) != 0 )
 		{
 			dictionary_get_index_data(
 				&data,
@@ -1215,7 +1216,23 @@ char *update_database_execute_for_folder(
 		 where_clause,
 		 sql_executable );
 
-	if ( strcmp( folder_name, "appaserver_user" ) != 0 )
+	/* Display update statement, if not a password change. */
+	/* --------------------------------------------------- */
+	if ( strcmp( folder_name, "appaserver_user" ) == 0
+	&&   timlib_exists_string( update_clause, "password(" ) )
+	{
+		char message[ 1024 ];
+
+		sprintf( message,
+			 "Password update set password = [unknown] %s",
+			 where_clause );
+
+		appaserver_output_error_message(
+			application_name,
+			message,
+			login_name );
+	}
+	else
 	{
 		appaserver_output_error_message(
 			application_name,
@@ -1268,7 +1285,7 @@ char *update_database_execute_for_folder(
 					additional_update_data_list );
 
 				if ( strcmp(	additional_update_data,
-						"null" ) == 0 )
+						NULL_STRING ) == 0 )
 				{
 					sprintf(update_clause,
 				 		"set %s=null",
@@ -1376,7 +1393,7 @@ void update_database_build_update_clause(
 		if ( !*data
 		||   strcmp( data, NULL_OPERATOR ) == 0 )
 		{
-			strcpy( data, "null" );
+			strcpy( data, NULL_STRING );
 
 			if ( list_exists_string(
 					primary_attribute_name_list, 
@@ -1392,18 +1409,19 @@ void update_database_build_update_clause(
 			strcpy( data, buffer );
 		}
 
-/* The process called "Grant Select To User" needs the plaintext password. */
-/* ----------------------------------------------------------------------- */
-#ifdef WITH_ENCODED_PASSWORD
+		/* Encode password changes. However, exclude password resets. */
+		/* ---------------------------------------------------------- */
 		if ( strcmp(	changed_attribute->attribute_name,
-				"password" ) == 0 )
+				"password" ) == 0
+		&&   *data
+		&&   strcmp( data, UPDATE_DATABASE_NULL_TOKEN ) != 0
+		&&   strcmp( data, NULL_STRING ) != 0 )
 		{
 			char buffer[ 1024 ];
 
 			sprintf( buffer, "password(%s)", data );
 			strcpy( data, buffer );
 		}
-#endif
 
 		if ( first_time )
 		{

@@ -18,7 +18,6 @@
 /* --------- */
 /* #define UPDATE_DATABASE_DEBUG_MODE		1 */
 #define UPDATE_DATABASE_PREUPDATE_PREFIX	"preupdate_"
-#define WITH_ENCODED_PASSWORD			1
 #define UPDATE_DATABASE_NULL_TOKEN		"/"
 
 /* Objects */
@@ -99,7 +98,7 @@ UPDATE_FOLDER *update_database_get_folder_foreign_update_folder(
 			LIST *primary_attribute_name_list,
 			LIST *folder_foreign_attribute_name_list );
 
-LIST *update_database_get_update_row_list(
+LIST *update_database_update_row_list(
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
 			FOLDER *folder,

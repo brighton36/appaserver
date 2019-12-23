@@ -963,7 +963,7 @@ int post_state_update_for_folder(
 			file_dictionary );
 
 	update_database->update_row_list =
-		update_database_get_update_row_list(
+		update_database_update_row_list(
 			update_database->row_dictionary,
 			update_database->file_dictionary,
 			update_database->folder,

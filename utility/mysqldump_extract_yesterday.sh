@@ -27,14 +27,9 @@ else
 		backup_directory=/var/backups
 	fi
 
-	cd $backup_directory
+	db=$database
 
-	if [ $? -ne 0 ]
-	then
-		echo "$0 Warning: cannot change to $backup_directory" 1>&2
-	fi
-
-	mysqldump_config=appaserver/mysqldump_${database}.config
+	mysqldump_config=$backup_directory/appaserver/mysqldump_${db}.config
 
 	cd $(mysqldump_extract.sh	$database		\
 					$mysqldump_config	\

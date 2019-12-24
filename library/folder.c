@@ -276,6 +276,7 @@ LIST *folder_get_attribute_list(
 			(char *)0 /* attribute_name */,
 			(LIST *)0 /* mto1_isa_related_folder_list */,
 			(char *)0 /* role_name */ );
+
 } /* folder_get_attribute_list() */
 
 LIST *folder_get_non_primary_attribute_name_list( LIST *attribute_list )

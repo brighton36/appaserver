@@ -2549,14 +2549,16 @@ void related_folder_populate_common_non_primary_attribute_name_list(
 		application_name,
 		related_folder_name,
 		(char *)0 /* attribute_name */,
-		(char *)0 /* role_name */ );
+		(char *)0 /* role_name */,
+		attribute_fetch_either );
 
 	attribute_append_attribute_list(
 		one2m_related_folder_attribute_list,
 		application_name,
 		one2m_related_folder_name,
 		(char *)0 /* attribute_name */,
-		(char *)0 /* role_name */ );
+		(char *)0 /* role_name */,
+		attribute_fetch_either );
 
 	if ( !list_rewind( related_folder_attribute_list ) ) return;
 

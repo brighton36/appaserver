@@ -108,9 +108,6 @@ int appaserver_get_frameset_menu_horizontal(
 					char *application_name,
 					char *login_name );
 
-LIST *appaserver_get_mto1_isa_foreign_attribute_name_list(
-					LIST *mto1_isa_related_folder_list );
-
 LIST *appaserver_get_exclude_permission_record_list(
 					char *application_name );
 

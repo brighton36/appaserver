@@ -14,6 +14,13 @@
 #include "boolean.h"
 #include "dictionary.h"
 
+/* Enumerated types */
+/* ---------------- */
+enum attribute_primary_attribute_fetch {
+					attribute_primary_only,
+					attribute_non_primary,
+					attribute_fetch_either };
+
 /* Constants */
 /* --------- */
 #define ATTRIBUTE_FOLDER_PIECE				0
@@ -147,11 +154,13 @@ LIST *attribute_get_attribute_record_list(
 					char *folder_name,
 					char *attribute_name );
 
-void attribute_append_attribute_list(	LIST *attribute_list,
-					char *application_name,
-					char *folder_name,
-					char *attribute_name,
-					char *role_name );
+void attribute_append_attribute_list(
+				LIST *attribute_list,
+				char *application_name,
+				char *folder_name,
+				char *attribute_name,
+				char *role_name,
+				enum attribute_primary_attribute_fetch );
 
 boolean attribute_exists_omit_insert_login_name(
 					LIST *attribute_list );
@@ -276,6 +285,31 @@ ATTRIBUTE *attribute_seek(		LIST *attribute_list,
 					char *attribute_name );
 
 boolean attribute_exists(		char *application_name,
+					char *folder_name,
+					char *attribute_name );
+
+boolean attribute_record_parse(
+					char *fetched_folder_name,
+					char *fetched_attribute_name,
+					char *attribute_datatype,
+					char *width,
+					char *float_decimal_places,
+					char *primary_key_index,
+					char *display_order,
+					char *omit_insert_yn,
+					char *omit_insert_prompt_yn,
+					char *omit_update_yn,
+					char *hint_message,
+					char *post_change_javascript,
+					char *on_focus_javascript_function,
+					char *additional_unique_index_yn,
+					char *additional_index_yn,
+					char *lookup_required_yn,
+					char *insert_required_yn,
+					char *lookup_histrogram_output_yn,
+					char *lookup_time_chart_output_yn,
+					char *appaserver_yn,
+					char *record,
 					char *folder_name,
 					char *attribute_name );
 

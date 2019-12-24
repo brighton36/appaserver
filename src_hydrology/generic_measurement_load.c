@@ -135,12 +135,12 @@ int main( int argc, char **argv )
 	printf( "<h1>%s</h1>\n", title );
 
 	attribute_list =
-	attribute_get_attribute_list(
-		application_name,
-		FOLDER_NAME,
-		(char *)0 /* attribute_name */,
-		(LIST *)0 /* mto1_isa_related_folder_list */,
-		role_name );
+		attribute_get_attribute_list(
+			application_name,
+			FOLDER_NAME,
+			(char *)0 /* attribute_name */,
+			(LIST *)0 /* mto1_isa_related_folder_list */,
+			role_name );
 
 	remove_exclude_attribute_list( attribute_list );
 

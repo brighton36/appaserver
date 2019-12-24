@@ -362,29 +362,6 @@ int appaserver_get_frameset_menu_horizontal(	char *application_name,
 
 } /* appaserver_get_frameset_menu_horizontal() */
 
-LIST *appaserver_get_mto1_isa_foreign_attribute_name_list(
-					LIST *mto1_isa_related_folder_list )
-{
-	RELATED_FOLDER *first_related_folder;
-
-	if ( !list_length( mto1_isa_related_folder_list ) )
-		return (LIST *)0;
-
-	first_related_folder =
-		(RELATED_FOLDER *)
-			list_get_first_pointer(
-				mto1_isa_related_folder_list );
-
-	return related_folder_get_foreign_attribute_name_list(
-		folder_get_primary_attribute_name_list(
-			first_related_folder->
-				folder->attribute_list ),
-			first_related_folder->related_attribute_name,
-			first_related_folder->
-				folder_foreign_attribute_name_list );
-	
-} /* appaserver_get_mto1_isa_foreign_attribute_name_list() */
-
 LIST *appaserver_get_isa_folder_list( char *application_name )
 {
 	static LIST *isa_folder_list = {0};

@@ -103,6 +103,7 @@ ATTRIBUTE *attribute_load_folder_attribute(
 				(char *)0 /* role_name */ );
 
 	return (ATTRIBUTE *)list_get_first_element( attribute_list );
+
 } /* attribute_load_folder_attribute() */
 
 ATTRIBUTE *attribute_load_attribute(	char *application_name,
@@ -119,6 +120,7 @@ ATTRIBUTE *attribute_load_attribute(	char *application_name,
 				(char *)0 /* role_name */ );
 
 	return (ATTRIBUTE *)list_get_first_element( attribute_list );
+
 } /* attribute_load_attribute() */
 
 ATTRIBUTE *attribute_seek(		LIST *attribute_list,
@@ -430,7 +432,9 @@ LIST *attribute_using_name_list_extract_attribute_list(
 					attribute );
 		}
 	} while( list_next( attribute_list ) );
+
 	return return_attribute_list;
+
 } /* attribute_using_name_list_extract_attribute_list() */
 
 LIST *attribute_get_attribute_list(	char *application_name,
@@ -443,11 +447,13 @@ LIST *attribute_get_attribute_list(	char *application_name,
 	RELATED_FOLDER *related_folder;
 
 	attribute_append_attribute_list(
-					attribute_list,
-					application_name,
-					folder_name,
-					attribute_name,
-					role_name );
+		attribute_list,
+		application_name,
+		folder_name,
+		attribute_name,
+		role_name,
+		attribute_primary_only
+			/* attribute_primary_attribute_fetch */ );
 
 	if ( mto1_isa_related_folder_list
 	&&   list_rewind( mto1_isa_related_folder_list ) )
@@ -466,7 +472,8 @@ LIST *attribute_get_attribute_list(	char *application_name,
 					application_name,
 					related_folder->folder->folder_name,
 					(char *)0 /* attribute_name */,
-					role_name );
+					role_name,
+					attribute_fetch_either );
 
 			list_append_list(
 				attribute_list,
@@ -476,14 +483,27 @@ LIST *attribute_get_attribute_list(	char *application_name,
 		} while( list_next( mto1_isa_related_folder_list ) );
 	}
 
+	attribute_append_attribute_list(
+		attribute_list,
+		application_name,
+		folder_name,
+		attribute_name,
+		role_name,
+		attribute_non_primary
+			/* attribute_primary_attribute_fetch */ );
+
 	return attribute_list;
+
 } /* attribute_get_attribute_list() */
 
-void attribute_append_attribute_list(	LIST *attribute_list,
-					char *application_name,
-					char *folder_name,
-					char *attribute_name,
-					char *role_name )
+void attribute_append_attribute_list(
+			LIST *attribute_list,
+			char *application_name,
+			char *folder_name,
+			char *attribute_name,
+			char *role_name,
+			enum attribute_primary_attribute_fetch
+				attribute_primary_attribute_fetch )
 {
 	ATTRIBUTE *attribute;
 	char fetched_folder_name[ 128 ];
@@ -525,127 +545,51 @@ void attribute_append_attribute_list(	LIST *attribute_list,
 		return;
 	}
 
-
 	do {
 		record = list_get( attribute_record_list );
 
-		piece(	fetched_folder_name,
-			ATTRIBUTE_DELIMITER,
+		if ( !attribute_record_parse(
+			fetched_folder_name,
+			fetched_attribute_name,
+			attribute_datatype,
+			width,
+			float_decimal_places,
+			primary_key_index,
+			display_order,
+			omit_insert_yn,
+			omit_insert_prompt_yn,
+			omit_update_yn,
+			hint_message,
+			post_change_javascript,
+			on_focus_javascript_function,
+			additional_unique_index_yn,
+			additional_index_yn,
+			lookup_required_yn,
+			insert_required_yn,
+			lookup_histogram_output_yn,
+			lookup_time_chart_output_yn,
+			appaserver_yn,
 			record,
-			ATTRIBUTE_FOLDER_PIECE );
-
-		piece(	fetched_attribute_name,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_ATTRIBUTE_PIECE );
-
-		if ( attribute_name && *attribute_name )
+			folder_name,
+			attribute_name ) )
 		{
-			if ( strcmp( attribute_name,
-				     fetched_attribute_name ) != 0 )
-			{
-				continue;
-			}
+			continue;
 		}
 
-		if ( folder_name && *folder_name )
+
+		if ( attribute_primary_attribute_fetch ==
+					attribute_primary_only
+		&&   !atoi( primary_key_index ) )
 		{
-			if ( strcmp( folder_name,
-				     fetched_folder_name ) != 0 )
-			{
-				continue;
-			}
+			continue;
 		}
 
-		piece(	attribute_datatype,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_DATATYPE_PIECE );
-
-		piece(	width,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_WIDTH_PIECE );
-
-		piece(	float_decimal_places,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_FLOAT_DECIMAL_PLACES_PIECE );
-
-		piece(	primary_key_index,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_PRIMARY_KEY_INDEX_PIECE );
-
-		piece(	display_order,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_DISPLAY_ORDER_PIECE );
-
-		piece(	omit_insert_yn,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_OMIT_INSERT_YN_PIECE );
-
-		piece(	omit_insert_prompt_yn,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_OMIT_INSERT_PROMPT_YN_PIECE );
-
-		piece(	omit_update_yn,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_OMIT_UPDATE_YN_PIECE );
-
-		piece(	hint_message,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_HINT_MESSAGE_PIECE );
-
-		piece(	post_change_javascript,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_POST_CHANGE_JAVASCRIPT_PIECE );
-
-		piece(	on_focus_javascript_function,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_ON_FOCUS_JAVASCRIPT_PIECE );
-
-		piece(	additional_unique_index_yn,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_ADDITIONAL_UNIQUE_INDEX_PIECE );
-
-		piece(	additional_index_yn,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_ADDITIONAL_INDEX_PIECE );
-
-		piece(	lookup_required_yn,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_LOOKUP_REQUIRED_PIECE );
-
-		piece(	insert_required_yn,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_INSERT_REQUIRED_PIECE );
-
-		piece(	lookup_histogram_output_yn,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_LOOKUP_HISTOGRAM_OUTPUT_YN_PIECE );
-
-		piece(	lookup_time_chart_output_yn,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_LOOKUP_TIME_CHART_OUTPUT_YN_PIECE );
-
-		piece(	appaserver_yn,
-			ATTRIBUTE_DELIMITER,
-			record,
-			ATTRIBUTE_APPASERVER_YN_PIECE );
+		if ( attribute_primary_attribute_fetch ==
+					attribute_non_primary
+		&&   atoi( primary_key_index ) )
+		{
+			continue;
+		}
 
 		attribute =
 			attribute_new_attribute( 	
@@ -683,6 +627,7 @@ void attribute_append_attribute_list(	LIST *attribute_list,
 					attribute );
 
 	} while( list_next( attribute_record_list ) );
+
 } /* attribute_append_attribute_list() */
 
 LIST *attribute_get_attribute_record_list(
@@ -1993,3 +1938,149 @@ boolean attribute_exists(	char *application_name,
 
 } /* attribute_exists() */
 
+boolean attribute_record_parse(
+				char *fetched_folder_name,
+				char *fetched_attribute_name,
+				char *attribute_datatype,
+				char *width,
+				char *float_decimal_places,
+				char *primary_key_index,
+				char *display_order,
+				char *omit_insert_yn,
+				char *omit_insert_prompt_yn,
+				char *omit_update_yn,
+				char *hint_message,
+				char *post_change_javascript,
+				char *on_focus_javascript_function,
+				char *additional_unique_index_yn,
+				char *additional_index_yn,
+				char *lookup_required_yn,
+				char *insert_required_yn,
+				char *lookup_histogram_output_yn,
+				char *lookup_time_chart_output_yn,
+				char *appaserver_yn,
+				char *record,
+				char *folder_name,
+				char *attribute_name )
+{
+	piece(	fetched_folder_name,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_FOLDER_PIECE );
+
+	piece(	fetched_attribute_name,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_ATTRIBUTE_PIECE );
+
+	if ( attribute_name && *attribute_name )
+	{
+		if ( strcmp( attribute_name,
+			     fetched_attribute_name ) != 0 )
+		{
+			return 0;
+		}
+	}
+
+	if ( folder_name && *folder_name )
+	{
+		if ( strcmp( folder_name,
+			     fetched_folder_name ) != 0 )
+		{
+			return 0;
+		}
+	}
+
+	piece(	attribute_datatype,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_DATATYPE_PIECE );
+
+	piece(	width,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_WIDTH_PIECE );
+
+	piece(	float_decimal_places,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_FLOAT_DECIMAL_PLACES_PIECE );
+
+	piece(	primary_key_index,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_PRIMARY_KEY_INDEX_PIECE );
+
+	piece(	display_order,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_DISPLAY_ORDER_PIECE );
+
+	piece(	omit_insert_yn,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_OMIT_INSERT_YN_PIECE );
+
+	piece(	omit_insert_prompt_yn,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_OMIT_INSERT_PROMPT_YN_PIECE );
+
+	piece(	omit_update_yn,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_OMIT_UPDATE_YN_PIECE );
+
+	piece(	hint_message,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_HINT_MESSAGE_PIECE );
+
+	piece(	post_change_javascript,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_POST_CHANGE_JAVASCRIPT_PIECE );
+
+	piece(	on_focus_javascript_function,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_ON_FOCUS_JAVASCRIPT_PIECE );
+
+	piece(	additional_unique_index_yn,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_ADDITIONAL_UNIQUE_INDEX_PIECE );
+
+	piece(	additional_index_yn,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_ADDITIONAL_INDEX_PIECE );
+
+	piece(	lookup_required_yn,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_LOOKUP_REQUIRED_PIECE );
+
+	piece(	insert_required_yn,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_INSERT_REQUIRED_PIECE );
+
+	piece(	lookup_histogram_output_yn,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_LOOKUP_HISTOGRAM_OUTPUT_YN_PIECE );
+
+	piece(	lookup_time_chart_output_yn,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_LOOKUP_TIME_CHART_OUTPUT_YN_PIECE );
+
+	piece(	appaserver_yn,
+		ATTRIBUTE_DELIMITER,
+		record,
+		ATTRIBUTE_APPASERVER_YN_PIECE );
+
+	return 1;
+
+} /* attribute_record_parse() */

@@ -200,10 +200,6 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
 
-	environ_prepend_dot_to_path();
-	add_utility_to_path();
-	add_relative_source_directory_to_path( application_name );
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	role = role_new_role(	application_name,
@@ -550,12 +546,6 @@ void output_prompt_edit_form(
 	{
 		sort_order_button = 0;
 	}
-/*
-	sort_order_button =
-		(boolean)
-		appaserver_library_get_sort_attribute_name(
-			appaserver->folder->attribute_list );
-*/
 
 	form->regular_element_list =
 		get_element_list(

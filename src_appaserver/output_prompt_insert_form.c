@@ -531,7 +531,7 @@ int main( int argc, char **argv )
 			"y" /* content_type_yn */,
 			appaserver_error_get_filename(
 					application_name ) );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	}
 	else
 	{
@@ -654,7 +654,7 @@ int main( int argc, char **argv )
 				folder->
 				primary_attribute_name_list ) /* select */ );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	}
 
 	/* Setup remember button */
@@ -1048,8 +1048,8 @@ void get_without_isa_variables(	LIST **mto1_related_folder_list,
 			role_name );
 
 	attribute_name_list =
-			folder_get_attribute_name_list(
-				appaserver->folder->attribute_list );
+		folder_get_attribute_name_list(
+			appaserver->folder->attribute_list );
 
 	omit_insert_prompt_attribute_name_list =
 		appaserver_library_get_omit_insert_prompt_attribute_name_list(
@@ -1161,6 +1161,7 @@ void get_with_isa_variables(	LIST **mto1_related_folder_list,
 				mto1_isa_related_folder_list,
 				override_row_restrictions );
 	}
+
 } /* get_with_isa_variables() */
 
 void get_selected_choose_isa_drop_down_with_isa_variables(
@@ -1305,18 +1306,31 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 		exit( 1 );
 	}
 
-	appaserver = appaserver_new_appaserver(
-					application_name,
-					session,
-					folder_name );
+	appaserver =
+		appaserver_new_appaserver(
+			application_name,
+			session,
+			folder_name );
 
 	appaserver->folder->attribute_list =
-	attribute_get_attribute_list(
-		appaserver->application_name,
-		appaserver->folder->folder_name,
-		(char *)0 /* attribute_name */,
-		(LIST *)0 /* mto1_isa_related_folder_list */,
-		role_name );
+		attribute_get_attribute_list(
+			appaserver->application_name,
+			appaserver->folder->folder_name,
+			(char *)0 /* attribute_name */,
+			mto1_isa_related_folder_list,
+			role_name );
+
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got attribute_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+attribute_list_display( appaserver->folder->attribute_list ) );
+m2( application_name, msg );
+}
+*/
 
 	appaserver->folder->mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(

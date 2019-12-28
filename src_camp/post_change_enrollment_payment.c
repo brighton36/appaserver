@@ -175,7 +175,8 @@ void post_change_enrollment_payment_insert(
 				camp->camp_begin_date,
 				camp->camp_title,
 				full_name,
-				street_address ) ) )
+				street_address,
+				camp->enrollment_cost ) ) )
 	{
 		fprintf( stderr,
 	"ERROR in %s/%s()/%d: cannot camp_enrollment_fetch(%s,%s,%s,%s).\n",
@@ -231,24 +232,14 @@ void post_change_enrollment_payment_insert(
 				camp_enrollment_payment_transaction->
 				journal_ledger_list );
 
-	camp->enrollment->camp_enrollment_total_payment_amount =
-		camp_enrollment_total_payment_amount(
-			camp->
-				enrollment->
-				camp_enrollment_payment_list );
-
-	camp->enrollment->camp_enrollment_amount_due =
-		camp_enrollment_amount_due(
-			camp->enrollment->camp_enrollment_total_payment_amount,
-			camp->enrollment_cost );
-
 	camp_enrollment_update(
 		camp->camp_begin_date,
 		camp->camp_title,
 		camp->enrollment->full_name,
 		camp->enrollment->street_address,
-		camp->enrollment->camp_enrollment_amount_due,
+		camp->enrollment->camp_enrollment_invoice_amount,
 		camp->enrollment->camp_enrollment_total_payment_amount,
+		camp->enrollment->camp_enrollment_amount_due,
 		camp->
 			enrollment->
 			camp_enrollment_transaction->
@@ -300,7 +291,8 @@ void post_change_enrollment_payment_update(
 				camp->camp_begin_date,
 				camp->camp_title,
 				full_name,
-				street_address ) ) )
+				street_address,
+				camp->enrollment_cost ) ) )
 	{
 		fprintf( stderr,
 	"ERROR in %s/%s()/%d: cannot camp_enrollment_fetch(%s,%s,%s,%s).\n",
@@ -357,24 +349,14 @@ void post_change_enrollment_payment_update(
 				journal_ledger_list );
 	}
 
-	camp->enrollment->camp_enrollment_total_payment_amount =
-		camp_enrollment_total_payment_amount(
-			camp->
-				enrollment->
-				camp_enrollment_payment_list );
-
-	camp->enrollment->camp_enrollment_amount_due =
-		camp_enrollment_amount_due(
-			camp->enrollment->camp_enrollment_total_payment_amount,
-			camp->enrollment_cost );
-
 	camp_enrollment_update(
 		camp->camp_begin_date,
 		camp->camp_title,
 		camp->enrollment->full_name,
 		camp->enrollment->street_address,
-		camp->enrollment->camp_enrollment_amount_due,
+		camp->enrollment->camp_enrollment_invoice_amount,
 		camp->enrollment->camp_enrollment_total_payment_amount,
+		camp->enrollment->camp_enrollment_amount_due,
 		camp->
 			enrollment->
 			camp_enrollment_transaction->
@@ -428,7 +410,8 @@ void post_change_enrollment_payment_predelete(
 				camp->camp_begin_date,
 				camp->camp_title,
 				full_name,
-				street_address ) ) )
+				street_address,
+				camp->enrollment_cost ) ) )
 	{
 		fprintf( stderr,
 	"ERROR in %s/%s()/%d: cannot camp_enrollment_fetch(%s,%s,%s,%s).\n",

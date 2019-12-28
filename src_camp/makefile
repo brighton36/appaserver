@@ -23,6 +23,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/hashtbl.o
 
 EXECUTABLES=	post_change_enrollment					\
+		post_change_service_enroll				\
 		post_change_enrollment_payment
 
 EXTERNAL_LIBRARY=							\
@@ -109,6 +110,15 @@ post_change_enrollment_payment: post_change_enrollment_payment.c	\
 		${SOURCE_LIBRARY}					\
 		post_change_enrollment_payment.c			\
 		-o post_change_enrollment_payment
+
+post_change_service_enroll: post_change_service_enroll.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_service_enroll.c				\
+		-o post_change_service_enroll
 
 camp.o: camp.c								\
 		camp.h

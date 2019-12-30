@@ -919,7 +919,12 @@ int main( int argc, char **argv )
 	dictionary_appaserver_output_as_hidden(
 			dictionary_appaserver,
 			1 /* with non_prefixed_dictionary */ );
-	
+
+	if ( number_rows_outputted < 5 )
+	{
+		output_submit_reset_buttons_in_trailer = 0;
+	}
+
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
 		0 /* output_insert_flag */,

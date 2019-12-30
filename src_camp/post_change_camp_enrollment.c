@@ -2,6 +2,8 @@
 /* $APPASERVER_HOME/src_camp/post_change_camp_enrollment.c		*/
 /* -------------------------------------------------------------------	*/
 /* 									*/
+/* Note: this is also the SERVICE_ENROLLMENT post change process.	*/
+/* -------------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------	*/
 
@@ -23,15 +25,7 @@
 /* Prototypes */
 /* ---------- */
 
-void post_change_camp_enrollment_insert(
-				char *application_name,
-				char *fund_name,
-				char *camp_begin_date,
-				char *camp_title,
-				char *full_name,
-				char *street_address );
-
-void post_change_camp_enrollment_update(
+void post_change_camp_enrollment_insert_update_delete(
 				char *application_name,
 				char *fund_name,
 				char *camp_begin_date,
@@ -61,9 +55,9 @@ int main( int argc, char **argv )
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 7 )
 	{
@@ -94,16 +88,12 @@ int main( int argc, char **argv )
 			street_address );
 	}
 	else
+	/* ----------------------------------------------- */
+	/* May be executed from SERVICE_ENROLLMENT delete. */
+	/* ----------------------------------------------- */
 	if ( strcmp( state, "delete" ) == 0 )
 	{
-		/* ---------- */
-		/* Do nothing */
-		/* ---------- */
-	}
-	else
-	if ( strcmp( state, "insert" ) == 0 )
-	{
-		post_change_camp_enrollment_insert(
+		post_change_camp_enrollment_insert_update_delete(
 			application_name,
 			fund_name,
 			camp_begin_date,
@@ -112,8 +102,10 @@ int main( int argc, char **argv )
 			street_address );
 	}
 	else
+	if ( strcmp( state, "insert" ) == 0
+	||   strcmp( state, "update" ) == 0 )
 	{
-		post_change_camp_enrollment_update(
+		post_change_camp_enrollment_insert_update_delete(
 			application_name,
 			fund_name,
 			camp_begin_date,
@@ -126,7 +118,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_camp_enrollment_insert(
+void post_change_camp_enrollment_insert_update_delete(
 			char *application_name,
 			char *fund_name,
 			char *camp_begin_date,
@@ -135,6 +127,7 @@ void post_change_camp_enrollment_insert(
 			char *street_address )
 {
 	CAMP *camp;
+	char *existing_transaction_date_time;
 
 	if ( ! ( camp =
 			camp_fetch(
@@ -142,14 +135,7 @@ void post_change_camp_enrollment_insert(
 				camp_begin_date,
 				camp_title ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot camp_fetch(%s,%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 camp_begin_date,
-			 camp_title );
-		exit( 1 );
+		return;
 	}
 
 	if ( ! ( camp->camp_enrollment =
@@ -161,30 +147,20 @@ void post_change_camp_enrollment_insert(
 				street_address,
 				camp->enrollment_cost ) ) )
 	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot camp_enrollment_fetch(%s,%s,%s,%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 camp->camp_begin_date,
-			 camp->camp_title,
-			 full_name,
-			 street_address );
-		exit( 1 );
+		return;
 	}
 
 	if ( camp->camp_enrollment->camp_enrollment_transaction )
 	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: camp_enrollment_fetch(%s,%s,%s,%s) return a transaction.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 camp->camp_begin_date,
-			 camp->camp_title,
-			 full_name,
-			 street_address );
-		exit( 1 );
+		existing_transaction_date_time =
+			camp->
+				camp_enrollment->
+				camp_enrollment_transaction->
+				transaction_date_time;
+	}
+	else
+	{
+		existing_transaction_date_time = (char *)0;
 	}
 
 	if ( ! ( camp->camp_enrollment->camp_enrollment_transaction =
@@ -193,8 +169,7 @@ void post_change_camp_enrollment_insert(
 				fund_name,
 				camp->camp_enrollment->full_name,
 				camp->camp_enrollment->street_address,
-				(char *)0
-					/* existing_transaction_date_time */,
+				existing_transaction_date_time,
 				camp->
 					camp_enrollment->
 					camp_enrollment_invoice_amount ) ) )
@@ -253,141 +228,7 @@ void post_change_camp_enrollment_insert(
 			camp_enrollment_transaction->
 			transaction_date_time );
 
-} /* post_change_camp_enrollment_insert() */
-
-void post_change_camp_enrollment_update(
-			char *application_name,
-			char *fund_name,
-			char *camp_begin_date,
-			char *camp_title,
-			char *full_name,
-			char *street_address )
-{
-	CAMP *camp;
-
-	if ( ! ( camp =
-			camp_fetch(
-				application_name,
-				camp_begin_date,
-				camp_title ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot camp_fetch(%s,%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 camp_begin_date,
-			 camp_title );
-		exit( 1 );
-	}
-
-	if ( ! ( camp->camp_enrollment =
-			camp_enrollment_fetch(
-				application_name,
-				camp->camp_begin_date,
-				camp->camp_title,
-				full_name,
-				street_address,
-				camp->enrollment_cost ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot camp_enrollment_fetch(%s,%s,%s,%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 camp->camp_begin_date,
-			 camp->camp_title,
-			 full_name,
-			 street_address );
-		exit( 1 );
-	}
-
-	if ( !camp->camp_enrollment->camp_enrollment_transaction )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: camp_enrollment_fetch(%s,%s,%s,%s) did not return a transaction.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 camp->camp_begin_date,
-			 camp->camp_title,
-			 full_name,
-			 street_address );
-		exit( 1 );
-	}
-
-	if ( ! ( camp->camp_enrollment->camp_enrollment_transaction =
-			camp_enrollment_transaction(
-				application_name,
-				fund_name,
-				camp->camp_enrollment->full_name,
-				camp->camp_enrollment->street_address,
-				camp->
-					camp_enrollment->
-					camp_enrollment_transaction->
-					transaction_date_time
-					/* existing_transaction_date_time */,
-				camp->
-					camp_enrollment->
-					camp_enrollment_invoice_amount ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: camp_enrollment_transaction(%s,%s) failed.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 camp->camp_enrollment->full_name,
-			 camp->camp_enrollment->street_address );
-		exit( 1 );
-	}
-
-	camp->
-		camp_enrollment->
-		camp_enrollment_transaction->
-		transaction_date_time =
-			/* -------------------------------------- */
-			/* Returns inserted transaction_date_time */
-			/* -------------------------------------- */
-			ledger_transaction_refresh(
-				application_name,
-				camp->
-					camp_enrollment->
-					camp_enrollment_transaction->
-					full_name,
-				camp->
-					camp_enrollment->
-					camp_enrollment_transaction->
-					street_address,
-				camp->
-					camp_enrollment->
-					camp_enrollment_transaction->
-					transaction_date_time,
-				camp->
-					camp_enrollment->
-					camp_enrollment_transaction->
-					transaction_amount,
-				(char *)0 /* memo */,
-				0 /* check_number */,
-				1 /* lock_transaction */,
-				camp->
-					camp_enrollment->
-					camp_enrollment_transaction->
-					journal_ledger_list );
-
-	camp_enrollment_update(
-		camp->camp_begin_date,
-		camp->camp_title,
-		camp->camp_enrollment->full_name,
-		camp->camp_enrollment->street_address,
-		camp->camp_enrollment->camp_enrollment_invoice_amount,
-		camp->camp_enrollment->camp_enrollment_total_payment_amount,
-		camp->camp_enrollment->camp_enrollment_amount_due,
-		camp->
-			camp_enrollment->
-			camp_enrollment_transaction->
-			transaction_date_time );
-
-} /* post_change_camp_enrollment_update() */
+} /* post_change_camp_enrollment_insert_update_delete() */
 
 void post_change_camp_enrollment_predelete(
 			char *application_name,
@@ -404,14 +245,7 @@ void post_change_camp_enrollment_predelete(
 				camp_begin_date,
 				camp_title ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot camp_fetch(%s,%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 camp_begin_date,
-			 camp_title );
-		exit( 1 );
+		return;
 	}
 
 	if ( ! ( camp->camp_enrollment =
@@ -423,31 +257,11 @@ void post_change_camp_enrollment_predelete(
 				street_address,
 				camp->enrollment_cost ) ) )
 	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot camp_enrollment_fetch(%s,%s,%s,%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 camp->camp_begin_date,
-			 camp->camp_title,
-			 full_name,
-			 street_address );
-		exit( 1 );
+		return;
 	}
 
 	if ( !camp->camp_enrollment->camp_enrollment_transaction )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: no transaction for (%s,%s,%s,%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 camp->camp_begin_date,
-			 camp->camp_title,
-			 camp->camp_enrollment->full_name,
-			 camp->camp_enrollment->street_address );
-		exit( 1 );
-	}
+		return;
 
 	ledger_delete(	application_name,
 			TRANSACTION_FOLDER_NAME,

@@ -547,7 +547,7 @@ void camp_enrollment_update(
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y		|"
 		 "sql.e							 ",
-		 "enrollment",
+		 "camp_enrollment",
 		 key_column_list_string );
 
 	update_pipe = popen( sys_string, "w" );

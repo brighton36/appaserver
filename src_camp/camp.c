@@ -34,13 +34,13 @@ CAMP *camp_new(		char *camp_begin_date,
 
 } /* camp_new() */
 
-SERVICE_ENROLL *camp_enrollment_service_enroll_new(
+SERVICE_ENROLLMENT *camp_enrollment_service_enrollment_new(
 				char *service_name,
 				double service_price )
 {
-	SERVICE_ENROLL *c;
+	SERVICE_ENROLLMENT *c;
 
-	if ( ! ( c = calloc( 1, sizeof( SERVICE_ENROLL ) ) ) )
+	if ( ! ( c = calloc( 1, sizeof( SERVICE_ENROLLMENT ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -55,15 +55,15 @@ SERVICE_ENROLL *camp_enrollment_service_enroll_new(
 
 	return c;
 
-} /* camp_enrollment_service_enroll_new() */
+} /* camp_enrollment_service_enrollment_new() */
 
-ENROLLMENT *camp_enrollment_new(
+CAMP_ENROLLMENT *camp_enrollment_new(
 				char *full_name,
 				char *street_address )
 {
-	ENROLLMENT *c;
+	CAMP_ENROLLMENT *c;
 
-	if ( ! ( c = calloc( 1, sizeof( ENROLLMENT ) ) ) )
+	if ( ! ( c = calloc( 1, sizeof( CAMP_ENROLLMENT ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -114,11 +114,13 @@ TRANSACTION *camp_enrollment_transaction(
 				char *fund_name,
 				char *full_name,
 				char *street_address,
+				char *existing_transaction_date_time,
 				double invoice_amount )
 {
 	char *checking_account = {0};
 	char *receivable_account = {0};
 	char *revenue_account = {0};
+	char *transaction_date_time;
 
 	ledger_order_entry_account_names(
 				&checking_account,
@@ -127,11 +129,17 @@ TRANSACTION *camp_enrollment_transaction(
 				application_name,
 				fund_name );
 
+	if ( existing_transaction_date_time )
+		transaction_date_time = existing_transaction_date_time;
+	else
+		transaction_date_time =
+			ledger_get_transaction_date_time(
+				(char *)0 /* transaction_date */ );
+
 	return ledger_binary_transaction(
 				full_name,
 				street_address,
-				ledger_get_transaction_date_time(
-					(char *)0 /* transaction_date */ ),
+				transaction_date_time,
 				receivable_account /* debit_account */,
 				revenue_account /* credit_account */,
 				invoice_amount /* transaction_amount */,
@@ -220,7 +228,7 @@ CAMP *camp_fetch(		char *application_name,
 
 } /* camp_fetch() */
 
-ENROLLMENT *camp_enrollment_fetch(
+CAMP_ENROLLMENT *camp_enrollment_fetch(
 				char *application_name,
 				char *camp_begin_date,
 				char *camp_title,
@@ -233,7 +241,7 @@ ENROLLMENT *camp_enrollment_fetch(
 	char where[ 512 ];
 	char buffer1[ 256 ];
 	char buffer2[ 256 ];
-	ENROLLMENT *e;
+	CAMP_ENROLLMENT *e;
 	char *results;
 
 	sprintf( where,
@@ -255,7 +263,7 @@ ENROLLMENT *camp_enrollment_fetch(
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
 		 "			select=%s		"
-		 "			folder=enrollment	"
+		 "			folder=camp_enrollment	"
 		 "			where=\"%s\"		",
 		 application_name,
 		 select,
@@ -294,8 +302,8 @@ ENROLLMENT *camp_enrollment_fetch(
 					/* transaction_date_time */ );
 	}
 
-	e->camp_enrollment_service_enroll_list =
-		camp_enrollment_service_enroll_list(
+	e->camp_enrollment_service_enrollment_list =
+		camp_enrollment_service_enrollment_list(
 			application_name,
 			camp_begin_date,
 			camp_title,
@@ -317,7 +325,7 @@ ENROLLMENT *camp_enrollment_fetch(
 	e->camp_enrollment_invoice_amount =
 		camp_enrollment_invoice_amount(
 			enrollment_cost,
-			e->camp_enrollment_service_enroll_list );
+			e->camp_enrollment_service_enrollment_list );
 
 	e->camp_enrollment_amount_due =
 		camp_enrollment_amount_due(
@@ -328,7 +336,7 @@ ENROLLMENT *camp_enrollment_fetch(
 
 } /* camp_enrollment_fetch() */
 
-LIST *camp_enrollment_service_enroll_list(
+LIST *camp_enrollment_service_enrollment_list(
 				char *application_name,
 				char *camp_begin_date,
 				char *camp_title,
@@ -342,17 +350,17 @@ LIST *camp_enrollment_service_enroll_list(
 	char where[ 512 ];
 	char buffer1[ 256 ];
 	char buffer2[ 256 ];
-	SERVICE_ENROLL *e;
+	SERVICE_ENROLLMENT *e;
 	FILE *input_pipe;
 	char input_buffer[ 512 ];
-	LIST *service_enroll_list = list_new();
+	LIST *service_enrollment_list = list_new();
 
-	select = "service_enroll.service_name,service_price";
+	select = "service_enrollment.service_name,service_price";
 
-	folder = "service_enroll,service_offering";
+	folder = "service_enrollment,service_offering";
 
 	join_where =
-		"service_enroll.service_name = service_offering.service_name";
+	"service_enrollment.service_name = service_offering.service_name";
 
 	sprintf( where,
 		 "camp_begin_date = '%s' and	"
@@ -387,19 +395,19 @@ LIST *camp_enrollment_service_enroll_list(
 		piece( buffer1, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 		piece( buffer2, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 
-		e = camp_enrollment_service_enroll_new(
+		e = camp_enrollment_service_enrollment_new(
 			strdup( buffer1 )
 				/* service_name */,
 			atof( buffer2 )
 				/* service_price */ );
 
-		list_append_pointer( service_enroll_list, e );
+		list_append_pointer( service_enrollment_list, e );
 	}
 
 	pclose( input_pipe );
-	return service_enroll_list;
+	return service_enrollment_list;
 
-} /* camp_enrollment_service_enroll_list() */
+} /* camp_enrollment_service_enrollment_list() */
 
 LIST *camp_enrollment_payment_list(
 			char *application_name,
@@ -647,13 +655,13 @@ ENROLLMENT_PAYMENT *camp_enrollment_payment_seek(
 
 double camp_enrollment_invoice_amount(
 				double enrollment_cost,
-				LIST *service_enroll_list )
+				LIST *service_enrollment_list )
 {
-	SERVICE_ENROLL *e;
+	SERVICE_ENROLLMENT *e;
 	LIST *l;
 	double invoice_amount;
 
-	l = service_enroll_list;
+	l = service_enrollment_list;
 
 	if ( !list_rewind( l ) ) return enrollment_cost;
 

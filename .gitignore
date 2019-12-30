@@ -140,7 +140,6 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
-post_change_service_enroll
 feeder_upload_missing
 post_change_inventory_sale_return
 post_change_inventory_purchase_return
@@ -528,5 +527,5 @@ upload_photo
 # --------
 # src_camp
 # --------
-post_change_enrollment
+post_change_camp_enrollment
 post_change_enrollment_payment

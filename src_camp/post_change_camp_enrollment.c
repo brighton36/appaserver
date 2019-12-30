@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_camp/post_change_enrollment.c			*/
+/* $APPASERVER_HOME/src_camp/post_change_camp_enrollment.c		*/
 /* -------------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -23,7 +23,7 @@
 /* Prototypes */
 /* ---------- */
 
-void post_change_enrollment_insert(
+void post_change_camp_enrollment_insert(
 				char *application_name,
 				char *fund_name,
 				char *camp_begin_date,
@@ -31,7 +31,7 @@ void post_change_enrollment_insert(
 				char *full_name,
 				char *street_address );
 
-void post_change_enrollment_update(
+void post_change_camp_enrollment_update(
 				char *application_name,
 				char *fund_name,
 				char *camp_begin_date,
@@ -39,7 +39,7 @@ void post_change_enrollment_update(
 				char *full_name,
 				char *street_address );
 
-void post_change_enrollment_predelete(
+void post_change_camp_enrollment_predelete(
 				char *application_name,
 				char *camp_begin_date,
 				char *camp_title,
@@ -81,12 +81,12 @@ int main( int argc, char **argv )
 	state = argv[ 6 ];
 
 	/* ------------------------------------------------------------ */
-	/* ENROLLMENT.transaction_date_time DOES exist, 		*/
+	/* CAMP_ENROLLMENT.transaction_date_time DOES exist, 		*/
 	/* so execute predelete.					*/
 	/* ------------------------------------------------------------ */
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		post_change_enrollment_predelete(
+		post_change_camp_enrollment_predelete(
 			application_name,
 			camp_begin_date,
 			camp_title,
@@ -103,7 +103,7 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		post_change_enrollment_insert(
+		post_change_camp_enrollment_insert(
 			application_name,
 			fund_name,
 			camp_begin_date,
@@ -113,7 +113,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		post_change_enrollment_update(
+		post_change_camp_enrollment_update(
 			application_name,
 			fund_name,
 			camp_begin_date,
@@ -126,7 +126,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_enrollment_insert(
+void post_change_camp_enrollment_insert(
 			char *application_name,
 			char *fund_name,
 			char *camp_begin_date,
@@ -152,7 +152,7 @@ void post_change_enrollment_insert(
 		exit( 1 );
 	}
 
-	if ( ! ( camp->enrollment =
+	if ( ! ( camp->camp_enrollment =
 			camp_enrollment_fetch(
 				application_name,
 				camp->camp_begin_date,
@@ -173,14 +173,30 @@ void post_change_enrollment_insert(
 		exit( 1 );
 	}
 
-	if ( ! ( camp->enrollment->camp_enrollment_transaction =
+	if ( camp->camp_enrollment->camp_enrollment_transaction )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: camp_enrollment_fetch(%s,%s,%s,%s) return a transaction.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 camp->camp_begin_date,
+			 camp->camp_title,
+			 full_name,
+			 street_address );
+		exit( 1 );
+	}
+
+	if ( ! ( camp->camp_enrollment->camp_enrollment_transaction =
 			camp_enrollment_transaction(
 				application_name,
 				fund_name,
-				camp->enrollment->full_name,
-				camp->enrollment->street_address,
+				camp->camp_enrollment->full_name,
+				camp->camp_enrollment->street_address,
+				(char *)0
+					/* existing_transaction_date_time */,
 				camp->
-					enrollment->
+					camp_enrollment->
 					camp_enrollment_invoice_amount ) ) )
 	{
 		fprintf( stderr,
@@ -191,52 +207,55 @@ void post_change_enrollment_insert(
 		exit( 1 );
 	}
 
-	camp->enrollment->camp_enrollment_transaction->transaction_date_time =
-		/* -------------------------------------- */
-		/* Returns inserted transaction_date_time */
-		/* -------------------------------------- */
-		ledger_transaction_refresh(
-			application_name,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				full_name,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				street_address,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				transaction_date_time,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				transaction_amount,
-			(char *)0 /* memo */,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				journal_ledger_list );
+	camp->
+		camp_enrollment->
+		camp_enrollment_transaction->
+		transaction_date_time =
+			/* -------------------------------------- */
+			/* Returns inserted transaction_date_time */
+			/* -------------------------------------- */
+			ledger_transaction_refresh(
+				application_name,
+				camp->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					full_name,
+				camp->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					street_address,
+				camp->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					transaction_date_time,
+				camp->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					transaction_amount,
+				(char *)0 /* memo */,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				camp->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					journal_ledger_list );
 
 	camp_enrollment_update(
 		camp->camp_begin_date,
 		camp->camp_title,
-		camp->enrollment->full_name,
-		camp->enrollment->street_address,
-		camp->enrollment->camp_enrollment_invoice_amount,
-		camp->enrollment->camp_enrollment_total_payment_amount,
-		camp->enrollment->camp_enrollment_amount_due,
+		camp->camp_enrollment->full_name,
+		camp->camp_enrollment->street_address,
+		camp->camp_enrollment->camp_enrollment_invoice_amount,
+		camp->camp_enrollment->camp_enrollment_total_payment_amount,
+		camp->camp_enrollment->camp_enrollment_amount_due,
 		camp->
-			enrollment->
+			camp_enrollment->
 			camp_enrollment_transaction->
 			transaction_date_time );
 
-} /* post_change_enrollment_insert() */
+} /* post_change_camp_enrollment_insert() */
 
-void post_change_enrollment_update(
+void post_change_camp_enrollment_update(
 			char *application_name,
 			char *fund_name,
 			char *camp_begin_date,
@@ -262,7 +281,7 @@ void post_change_enrollment_update(
 		exit( 1 );
 	}
 
-	if ( ! ( camp->enrollment =
+	if ( ! ( camp->camp_enrollment =
 			camp_enrollment_fetch(
 				application_name,
 				camp->camp_begin_date,
@@ -283,14 +302,33 @@ void post_change_enrollment_update(
 		exit( 1 );
 	}
 
-	if ( ! ( camp->enrollment->camp_enrollment_transaction =
+	if ( !camp->camp_enrollment->camp_enrollment_transaction )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: camp_enrollment_fetch(%s,%s,%s,%s) did not return a transaction.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 camp->camp_begin_date,
+			 camp->camp_title,
+			 full_name,
+			 street_address );
+		exit( 1 );
+	}
+
+	if ( ! ( camp->camp_enrollment->camp_enrollment_transaction =
 			camp_enrollment_transaction(
 				application_name,
 				fund_name,
-				camp->enrollment->full_name,
-				camp->enrollment->street_address,
+				camp->camp_enrollment->full_name,
+				camp->camp_enrollment->street_address,
 				camp->
-					enrollment->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					transaction_date_time
+					/* existing_transaction_date_time */,
+				camp->
+					camp_enrollment->
 					camp_enrollment_invoice_amount ) ) )
 	{
 		fprintf( stderr,
@@ -298,57 +336,60 @@ void post_change_enrollment_update(
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 camp->enrollment->full_name,
-			 camp->enrollment->street_address );
+			 camp->camp_enrollment->full_name,
+			 camp->camp_enrollment->street_address );
 		exit( 1 );
 	}
 
-	camp->enrollment->camp_enrollment_transaction->transaction_date_time =
-		/* -------------------------------------- */
-		/* Returns inserted transaction_date_time */
-		/* -------------------------------------- */
-		ledger_transaction_refresh(
-			application_name,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				full_name,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				street_address,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				transaction_date_time,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				transaction_amount,
-			(char *)0 /* memo */,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			camp->
-				enrollment->
-				camp_enrollment_transaction->
-				journal_ledger_list );
+	camp->
+		camp_enrollment->
+		camp_enrollment_transaction->
+		transaction_date_time =
+			/* -------------------------------------- */
+			/* Returns inserted transaction_date_time */
+			/* -------------------------------------- */
+			ledger_transaction_refresh(
+				application_name,
+				camp->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					full_name,
+				camp->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					street_address,
+				camp->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					transaction_date_time,
+				camp->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					transaction_amount,
+				(char *)0 /* memo */,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				camp->
+					camp_enrollment->
+					camp_enrollment_transaction->
+					journal_ledger_list );
 
 	camp_enrollment_update(
 		camp->camp_begin_date,
 		camp->camp_title,
-		camp->enrollment->full_name,
-		camp->enrollment->street_address,
-		camp->enrollment->camp_enrollment_invoice_amount,
-		camp->enrollment->camp_enrollment_total_payment_amount,
-		camp->enrollment->camp_enrollment_amount_due,
+		camp->camp_enrollment->full_name,
+		camp->camp_enrollment->street_address,
+		camp->camp_enrollment->camp_enrollment_invoice_amount,
+		camp->camp_enrollment->camp_enrollment_total_payment_amount,
+		camp->camp_enrollment->camp_enrollment_amount_due,
 		camp->
-			enrollment->
+			camp_enrollment->
 			camp_enrollment_transaction->
 			transaction_date_time );
 
-} /* post_change_enrollment_update() */
+} /* post_change_camp_enrollment_update() */
 
-void post_change_enrollment_predelete(
+void post_change_camp_enrollment_predelete(
 			char *application_name,
 			char *camp_begin_date,
 			char *camp_title,
@@ -373,7 +414,7 @@ void post_change_enrollment_predelete(
 		exit( 1 );
 	}
 
-	if ( ! ( camp->enrollment =
+	if ( ! ( camp->camp_enrollment =
 			camp_enrollment_fetch(
 				application_name,
 				camp->camp_begin_date,
@@ -394,7 +435,7 @@ void post_change_enrollment_predelete(
 		exit( 1 );
 	}
 
-	if ( !camp->enrollment->camp_enrollment_transaction )
+	if ( !camp->camp_enrollment->camp_enrollment_transaction )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: no transaction for (%s,%s,%s,%s)\n",
@@ -403,33 +444,33 @@ void post_change_enrollment_predelete(
 			 __LINE__,
 			 camp->camp_begin_date,
 			 camp->camp_title,
-			 camp->enrollment->full_name,
-			 camp->enrollment->street_address );
+			 camp->camp_enrollment->full_name,
+			 camp->camp_enrollment->street_address );
 		exit( 1 );
 	}
 
 	ledger_delete(	application_name,
 			TRANSACTION_FOLDER_NAME,
-			camp->enrollment->full_name,
-			camp->enrollment->street_address,
-			camp->enrollment->
+			camp->camp_enrollment->full_name,
+			camp->camp_enrollment->street_address,
+			camp->camp_enrollment->
 				camp_enrollment_transaction->
 				transaction_date_time );
 
 	ledger_delete(	application_name,
 			LEDGER_FOLDER_NAME,
-			camp->enrollment->full_name,
-			camp->enrollment->street_address,
-			camp->enrollment->
+			camp->camp_enrollment->full_name,
+			camp->camp_enrollment->street_address,
+			camp->camp_enrollment->
 				camp_enrollment_transaction->
 				transaction_date_time );
 
 	ledger_journal_ledger_list_propagate( 
 		camp->
-			enrollment->
+			camp_enrollment->
 			camp_enrollment_transaction->
 			journal_ledger_list,
 		application_name );
 
-} /* post_change_enrollment_predelete() */
+} /* post_change_camp_enrollment_predelete() */
 

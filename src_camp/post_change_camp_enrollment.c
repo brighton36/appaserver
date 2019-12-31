@@ -25,7 +25,7 @@
 /* Prototypes */
 /* ---------- */
 
-void post_change_camp_enrollment_insert_update_delete(
+void post_change_camp_enrollment(
 				char *application_name,
 				char *fund_name,
 				char *camp_begin_date,
@@ -91,21 +91,11 @@ int main( int argc, char **argv )
 	/* ----------------------------------------------- */
 	/* May be executed from SERVICE_ENROLLMENT delete. */
 	/* ----------------------------------------------- */
-	if ( strcmp( state, "delete" ) == 0 )
+	if ( strcmp( state, "delete" ) == 0
+	||   strcmp( state, "update" ) == 0
+	||   strcmp( state, "insert" ) == 0 )
 	{
-		post_change_camp_enrollment_insert_update_delete(
-			application_name,
-			fund_name,
-			camp_begin_date,
-			camp_title,
-			full_name,
-			street_address );
-	}
-	else
-	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) == 0 )
-	{
-		post_change_camp_enrollment_insert_update_delete(
+		post_change_camp_enrollment(
 			application_name,
 			fund_name,
 			camp_begin_date,
@@ -118,7 +108,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_camp_enrollment_insert_update_delete(
+void post_change_camp_enrollment(
 			char *application_name,
 			char *fund_name,
 			char *camp_begin_date,
@@ -228,7 +218,7 @@ void post_change_camp_enrollment_insert_update_delete(
 			camp_enrollment_transaction->
 			transaction_date_time );
 
-} /* post_change_camp_enrollment_insert_update_delete() */
+} /* post_change_camp_enrollment() */
 
 void post_change_camp_enrollment_predelete(
 			char *application_name,

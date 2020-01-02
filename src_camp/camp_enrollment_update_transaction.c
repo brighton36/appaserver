@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_camp/post_change_camp_enrollment.c		*/
+/* $APPASERVER_HOME/src_camp/camp_enrollment_transaction_update.c	*/
 /* -------------------------------------------------------------------	*/
 /* 									*/
 /* Note: this is also the SERVICE_ENROLLMENT post change process.	*/
@@ -25,7 +25,7 @@
 /* Prototypes */
 /* ---------- */
 
-void post_change_camp_enrollment(
+void camp_enrollment_transaction_update(
 				char *application_name,
 				char *fund_name,
 				char *camp_begin_date,
@@ -33,7 +33,7 @@ void post_change_camp_enrollment(
 				char *full_name,
 				char *street_address );
 
-void post_change_camp_enrollment_predelete(
+void camp_enrollment_transaction_update_predelete(
 				char *application_name,
 				char *camp_begin_date,
 				char *camp_title,
@@ -80,7 +80,7 @@ int main( int argc, char **argv )
 	/* ------------------------------------------------------------ */
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		post_change_camp_enrollment_predelete(
+		camp_enrollment_transaction_update_predelete(
 			application_name,
 			camp_begin_date,
 			camp_title,
@@ -95,7 +95,7 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) == 0
 	||   strcmp( state, "insert" ) == 0 )
 	{
-		post_change_camp_enrollment(
+		camp_enrollment_transaction_update(
 			application_name,
 			fund_name,
 			camp_begin_date,
@@ -108,7 +108,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_camp_enrollment(
+void camp_enrollment_transaction_update(
 			char *application_name,
 			char *fund_name,
 			char *camp_begin_date,
@@ -218,9 +218,9 @@ void post_change_camp_enrollment(
 			camp_enrollment_transaction->
 			transaction_date_time );
 
-} /* post_change_camp_enrollment() */
+} /* camp_enrollment_transaction_update() */
 
-void post_change_camp_enrollment_predelete(
+void camp_enrollment_transaction_update_predelete(
 			char *application_name,
 			char *camp_begin_date,
 			char *camp_title,
@@ -276,5 +276,5 @@ void post_change_camp_enrollment_predelete(
 			journal_ledger_list,
 		application_name );
 
-} /* post_change_camp_enrollment_predelete() */
+} /* camp_enrollment_transaction_update_predelete() */
 

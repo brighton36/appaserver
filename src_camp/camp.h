@@ -145,6 +145,7 @@ TRANSACTION *camp_enrollment_payment_transaction(
 				char *fund_name,
 				char *full_name,
 				char *street_address,
+				char *existing_transaction_date_time,
 				double payment_amount );
 
 ENROLLMENT_PAYMENT *camp_enrollment_payment_seek(

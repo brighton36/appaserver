@@ -22,8 +22,8 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hashtbl.o
 
-EXECUTABLES=	post_change_camp_enrollment				\
-		post_change_enrollment_payment
+EXECUTABLES=	camp_enrollment_update_transaction			\
+		enrollment_payment_update_transaction
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -92,23 +92,25 @@ touch:
 clean:
 	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}
 
-post_change_camp_enrollment: post_change_camp_enrollment.c		\
+camp_enrollment_update_transaction:					\
+	camp_enrollment_update_transaction.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-I${PREDICTIVEBOOKS_LIBRARY}				\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_change_camp_enrollment.c				\
-		-o post_change_camp_enrollment
+		camp_enrollment_update_transaction.c			\
+		-o camp_enrollment_update_transaction
 
-post_change_enrollment_payment: post_change_enrollment_payment.c	\
+enrollment_payment_update_transaction:					\
+	enrollment_payment_update_transaction.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-I${PREDICTIVEBOOKS_LIBRARY}				\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_change_enrollment_payment.c			\
-		-o post_change_enrollment_payment
+		enrollment_payment_update_transaction.c			\
+		-o enrollment_payment_update_transaction
 
 camp.o: camp.c								\
 		camp.h

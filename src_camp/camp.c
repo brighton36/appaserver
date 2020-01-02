@@ -152,11 +152,13 @@ TRANSACTION *camp_enrollment_payment_transaction(
 				char *fund_name,
 				char *full_name,
 				char *street_address,
+				char *existing_transaction_date_time,
 				double payment_amount )
 {
 	char *checking_account = {0};
 	char *receivable_account = {0};
 	char *revenue_account = {0};
+	char *transaction_date_time;
 
 	ledger_order_entry_account_names(
 				&checking_account,
@@ -165,11 +167,17 @@ TRANSACTION *camp_enrollment_payment_transaction(
 				application_name,
 				fund_name );
 
+	if ( existing_transaction_date_time )
+		transaction_date_time = existing_transaction_date_time;
+	else
+		transaction_date_time =
+			ledger_get_transaction_date_time(
+				(char *)0 /* transaction_date */ );
+
 	return ledger_binary_transaction(
 				full_name,
 				street_address,
-				ledger_get_transaction_date_time(
-					(char *)0 /* transaction_date */ ),
+				transaction_date_time,
 				checking_account /* debit_account */,
 				receivable_account /* credit_account */,
 				payment_amount /* transaction_amount */,

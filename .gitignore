@@ -527,5 +527,5 @@ upload_photo
 # --------
 # src_camp
 # --------
-post_change_camp_enrollment
-post_change_enrollment_payment
+camp_enrollment_update_transaction
+enrollment_payment_update_transaction

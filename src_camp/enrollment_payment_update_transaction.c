@@ -19,6 +19,7 @@
 
 /* Constants */
 /* --------- */
+#define ENROLLMENT_PAYMENT_MEMO		"Enrollment Payment"
 
 /* Prototypes */
 /* ---------- */
@@ -193,7 +194,7 @@ void enrollment_payment_update_transaction(
 				payment->
 					camp_enrollment_payment_transaction->
 					transaction_amount,
-				(char *)0 /* memo */,
+				ENROLLMENT_PAYMENT_MEMO,
 				0 /* check_number */,
 				1 /* lock_transaction */,
 				payment->

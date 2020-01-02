@@ -40,6 +40,8 @@
 
 /* Constants */
 /* --------- */
+#define MIN_ROWS_FOR_SUBMIT_TRAILER	6
+
 #define ONE_ROW_INSERTED_MESSAGE "<h3>One row inserted.</h3>\n"
 #define DUPLICATE_MULTIPLE_ROWS_MESSAGE "<h3>Warning: A duplication occurred. If you are generating more bottom rows for data entry, then ignore this message.</h3>\n"
 #define DUPLICATE_NON_INSERTED_MESSAGE "<h3>Warning: A duplication occurred.</h3>\n"
@@ -920,7 +922,7 @@ int main( int argc, char **argv )
 			dictionary_appaserver,
 			1 /* with non_prefixed_dictionary */ );
 
-	if ( number_rows_outputted < 5 )
+	if ( number_rows_outputted <= MIN_ROWS_FOR_SUBMIT_TRAILER )
 	{
 		output_submit_reset_buttons_in_trailer = 0;
 	}

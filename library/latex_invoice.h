@@ -101,6 +101,8 @@ LATEX_INVOICE_CUSTOMER *latex_invoice_customer_new(
 void latex_invoice_customer_free(	LATEX_INVOICE_CUSTOMER *
 						latex_invoice_customer );
 
+/* Returns (quantity * retail_price ) - discount_amount */
+/* ---------------------------------------------------- */
 double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 					char *item_key,
 					char *item,

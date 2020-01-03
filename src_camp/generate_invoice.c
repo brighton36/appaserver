@@ -1,8 +1,6 @@
-/* $APPASERVER_HOME/src_predictive/generate_invoice.c			*/
+/* $APPASERVER_HOME/src_camp/generate_invoice.c				*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
-/* ----------------------------------------------------------------	*/
-/* Note: links to generate_workorder					*/
 /* ----------------------------------------------------------------	*/
 
 /* Includes */
@@ -25,7 +23,7 @@
 #include "date_convert.h"
 #include "ledger.h"
 #include "entity.h"
-#include "customer.h"
+#include "camp.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
@@ -35,26 +33,19 @@
 /* ---------- */
 double populate_line_item_list(
 				LIST *invoice_line_item_list,
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *completed_date_time );
+				double enrollment_cost,
+				CAMP_ENROLLMENT *camp_enrollment );
 
 LATEX_INVOICE_CUSTOMER *get_invoice_customer(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time );
+				CAMP_ENROLLMENT *camp_enrollment );
 
 boolean build_latex_invoice(	FILE *output_stream,
 				char *application_name,
+				char *camp_begin_date,
+				char *camp_title,
 				char *full_name,
 				char *street_address,
-				char *sale_date_time,
-				DICTIONARY *application_constants_dictionary,
-				boolean omit_money,
-				boolean workorder );
+				DICTIONARY *application_constants_dictionary );
 
 void output_invoice_window(
 				char *application_name,
@@ -66,18 +57,17 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
+	char *camp_begin_date;
+	char *camp_title;
 	char *full_name;
 	char *street_address;
-	char *sale_date_time;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	int process_id = getpid();
 	FILE *output_stream;
 	char *output_filename;
 	char *output_directory;
 	char *ftp_output_filename;
-	DOCUMENT *document;
 	APPLICATION_CONSTANTS *application_constants;
-	boolean workorder = 0;
 	char sys_string[ 1024 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
@@ -88,20 +78,19 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr,
-		"Usage: %s process full_name street_address sale_date_time\n",
+"Usage: %s process camp_begin_date camp_title full_name street_address\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	workorder = ( strcmp( argv[ 0 ], "generate_workorder" ) == 0 );
-
 	process_name = argv[ 1 ];
-	full_name = argv[ 2 ];
-	street_address = argv[ 3 ];
-	sale_date_time = argv[ 4 ];
+	camp_begin_date = argv[ 2 ];
+	camp_title = argv[ 3 ];
+	full_name = argv[ 4 ];
+	street_address = argv[ 5 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -150,27 +139,6 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-#ifdef NOT_DEFINED
-	document = document_new( process_name /* title */, application_name );
-	document->output_content_type = 1;
-
-	document_output_head_stream(
-			stdout,
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */,
-			1 /* with close_head */ );
-
-	document_output_body(	document->application_name,
-				document->onload_control_string );
-#endif
-
 	document_quick_output_body(
 		application_name,
 		appaserver_parameter_file->
@@ -179,14 +147,13 @@ int main( int argc, char **argv )
 	if ( !build_latex_invoice(
 			output_stream,
 			application_name,
+			camp_begin_date,
+			camp_title,
 			full_name,
 			street_address,
-			sale_date_time,
-			application_constants->dictionary,
-			0 /* not omit_money */,
-			workorder ) )
+			application_constants->dictionary ) )
 	{
-		printf( "<h3>Please choose a customer sale.</h3>\n" );
+		printf( "<h3>Please choose an enrollment.</h3>\n" );
 		fclose( output_stream );
 		document_close();
 		exit( 0 );
@@ -275,22 +242,21 @@ void output_invoice_window(
 		ftp_output_filename,
 		window_label );
 	fflush( stdout );
+
 } /* output_invoice_window() */
 
 boolean build_latex_invoice(	FILE *output_stream,
 				char *application_name,
+				char *camp_begin_date,
+				char *camp_title,
 				char *full_name,
 				char *street_address,
-				char *sale_date_time,
-				DICTIONARY *application_constants_dictionary,
-				boolean omit_money,
-				boolean workorder )
+				DICTIONARY *application_constants_dictionary )
 {
 	LATEX_INVOICE *latex_invoice;
 	ENTITY_SELF *self;
 	char *todays_date;
-	char *completed_date_time;
-	CUSTOMER_SALE *customer_sale;
+	CAMP *camp;
 	char title[ 128 ];
 
 	if ( ! ( self = entity_self_load( application_name ) ) )
@@ -303,65 +269,53 @@ boolean build_latex_invoice(	FILE *output_stream,
 		exit( 1 );
 	}
 
-	if ( workorder )
-	{
-		sprintf(	title,
-				"%s Workorder",
-				self->entity->full_name );
-	}
-	else
-	{
-		sprintf(	title,
-				"%s Invoice",
-				self->entity->full_name );
-	}
+	sprintf(	title,
+			"%s Invoice",
+			self->entity->full_name );
 
-	completed_date_time =
-		customer_sale_fetch_completed_date_time(
-			application_name,
-			full_name,
-			street_address,
-			sale_date_time );
-
-	if ( !completed_date_time ) return 0;
-
-	customer_sale =
-		customer_sale_new(
+	if ( ! ( camp =
+			camp_fetch(
 				application_name,
-				full_name,
-				street_address,
-				sale_date_time );
-
-	customer_sale->completed_date_time = completed_date_time;
-
-	todays_date = pipe2string( "now.sh full 0" );
-
-	latex_invoice =
-		latex_invoice_new(
-			strdup( todays_date ),
-			self->entity->full_name,
-			self->entity->street_address,
-			(char *)0 /* unit */,
-			self->entity->city,
-			self->entity->state_code,
-			self->entity->zip_code,
-			self->entity->phone_number,
-			self->entity->email_address,
-			strdup( "" ) /* line_item_key_heading */,
-			(char *)0 /* instructions */,
-			(LIST *)0 /* extra_label_list */ );
-
-	if ( ! ( latex_invoice->invoice_customer =
-			get_invoice_customer(
-				application_name,
-				full_name,
-				street_address,
-				sale_date_time ) ) )
+				camp_begin_date,
+				camp_title ) ) )
 	{
 		return 0;
 	}
 
-	latex_invoice->omit_money = omit_money;
+	if ( ! ( camp->camp_enrollment =
+			camp_enrollment_fetch(
+				application_name,
+				camp->camp_begin_date,
+				camp->camp_title,
+				full_name,
+				street_address,
+				camp->enrollment_cost ) ) )
+	{
+		return 0;
+	}
+
+	todays_date = pipe2string( "now.sh full 0" );
+
+	latex_invoice = latex_invoice_new(
+				strdup( todays_date ),
+				self->entity->full_name,
+				self->entity->street_address,
+				(char *)0 /* unit */,
+				self->entity->city,
+				self->entity->state_code,
+				self->entity->zip_code,
+				self->entity->phone_number,
+				self->entity->email_address,
+				strdup( "" ) /* line_item_key_heading */,
+				(char *)0 /* instructions */,
+				(LIST *)0 /* extra_label_list */ );
+
+	if ( ! ( latex_invoice->invoice_customer =
+			get_invoice_customer(
+				camp->camp_enrollment ) ) )
+	{
+		return 0;
+	}
 
 	latex_invoice_output_header( output_stream );
 
@@ -370,39 +324,30 @@ boolean build_latex_invoice(	FILE *output_stream,
 				latex_invoice->
 					invoice_customer->
 					invoice_line_item_list,
-				application_name,
-				full_name,
-				street_address,
-				sale_date_time,
-				customer_sale->completed_date_time ) ) )
+				camp->enrollment_cost,
+				camp->camp_enrollment ) ) )
 	{
-		printf( "<H3>Error: no line items for this invoice.</h3>\n" );
+		printf( "<H3>Error: No camp to generate.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
 
-	latex_invoice->invoice_customer->exists_discount_amount =
-		latex_invoice_get_exists_discount_amount(
+	latex_invoice_output_invoice_header(
+			output_stream,
+			latex_invoice->invoice_date,
+			latex_invoice->line_item_key_heading,
+			&latex_invoice->invoice_company,
+			latex_invoice->invoice_customer,
 			latex_invoice->
 				invoice_customer->
-				invoice_line_item_list );
-
-	latex_invoice_output_invoice_header(
-		output_stream,
-		latex_invoice->invoice_date,
-		latex_invoice->line_item_key_heading,
-		&latex_invoice->invoice_company,
-		latex_invoice->invoice_customer,
-		latex_invoice->
-			invoice_customer->
-			exists_discount_amount,
-		title,
-		latex_invoice->omit_money,
-			application_constants_safe_fetch(
-			application_constants_dictionary,
-			PREDICTIVE_LOGO_FILENAME_KEY ),
-		latex_invoice->instructions,
-		latex_invoice->extra_label_list );
+				exists_discount_amount,
+			title,
+			latex_invoice->omit_money,
+		 	application_constants_safe_fetch(
+				application_constants_dictionary,
+				PREDICTIVE_LOGO_FILENAME_KEY ),
+			latex_invoice->instructions,
+			latex_invoice->extra_label_list );
 
 	if ( latex_invoice_each_quantity_integer(
 		latex_invoice->invoice_customer->invoice_line_item_list ) )
@@ -421,9 +366,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 		latex_invoice->omit_money,
 		latex_invoice->quantity_decimal_places );
 
-	if ( !omit_money )
-	{
-		latex_invoice_output_invoice_footer(
+	latex_invoice_output_invoice_footer(
 			output_stream,
 			latex_invoice->invoice_customer->extension_total,
 			latex_invoice->invoice_customer->sales_tax,
@@ -433,12 +376,11 @@ boolean build_latex_invoice(	FILE *output_stream,
 				latex_invoice->
 					invoice_customer->
 					exists_discount_amount,
-			workorder /* is_estimate */ );
-	}
+			0 /* not is_estimate */ );
 
 	latex_invoice_output_footer(
 		output_stream,
-		workorder /* with_customer_signature */ );
+		1 /* with_customer_signature */ );
 
 	latex_invoice_customer_free(
 		latex_invoice->invoice_customer );
@@ -451,51 +393,47 @@ boolean build_latex_invoice(	FILE *output_stream,
 } /* build_latex_invoice() */
 
 LATEX_INVOICE_CUSTOMER *get_invoice_customer(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time )
+				CAMP_ENROLLMENT *camp_enrollment )
 {
 	LATEX_INVOICE_CUSTOMER *invoice_customer;
+	char *transaction_date_time;
 	char invoice_key[ 128 ];
-	double sales_tax;
-	double total_payment;
+
+	if ( !camp_enrollment
+	||   !camp_enrollment->camp_enrollment_transaction )
+	{
+		return (LATEX_INVOICE_CUSTOMER *)0;
+	}
+
+	transaction_date_time = 
+		camp_enrollment->
+			camp_enrollment_transaction->
+			transaction_date_time;
 
 	sprintf(invoice_key,
 		"%s %s %s",
-		full_name,
-		street_address,
-		sale_date_time );
+		camp_enrollment->full_name,
+		camp_enrollment->street_address,
+		transaction_date_time );
 
-	sales_tax = ledger_get_sales_tax(
-			application_name,
-			full_name,
-			street_address,
-			sale_date_time );
-
-	total_payment =
-		ledger_get_total_payment(
-			application_name,
-			full_name,
-			street_address,
-			sale_date_time );
-
-	invoice_customer = latex_invoice_customer_new(
-					strdup( invoice_key ),
-					strdup( full_name ),
-					strdup( street_address ),
-					strdup( "" )
-						/* suite_number */,
-					strdup( "" )
-						/* city */,
-					strdup( "" )
-						/* state */,
-					strdup( "" )
-						/* zip_code */,
-					(char *)0 /* customer_service_key */,
-					sales_tax,
-					0.0 /* shipping_charge */,
-					total_payment );
+	invoice_customer =
+		latex_invoice_customer_new(
+			strdup( invoice_key ),
+			strdup( camp_enrollment->full_name ),
+			strdup( camp_enrollment->street_address ),
+			strdup( "" )
+				/* suite_number */,
+			strdup( "" )
+				/* city */,
+			strdup( "" )
+				/* state */,
+			strdup( "" )
+				/* zip_code */,
+			(char *)0 /* customer_service_key */,
+			0.0 /* sales_tax */,
+			0.0 /* shipping_charge */,
+			camp_enrollment->
+				camp_enrollment_total_payment_amount );
 
 	return invoice_customer;
 
@@ -503,68 +441,51 @@ LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 
 double populate_line_item_list(
 			LIST *invoice_line_item_list,
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *sale_date_time,
-			char *completed_date_time )
+			double enrollment_cost,
+			CAMP_ENROLLMENT *camp_enrollment )
 {
-	double extension_total = 0.0;
-	char sys_string[ 1024 ];
-	FILE *input_pipe;
-	char input_buffer[ 1024 ];
-	char inventory_key[ 128 ];
-	char quantity_string[ 128 ];
-	char retail_price_string[ 128 ];
-	char discount_amount_string[ 128 ];
+	SERVICE_ENROLLMENT *service_enrollment;
+	LIST *l;
+	double extension_total;
 
-	sprintf( sys_string,
-		 "select_invoice_lineitems.sh %s '%s' '%s' '%s' '%s'",
-		 application_name,
-		 full_name,
-		 street_address,
-		 sale_date_time,
-		 (completed_date_time) ? completed_date_time : "" );
+	if ( !camp_enrollment ) return 0.0;
 
-	input_pipe = popen( sys_string, "r" );
+	/* Returns (quantity * retail_price ) - discount_amount */
+	/* ---------------------------------------------------- */
+	extension_total = latex_invoice_append_line_item(
+				invoice_line_item_list,
+				(char *)0 /* item_key */,
+				"Camp Enrollment" /* item */,
+				1.0 /* quantity */,
+				enrollment_cost /* retail_price */,
+				0.0 /* discount_amount */ );
 
-	while( get_line( input_buffer, input_pipe ) )
+	if ( !list_rewind( camp_enrollment->
+				camp_enrollment_service_enrollment_list ) )
 	{
-		piece( inventory_key, '^', input_buffer, 0 );
-		piece( quantity_string, '^', input_buffer, 1 );
-		piece( retail_price_string, '^', input_buffer, 2 );
-		piece( discount_amount_string, '^', input_buffer, 3 );
-
-		extension_total += latex_invoice_append_line_item(
-					invoice_line_item_list,
-					(char *)0 /* line_item_key */,
-					strdup( inventory_key ),
-					atof( quantity_string ),
-					atof( retail_price_string ),
-					atof( discount_amount_string ) );
+		return extension_total;
 	}
 
-	pclose( input_pipe );
+	l = camp_enrollment->camp_enrollment_service_enrollment_list;
+
+	do {
+		service_enrollment = list_get( l );
+
+		/* Returns (quantity * retail_price ) - discount_amount */
+		/* ---------------------------------------------------- */
+		extension_total +=
+			latex_invoice_append_line_item(
+				invoice_line_item_list,
+				(char *)0 /* item_key */,
+				service_enrollment->service_name /* item */,
+				1.0 /* quantity */,
+				service_enrollment->service_price
+					/* retail_price */,
+				0.0 /* discount_amount */ );
+
+	} while ( list_next( l ) );
+
 	return extension_total;
 
 } /* populate_line_item_list() */
-
-#ifdef NOT_DEFINED
-char *get_order_date_international( char *order_date )
-{
-	DATE_CONVERT *date;
-	static char order_date_international[ 16 ];
-
-	/* Source American */
-	/* --------------- */
-	date = date_convert_new_date_convert( 
-				international,
-				order_date );
-
-	strcpy( order_date_international, date->return_date );
-	date_convert_free( date );
-	return order_date_international;
-
-} /* get_order_date_international() */
-#endif
 

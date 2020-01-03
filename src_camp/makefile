@@ -23,7 +23,8 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/hashtbl.o
 
 EXECUTABLES=	camp_enrollment_update_transaction			\
-		enrollment_payment_update_transaction
+		enrollment_payment_update_transaction			\
+		generate_invoice
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -91,6 +92,17 @@ touch:
 
 clean:
 	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}
+
+generate_invoice: generate_invoice.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		${LIBRARY}/latex_invoice.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${LIBRARY}/latex_invoice.o				\
+		generate_invoice.c					\
+		-o generate_invoice
 
 camp_enrollment_update_transaction:					\
 	camp_enrollment_update_transaction.c				\

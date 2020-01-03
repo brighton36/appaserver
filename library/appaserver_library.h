@@ -39,6 +39,7 @@ enum preupdate_change_state {		from_null_to_something,
 /* ---------------------------------------------------- */
 #define DIFFERENT_DESTINATION_APPLICATION_OK	0
 
+#define PREDICTIVE_LOGO_FILENAME_KEY		"logo_filename"
 #define TEMPLATE_APPLICATION			"template"
 #define APPASERVER_UMASK			7
 #define HORIZONTAL_MENU_RELATIVE_DIRECTORY	"appaserver/zmenu"
@@ -46,7 +47,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define IMAGE_RELATIVE_DIRECTORY		"appaserver/zimages"
 #define PATH_DELIMITER				':'
 #define OUTPUT_TEXT_FILE_DELIMITER		'|'
-/* #define RECOUNT_BUTTON_LABEL			"Recount" */
 #define PREPROMPT_PREFIX			"ppreprompt_"
 #define RESIDUAL_STANDARD_ESTIMATE		"Error StdDev"
 #define COLUMNS_UPDATED_KEY			"ccolumns_updated"
@@ -63,8 +63,7 @@ enum preupdate_change_state {		from_null_to_something,
 #define HORIZONTAL_MENU_CLASS			"menu"
 #define VERTICAL_MENU_CLASS			"vertical_menu"
 #define SUBMIT_BUTTON_LABEL			"|    Submit    |"
-/* #define TRANSMIT_PROMPT	"&lt;Left Click&gt; to view or &lt;Right Click&gt; to save." */
-#define TRANSMIT_PROMPT	"Link to file."
+#define TRANSMIT_PROMPT				"Link to file."
 #define SYNCHRONIZE_CURRENT_LOGFILE_NAME	"synchronize_current.txt"
 #define MAX_QUERY_ROWS_FOR_PRIMARY_KEY_DROP_DOWNS 	5
 #define FROM_PREPROMPT				"ffrom_preprompt"
@@ -80,9 +79,10 @@ enum preupdate_change_state {		from_null_to_something,
 #define MENU_HORIZONTAL_PIXEL_ROWS		35
 #define ERROR_HEADING				"appaserver error"
 #define INSERT_IDENTIFIER			"is_insert_row"
-#define MULTI_ATTRIBUTE_NON_DATE_DISPLAY_DELIMITER	"-"
-#define ROWS_FOR_SUBMIT_AT_BOTTOM			5
-#define PROCESS_PROMPT_DEFAULT_WIDTH			25
+#define MULTI_ATTRIBUTE_NON_DATE_DISPLAY_DELIMITER \
+						"-"
+#define ROWS_FOR_SUBMIT_AT_BOTTOM		6
+#define PROCESS_PROMPT_DEFAULT_WIDTH		25
 #define BOTTOM_FRAME_NAME			"bottomframe"
 #define FOLDER_DATA_DELIMITER			'^'
 #define IGNORE_PUSH_BUTTON_PREFIX		"ignore_"
@@ -111,7 +111,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define STATISTICS_PUSH_BUTTON_NAME		"statistics_button"
 #define DELETE_PUSH_BUTTON_NAME			"delete_button"
 #define LOOKUP_PUSH_BUTTON_NAME			"lookup_button"
-#define NUMBER_OBJECTS_FOR_OPERATION_BUTTONS_AT_END 7
 #define BOGUS_SESSION				"-999"
 #define EMAIL_OUTPUT_NAME			"email_output"
 #define EDIT_RADIO_GROUP			"edit_radio"

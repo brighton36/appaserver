@@ -215,16 +215,7 @@ CAMP *camp_fetch(		char *application_name,
 		 select,
 		 where );
 
-	if ( ! ( results = pipe2string( sys_string ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot fetch where = [%s].\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 where );
-		exit( 1 );
-	}
+	if ( ! ( results = pipe2string( sys_string ) ) ) return (CAMP *)0;
 
 	c = camp_new(
 		camp_begin_date,

@@ -57,6 +57,7 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
+	char title[ 128 ];
 	char *camp_begin_date;
 	char *camp_title;
 	char *full_name;
@@ -144,6 +145,14 @@ int main( int argc, char **argv )
 		appaserver_parameter_file->
 			appaserver_mount_point );
 
+	printf( "<h1>%s</h1>\n",
+		format_initial_capital( title, process_name ) );
+	printf( "<h2>\n" );
+	fflush( stdout );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
+	fflush( stdout );
+	printf( "</h2>\n" );
+
 	if ( !build_latex_invoice(
 			output_stream,
 			application_name,
@@ -153,7 +162,7 @@ int main( int argc, char **argv )
 			street_address,
 			application_constants->dictionary ) )
 	{
-		printf( "<h3>Please choose an enrollment.</h3>\n" );
+		printf( "<h3>Please choose a Camp Enrollment.</h3>\n" );
 		fclose( output_stream );
 		document_close();
 		exit( 0 );

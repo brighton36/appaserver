@@ -159,7 +159,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-
 	fclose( output_stream );
 
 	output_directory =
@@ -333,21 +332,21 @@ boolean build_latex_invoice(	FILE *output_stream,
 	}
 
 	latex_invoice_output_invoice_header(
-			output_stream,
-			latex_invoice->invoice_date,
-			latex_invoice->line_item_key_heading,
-			&latex_invoice->invoice_company,
-			latex_invoice->invoice_customer,
-			latex_invoice->
-				invoice_customer->
-				exists_discount_amount,
-			title,
-			latex_invoice->omit_money,
-		 	application_constants_safe_fetch(
-				application_constants_dictionary,
-				PREDICTIVE_LOGO_FILENAME_KEY ),
-			latex_invoice->instructions,
-			latex_invoice->extra_label_list );
+		output_stream,
+		latex_invoice->invoice_date,
+		latex_invoice->line_item_key_heading,
+		&latex_invoice->invoice_company,
+		latex_invoice->invoice_customer,
+		latex_invoice->
+			invoice_customer->
+			exists_discount_amount,
+		title,
+		latex_invoice->omit_money,
+	 	application_constants_safe_fetch(
+			application_constants_dictionary,
+			PREDICTIVE_LOGO_FILENAME_KEY ),
+		latex_invoice->instructions,
+		latex_invoice->extra_label_list );
 
 	if ( latex_invoice_each_quantity_integer(
 		latex_invoice->invoice_customer->invoice_line_item_list ) )
@@ -380,12 +379,12 @@ boolean build_latex_invoice(	FILE *output_stream,
 
 	latex_invoice_output_footer(
 		output_stream,
-		1 /* with_customer_signature */ );
+		0 /* not with_customer_signature */ );
 
-	latex_invoice_customer_free(
-		latex_invoice->invoice_customer );
+	/* Needs all strdups() */
+	/* ------------------- */
+	/* latex_invoice_company_free( &latex_invoice->invoice_company ); */
 
-	latex_invoice_company_free( &latex_invoice->invoice_company );
 	latex_invoice_free( latex_invoice );
 
 	return 1;

@@ -162,7 +162,7 @@ void enrollment_payment_update_transaction(
 		}
 		else
 		{
-			existing_transaction_date_time = (char *)0;
+			existing_transaction_date_time = payment_date_time;
 		}
 
 		payment->camp_enrollment_payment_transaction =

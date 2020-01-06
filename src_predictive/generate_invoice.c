@@ -75,7 +75,6 @@ int main( int argc, char **argv )
 	char *output_filename;
 	char *output_directory;
 	char *ftp_output_filename;
-	DOCUMENT *document;
 	APPLICATION_CONSTANTS *application_constants;
 	boolean workorder = 0;
 	char sys_string[ 1024 ];

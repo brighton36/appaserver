@@ -72,4 +72,7 @@ void output_error_message( 		char *message,
 void m2(				char *application_name,
 					char *message );
 
+void appaserver_error_usage_stderr(	int argc,
+					char **argv );
+
 #endif

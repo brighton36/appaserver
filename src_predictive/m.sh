@@ -1,6 +1,6 @@
 :
 
-make load_bank_spreadsheet
+make post_payroll
 
 #if [ "$?" -eq 0 ]
 #then

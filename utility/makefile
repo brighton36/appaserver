@@ -7,6 +7,7 @@ CC=gcc
 CFLAGS=-O3 -s -Wall ${APPASERVER_UNUSED_PARAMETER_FLAG}
 
 LIBRARY=${APPASERVER_HOME}/library
+PREDICTIVE=${APPASERVER_HOME}/src_predictive
 
 STANDARD_LIBRARY=							\
 		${LIBRARY}/date.o 					\
@@ -1791,8 +1792,9 @@ subtract_list.e: subtract_list.c					\
 payroll_period.e: payroll_period.c ${APPASERVER_LIBRARY}		\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
+		${PREDICTIVE}/employee.h				\
 		${LIBRARY}/name_arg.o
-	$(CC)	${CFLAGS} -I${LIBRARY} payroll_period.c			\
+	$(CC)	${CFLAGS} -I${LIBRARY} -I${PREDICTIVE} payroll_period.c	\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${LIBRARY}/name_arg.o					\

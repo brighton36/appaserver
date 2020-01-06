@@ -9,6 +9,8 @@
 #include <string.h>
 #include "timlib.h"
 #include "name_arg.h"
+#include "employee.h"
+#include "appaserver_error.h"
 #include "date.h"
 
 /* Constants */
@@ -124,6 +126,10 @@ int main( int argc, char **argv )
 	char *year_string = "";
 	int period_number;
 
+#ifdef EMPLOYEE_PAYROLL_PERIOD_DEBUG
+	appaserver_error_usage_stderr( argc, argv );
+#endif
+
 	arg = init_arg( argv[ 0 ] );
 
 	setup_arg( arg, argc, argv );
@@ -171,7 +177,16 @@ int main( int argc, char **argv )
 					? atoi( year_string )
 					: atoi( date_string ) /* year */ );
 
-			system( sys_string );
+#ifdef EMPLOYEE_PAYROLL_PERIOD_DEBUG
+fprintf( stderr, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+fflush( stderr );
+#endif
+
+			if ( system( sys_string ) ){};
 		}
 	}
 
@@ -803,6 +818,15 @@ char *payroll_period_get_begin_date_string(
 		year,
 		PAYROLL_BEGIN_DATE_LABEL );
 
+#ifdef EMPLOYEE_PAYROLL_PERIOD_DEBUG
+fprintf( stderr, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+fflush( stderr );
+#endif
+
 	results = pipe2string( sys_string );
 
 	if ( !results || !*results )
@@ -902,7 +926,16 @@ void payroll_period_prior(	char *period,
 		begin_date_string,
 		beginday );
 
-	system( sys_string );
+#ifdef EMPLOYEE_PAYROLL_PERIOD_DEBUG
+fprintf( stderr, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+fflush( stderr );
+#endif
+
+	if ( system( sys_string ) ){};
 
 } /* payroll_period_prior() */
 

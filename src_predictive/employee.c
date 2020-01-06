@@ -860,10 +860,28 @@ boolean employee_get_payroll_begin_end_work_dates(
 		 payroll_period_number,
 		 payroll_beginning_day );
 
+#ifdef EMPLOYEE_PAYROLL_PERIOD_DEBUG
+fprintf( stderr, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+fflush( stderr );
+#endif
+
 	input_pipe = popen( sys_string, "r" );
 
 	while( timlib_get_line( input_buffer, input_pipe, 128 ) )
 	{
+#ifdef EMPLOYEE_PAYROLL_PERIOD_DEBUG
+fprintf( stderr, "%s/%s()/%d: input_buffer = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+input_buffer );
+fflush( stderr );
+#endif
+
 		if ( timlib_strncmp(	input_buffer,
 					PAYROLL_BEGIN_DATE_LABEL ) == 0 )
 		{
@@ -929,15 +947,34 @@ boolean employee_get_prior_period(
 		 payroll_pay_period_string,
 		 beginday_option );
 
+#ifdef EMPLOYEE_PAYROLL_PERIOD_DEBUG
+fprintf( stderr, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+fflush( stderr );
+#endif
+
 	input_pipe = popen( sys_string, "r" );
 
 	while( timlib_get_line( input_buffer, input_pipe, 128 ) )
 	{
+#ifdef EMPLOYEE_PAYROLL_PERIOD_DEBUG
+fprintf( stderr, "%s/%s()/%d: input_buffer = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+input_buffer );
+fflush( stderr );
+#endif
+
 		if ( timlib_strncmp(	input_buffer,
 					PAYROLL_BEGIN_DATE_LABEL ) == 0 )
 		{
 			column( column_buffer, 1, input_buffer );
 			*begin_work_date = strdup( column_buffer );
+			*payroll_year = atoi( column_buffer );
 			results++;
 			continue;
 		}
@@ -947,7 +984,6 @@ boolean employee_get_prior_period(
 		{
 			column( column_buffer, 1, input_buffer );
 			*end_work_date = strdup( column_buffer );
-			*payroll_year = atoi( column_buffer );
 			results++;
 			continue;
 		}

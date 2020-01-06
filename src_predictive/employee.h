@@ -18,6 +18,7 @@
 
 /* Constants */
 /* --------- */
+/* #define EMPLOYEE_PAYROLL_PERIOD_DEBUG	1 */
 #define PAYROLL_MEMO			"Payroll"
 #define DEFAULT_FEDERAL_MARITAL_STATUS	"single"
 #define DEFAULT_STATE_MARITAL_STATUS	\

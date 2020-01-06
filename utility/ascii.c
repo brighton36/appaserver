@@ -1,4 +1,4 @@
-/* utiltiy/ascii.c */
+/* utility/ascii.c */
 /* --------------- */
 #include <stdio.h>
 

@@ -276,6 +276,14 @@ void appaserver_output_starting_argv_stderr(
 					argv );
 }
 
+void appaserver_error_usage_stderr(	int argc,
+					char **argv )
+{
+	appaserver_error_output_starting_argv_stderr(
+					argc,
+					argv );
+}
+
 void appaserver_error_stderr(		int argc,
 					char **argv )
 {

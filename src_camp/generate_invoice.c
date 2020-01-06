@@ -31,12 +31,12 @@
 
 /* Prototypes */
 /* ---------- */
-double populate_line_item_list(
+double generate_invoice_populate_line_item_list(
 				LIST *invoice_line_item_list,
 				double enrollment_cost,
 				CAMP_ENROLLMENT *camp_enrollment );
 
-LATEX_INVOICE_CUSTOMER *get_invoice_customer(
+LATEX_INVOICE_CUSTOMER *generate_invoice_get_invoice_customer(
 				CAMP_ENROLLMENT *camp_enrollment );
 
 boolean build_latex_invoice(	FILE *output_stream,
@@ -319,7 +319,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 				(LIST *)0 /* extra_label_list */ );
 
 	if ( ! ( latex_invoice->invoice_customer =
-			get_invoice_customer(
+			generate_invoice_get_invoice_customer(
 				camp->camp_enrollment ) ) )
 	{
 		return 0;
@@ -328,7 +328,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 	latex_invoice_output_header( output_stream );
 
 	if ( ! ( latex_invoice->invoice_customer->extension_total =
-			populate_line_item_list(
+			generate_invoice_populate_line_item_list(
 				latex_invoice->
 					invoice_customer->
 					invoice_line_item_list,
@@ -400,7 +400,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 
 } /* build_latex_invoice() */
 
-LATEX_INVOICE_CUSTOMER *get_invoice_customer(
+LATEX_INVOICE_CUSTOMER *generate_invoice_get_invoice_customer(
 				CAMP_ENROLLMENT *camp_enrollment )
 {
 	LATEX_INVOICE_CUSTOMER *invoice_customer;
@@ -431,12 +431,9 @@ LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 			strdup( camp_enrollment->street_address ),
 			strdup( "" )
 				/* suite_number */,
-			strdup( "" )
-				/* city */,
-			strdup( "" )
-				/* state */,
-			strdup( "" )
-				/* zip_code */,
+			strdup( camp_enrollment->city ),
+			strdup( camp_enrollment->state_code ),
+			strdup( camp_enrollment->zip_code ),
 			(char *)0 /* customer_service_key */,
 			0.0 /* sales_tax */,
 			0.0 /* shipping_charge */,
@@ -445,9 +442,9 @@ LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 
 	return invoice_customer;
 
-} /* get_invoice_customer() */
+} /* generate_invoice_get_invoice_customer() */
 
-double populate_line_item_list(
+double generate_invoice_populate_line_item_list(
 			LIST *invoice_line_item_list,
 			double enrollment_cost,
 			CAMP_ENROLLMENT *camp_enrollment )
@@ -486,7 +483,8 @@ double populate_line_item_list(
 				invoice_line_item_list,
 				(char *)0 /* item_key */,
 				service_enrollment->service_name /* item */,
-				1.0 /* quantity */,
+				(double)service_enrollment->purchase_quantity
+					/* quantity */,
 				service_enrollment->service_price
 					/* retail_price */,
 				0.0 /* discount_amount */ );
@@ -495,5 +493,5 @@ double populate_line_item_list(
 
 	return extension_total;
 
-} /* populate_line_item_list() */
+} /* generate_invoice_populate_line_item_list() */
 

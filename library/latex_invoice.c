@@ -243,8 +243,8 @@ void latex_invoice_output_invoice_header(
 	{
 		fprintf( output_stream,
 "\\begin{tabular}{p{0.5in}l}\n"
-"& %s \\\n"
-"& %s \\\n"
+"& %s \\\\\n"
+"& %s \\\\\n"
 "& %s, %s %s\n"
 "\\end{tabular}\n\n",
 		 	latex_invoice_customer->name,

@@ -281,20 +281,35 @@ boolean entity_load(	char **city,
 
 	if ( ! ( results = pipe2string( sys_string ) ) ) return 0;
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 0 );
-	*city = strdup( buffer );
+	if ( city )
+	{
+		piece( buffer, FOLDER_DATA_DELIMITER, results, 0 );
+		*city = strdup( buffer );
+	}
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
-	*state_code = strdup( buffer );
+	if ( state_code )
+	{
+		piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
+		*state_code = strdup( buffer );
+	}
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 2 );
-	*zip_code = strdup( buffer );
+	if ( zip_code )
+	{
+		piece( buffer, FOLDER_DATA_DELIMITER, results, 2 );
+		*zip_code = strdup( buffer );
+	}
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 3 );
-	*phone_number = strdup( buffer );
+	if ( phone_number )
+	{
+		piece( buffer, FOLDER_DATA_DELIMITER, results, 3 );
+		*phone_number = strdup( buffer );
+	}
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 4 );
-	*email_address = strdup( buffer );
+	if ( email_address )
+	{
+		piece( buffer, FOLDER_DATA_DELIMITER, results, 4 );
+		*email_address = strdup( buffer );
+	}
 
 	free( results );
 
@@ -730,4 +745,23 @@ boolean entity_list_exists(	LIST *entity_list,
 					street_address );
 
 } /* entity_list_exists() */
+
+boolean entity_location_fetch(	char **city,
+				char **state_code,
+				char **zip_code,
+				char *application_name,
+				char *full_name,
+				char *street_address )
+{
+	return entity_load(	city,
+				state_code,
+				zip_code,
+				(char **)0 /* phone_number */,
+				(char **)0 /* email_address */,
+				application_name,
+				full_name,
+				street_address );
+
+} /* entity_location_fetch() */
+
 

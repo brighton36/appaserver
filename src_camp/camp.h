@@ -35,12 +35,18 @@ typedef struct
 {
 	char *service_name;
 	double service_price;
+	int enrollment_cap;
+	int purchase_quantity;
+	int occupied_quantity;
 } SERVICE_ENROLLMENT;
 
 typedef struct
 {
 	char *full_name;
 	char *street_address;
+	char *city;
+	char *state_code;
+	char *zip_code;
 	TRANSACTION *camp_enrollment_transaction;
 	LIST *camp_enrollment_service_enrollment_list;
 	LIST *camp_enrollment_payment_list;
@@ -68,7 +74,8 @@ CAMP_ENROLLMENT *camp_enrollment_new(
 
 SERVICE_ENROLLMENT *camp_enrollment_service_enrollment_new(
 				char *service_name,
-				double service_price );
+				double service_price,
+				int purchase_quantity );
 
 ENROLLMENT_PAYMENT *camp_enrollment_payment_new(
 				char *camp_begin_date,
@@ -151,6 +158,10 @@ TRANSACTION *camp_enrollment_payment_transaction(
 ENROLLMENT_PAYMENT *camp_enrollment_payment_seek(
 				LIST *camp_enrollment_payment_list,
 				char *payment_date_time );
+
+double camp_enrollment_extension(
+				double service_price,
+				int purchase_quantity );
 
 #endif
 

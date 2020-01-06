@@ -185,4 +185,11 @@ boolean entity_list_exists(	LIST *entity_list,
 				char *full_name,
 				char *street_address );
 
+boolean entity_location_fetch(	char **city,
+				char **state_code,
+				char **zip_code,
+				char *application_name,
+				char *full_name,
+				char *street_address );
+
 #endif

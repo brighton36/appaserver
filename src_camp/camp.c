@@ -36,7 +36,8 @@ CAMP *camp_new(		char *camp_begin_date,
 
 SERVICE_ENROLLMENT *camp_enrollment_service_enrollment_new(
 				char *service_name,
-				double service_price )
+				double service_price,
+				int purchase_quantity )
 {
 	SERVICE_ENROLLMENT *c;
 
@@ -52,6 +53,7 @@ SERVICE_ENROLLMENT *camp_enrollment_service_enrollment_new(
 
 	c->service_name = service_name;
 	c->service_price = service_price;
+	c->purchase_quantity = purchase_quantity;
 
 	return c;
 
@@ -270,13 +272,7 @@ CAMP_ENROLLMENT *camp_enrollment_fetch(
 
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot fetch where = [%s].\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 where );
-		exit( 1 );
+		return (CAMP_ENROLLMENT *)0;
 	}
 
 	e = camp_enrollment_new(
@@ -331,6 +327,14 @@ CAMP_ENROLLMENT *camp_enrollment_fetch(
 			e->camp_enrollment_total_payment_amount,
 			e->camp_enrollment_invoice_amount );
 
+	entity_location_fetch(
+		&e->city,
+		&e->state_code,
+		&e->zip_code,
+		application_name,
+		e->full_name,
+		e->street_address );
+
 	return e;
 
 } /* camp_enrollment_fetch() */
@@ -349,12 +353,14 @@ LIST *camp_enrollment_service_enrollment_list(
 	char where[ 512 ];
 	char buffer1[ 256 ];
 	char buffer2[ 256 ];
+	char buffer3[ 256 ];
 	SERVICE_ENROLLMENT *e;
 	FILE *input_pipe;
 	char input_buffer[ 512 ];
 	LIST *service_enrollment_list = list_new();
 
-	select = "service_enrollment.service_name,service_price";
+	select =
+	"service_enrollment.service_name,service_price,purchase_quantity";
 
 	folder = "service_enrollment,service_offering";
 
@@ -393,12 +399,15 @@ LIST *camp_enrollment_service_enrollment_list(
 	{
 		piece( buffer1, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 		piece( buffer2, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+		piece( buffer3, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 
 		e = camp_enrollment_service_enrollment_new(
 			strdup( buffer1 )
 				/* service_name */,
 			atof( buffer2 )
-				/* service_price */ );
+				/* service_price */,
+			atoi( buffer3 )
+				/* purchase_quantity */ );
 
 		list_append_pointer( service_enrollment_list, e );
 	}
@@ -669,11 +678,22 @@ double camp_enrollment_invoice_amount(
 	do {
 		e = list_get( l );
 
-		invoice_amount += e->service_price;
+		invoice_amount +=
+			camp_enrollment_extension(
+				e->service_price,
+				e->purchase_quantity );
 
 	} while ( list_next( l ) );
 
 	return invoice_amount;
 
 } /* camp_enrollment_invoice_amount() */
+
+double camp_enrollment_extension(
+				double service_price,
+				int purchase_quantity )
+{
+	return ( service_price * (double)purchase_quantity );
+
+} /* camp_enrollment_extension() */
 

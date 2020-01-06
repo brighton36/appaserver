@@ -69,7 +69,7 @@ EXECUTABLES=	trial_balance						\
 		update_sale_completed					\
 		post_reoccurring_transaction				\
 		post_cash_expense_transaction				\
-		post_employee_work_period				\
+		post_payroll						\
 		collect_customer_payment				\
 		make_vendor_payment					\
 		post_change_self					\
@@ -191,13 +191,13 @@ post_cash_expense_transaction: post_cash_expense_transaction.c		\
 		${LIBRARY}/folder_menu.o				\
 		-o post_cash_expense_transaction
 
-post_employee_work_period: post_employee_work_period.c			\
+post_payroll: post_payroll.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_employee_work_period.c				\
-		-o post_employee_work_period
+		post_payroll.c						\
+		-o post_payroll
 
 shortcut_service_work: shortcut_service_work.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

@@ -205,7 +205,7 @@ post_change_hourly_service_work
 update_sale_completed
 post_reoccurring_transaction
 post_cash_expense_transaction
-post_employee_work_period
+post_payroll
 collect_customer_payment
 make_vendor_payment
 post_change_self

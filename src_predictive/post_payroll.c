@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/post_employee_work_period.c		*/
+/* $APPASERVER_HOME/src_predictive/post_payroll.c			*/
 /* -----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -29,31 +29,31 @@
 
 /* Prototypes */
 /* ---------- */
-void post_employee_work_period_transaction_insert(
+void post_payroll_transaction_insert(
 			char *application_name,
 			LIST *employee_work_period_list );
 
-void post_employee_payroll_posting_insert(
+void post_payroll_payroll_posting_insert(
 			char *application_name,
 			PAYROLL_POSTING *payroll_posting );
 
-void post_employee_update(
+void post_payroll_update(
 			LIST *employee_work_period_list,
 			int payroll_year );
 
-void post_employee_work_period_delete_execute(
+void post_payroll_delete_execute(
 			char *application_name,
 			int payroll_year,
 			int payroll_period_number,
 			LIST *employee_work_period_list );
 
-void post_employee_work_period_delete(
+void post_payroll_delete(
 			char *application_name,
 			int payroll_year,
 			int payroll_period_number,
 			boolean execute );
 
-void post_employee_work_period_propagate(
+void post_payroll_propagate(
 			char *application_name,
 			char *salary_wage_expense_account,
 			char *payroll_tax_account,
@@ -69,14 +69,14 @@ void post_employee_work_period_propagate(
 			char *state_unemployment_tax_payable_account,
 			char *propagate_transaction_date_time );
 
-void post_employee_work_period_insert(
+void post_payroll_insert(
 			char *application_name,
 			LIST *employee_work_period_list );
 
 void post_insert(	char *application_name,
 			PAYROLL_POSTING *payroll_posting );
 
-void post_employee_work_period_journal_display(
+void post_payroll_journal_display(
 			char *application_name,
 			LIST *employee_work_period_list );
 
@@ -84,7 +84,7 @@ double calculate_payroll_tax_percent(
 			double gross_pay,
 		 	double payroll_tax_amount );
 
-void post_employee_work_period(
+void post_payroll(
 			char *application_name,
 			LIST *employee_list,
 			int payroll_year,
@@ -93,13 +93,13 @@ void post_employee_work_period(
 			char *end_work_date,
 			ENTITY_SELF *self );
 
-void post_employee_work_period_employee_display(
+void post_payroll_employee_display(
 			boolean delete,
 			int payroll_year,
 			int payroll_period_number,
 			LIST *employee_work_period_list );
 
-void post_employee_work_period_display(
+void post_payroll_display(
 			char *application_name,
 			boolean delete,
 			LIST *employee_list,
@@ -121,7 +121,6 @@ int main( int argc, char **argv )
 	boolean with_html;
 	boolean execute;
 	char title[ 128 ];
-	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	ENTITY_SELF *self;
 
@@ -132,47 +131,34 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored process payroll_year period_number delete_yn withhtml_yn execute_yn\n",
+"Usage: %s process payroll_year period_number delete_yn withhtml_yn execute_yn\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
 "Note: if payroll_year and period_number are missing, then the prior period will be posted.\n" );
 		exit ( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	payroll_year = atoi( argv[ 3 ] );
-	payroll_period_number = atoi( argv[ 4 ] );
-	delete = (*argv[ 5 ] == 'y');
-	with_html = (*argv[ 6 ] == 'y');
-	execute = (*argv[ 7 ] == 'y');
+	process_name = argv[ 1 ];
+	payroll_year = atoi( argv[ 2 ] );
+	payroll_period_number = atoi( argv[ 3 ] );
+	delete = (*argv[ 4 ] == 'y');
+	with_html = (*argv[ 5 ] == 'y');
+	execute = (*argv[ 6 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( with_html )
 	{
-		format_initial_capital( title, process_name );
-		document = document_new( title, application_name );
-		document->output_content_type = 1;
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->appaserver_mount_point );
 
-		document_output_heading(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
-		printf( "<h1>%s</h1>\n", title );
+		printf( "<h1>%s</h1>\n",
+		 	format_initial_capital(
+				title, process_name ) );
 		fflush( stdout );
 	}
 
@@ -216,7 +202,7 @@ int main( int argc, char **argv )
 
 	if ( delete )
 	{
-		post_employee_work_period_delete(
+		post_payroll_delete(
 			application_name,
 			payroll_year,
 			payroll_period_number,
@@ -243,7 +229,7 @@ int main( int argc, char **argv )
 
 	if ( !execute )
 	{
-		post_employee_work_period_display(
+		post_payroll_display(
 			application_name,
 			0 /* not delete */,
 			self->employee_list,
@@ -255,7 +241,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		post_employee_work_period(
+		post_payroll(
 			application_name,
 			self->employee_list,
 			payroll_year,
@@ -276,7 +262,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_employee_work_period_display(
+void post_payroll_display(
 			char *application_name,
 			boolean delete,
 			LIST *employee_list,
@@ -311,19 +297,19 @@ void post_employee_work_period_display(
 		exit( 1 );
 	}
 
-	post_employee_work_period_employee_display(
+	post_payroll_employee_display(
 		delete,
 		payroll_year,
 		payroll_period_number,
 		payroll_posting->employee_work_period_list );
 
-	post_employee_work_period_journal_display(
+	post_payroll_journal_display(
 		application_name,
 		payroll_posting->employee_work_period_list );
 
-} /* post_employee_work_period_display() */
+} /* post_payroll_display() */
 
-void post_employee_work_period_employee_display(
+void post_payroll_employee_display(
 			boolean delete,
 			int payroll_year,
 			int payroll_period_number,
@@ -404,9 +390,9 @@ void post_employee_work_period_employee_display(
 
 	pclose( output_pipe );
 
-} /* post_employee_work_period_employee_display() */
+} /* post_payroll_employee_display() */
 
-void post_employee_work_period(
+void post_payroll(
 			char *application_name,
 			LIST *employee_list,
 			int payroll_year,
@@ -461,11 +447,11 @@ void post_employee_work_period(
 
 	post_insert( application_name, payroll_posting );
 
-	post_employee_update(
+	post_payroll_update(
 			payroll_posting->employee_work_period_list,
 			payroll_year );
 
-} /* post_employee_work_period() */
+} /* post_payroll() */
 
 double calculate_payroll_tax_percent(
 				double gross_pay,
@@ -481,7 +467,7 @@ double calculate_payroll_tax_percent(
 
 } /* calculate_payroll_tax_percent() */
 
-void post_employee_work_period_journal_display(
+void post_payroll_journal_display(
 			char *application_name,
 			LIST *employee_work_period_list )
 {
@@ -754,26 +740,26 @@ void post_employee_work_period_journal_display(
 
 	pclose( output_pipe );
 
-} /* post_employee_work_period_journal_display() */
+} /* post_payroll_journal_display() */
 
 void post_insert(	char *application_name,
 			PAYROLL_POSTING *payroll_posting )
 {
-	post_employee_payroll_posting_insert(
+	post_payroll_payroll_posting_insert(
 			application_name,
 			payroll_posting );
 
-	post_employee_work_period_insert(
+	post_payroll_insert(
 			application_name,
 			payroll_posting->employee_work_period_list );
 
-	post_employee_work_period_transaction_insert(
+	post_payroll_transaction_insert(
 			application_name,
 			payroll_posting->employee_work_period_list );
 
-} /* post_employee_work_period_insert() */
+} /* post_payroll_insert() */
 
-void post_employee_payroll_posting_insert(
+void post_payroll_payroll_posting_insert(
 			char *application_name,
 			PAYROLL_POSTING *payroll_posting )
 {
@@ -830,9 +816,9 @@ void post_employee_payroll_posting_insert(
 
 	pclose( output_pipe );
 
-} /* post_employee_payroll_posting_insert() */
+} /* post_payroll_payroll_posting_insert() */
 
-void post_employee_work_period_insert(
+void post_payroll_insert(
 			char *application_name,
 			LIST *employee_work_period_list )
 {
@@ -902,9 +888,9 @@ void post_employee_work_period_insert(
 
 	pclose( output_pipe );
 
-} /* post_employee_work_period_insert() */
+} /* post_payroll_insert() */
 
-void post_employee_work_period_transaction_insert(
+void post_payroll_transaction_insert(
 			char *application_name,
 			LIST *employee_work_period_list )
 {
@@ -1192,7 +1178,7 @@ void post_employee_work_period_transaction_insert(
 	pclose( debit_account_pipe );
 	pclose( credit_account_pipe );
 
-	post_employee_work_period_propagate(
+	post_payroll_propagate(
 		application_name,
 		salary_wage_expense_account,
 		payroll_tax_account,
@@ -1208,9 +1194,9 @@ void post_employee_work_period_transaction_insert(
 		state_unemployment_tax_payable_account,
 		propagate_transaction_date_time );
 
-} /* post_employee_work_period_transaction_insert() */
+} /* post_payroll_transaction_insert() */
 
-void post_employee_work_period_propagate(
+void post_payroll_propagate(
 			char *application_name,
 			char *salary_wage_expense_account,
 			char *payroll_tax_account,
@@ -1322,9 +1308,9 @@ void post_employee_work_period_propagate(
 			state_unemployment_tax_payable_account );
 	}
 
-} /* post_employee_work_period_propagate() */
+} /* post_payroll_propagate() */
 
-void post_employee_work_period_delete(
+void post_payroll_delete(
 			char *application_name,
 			int payroll_year,
 			int payroll_period_number,
@@ -1340,7 +1326,7 @@ void post_employee_work_period_delete(
 
 	if ( execute )
 	{
-		post_employee_work_period_delete_execute(
+		post_payroll_delete_execute(
 			application_name,
 			payroll_year,
 			payroll_period_number,
@@ -1348,16 +1334,16 @@ void post_employee_work_period_delete(
 	}
 	else
 	{
-		post_employee_work_period_employee_display(
+		post_payroll_employee_display(
 			1 /* delete */,
 			payroll_year,
 			payroll_period_number,
 			employee_work_period_list );
 	}
 
-} /* post_employee_work_period_delete() */
+} /* post_payroll_delete() */
 
-void post_employee_work_period_delete_execute(
+void post_payroll_delete_execute(
 			char *application_name,
 			int payroll_year,
 			int payroll_period_number,
@@ -1383,7 +1369,7 @@ void post_employee_work_period_delete_execute(
 		 "echo \"delete from payroll_posting where %s;\" | sql.e",
 		 where );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	/* Delete from EMPLOYEE_WORK_PERIOD */
 	/* -------------------------------- */
@@ -1431,13 +1417,13 @@ void post_employee_work_period_delete_execute(
 
 	pclose( delete_pipe );
 
-	post_employee_update(
+	post_payroll_update(
 		employee_work_period_list,
 		payroll_year );
 
-} /* post_employee_work_period_delete_execute() */
+} /* post_payroll_delete_execute() */
 
-void post_employee_update(
+void post_payroll_update(
 			LIST *employee_work_period_list,
 			int payroll_year )
 {
@@ -1461,7 +1447,7 @@ void post_employee_update(
 					'\'' ),
 			 e->street_address );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		sprintf( sys_string,
 "echo \"update employee set net_pay_year_to_date = ( select sum( net_pay ) from employee_work_period where employee.full_name = employee_work_period.full_name and employee.street_address = employee_work_period.street_address and payroll_year = %d ) where full_name = '%s' and street_address = '%s';\" | sql.e",
@@ -1472,9 +1458,9 @@ void post_employee_update(
 					'\'' ),
 			 e->street_address );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 	} while( list_next( employee_work_period_list ) );
 
-} /* post_employee_update() */
+} /* post_payroll_update() */
 

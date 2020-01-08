@@ -67,6 +67,14 @@ then
 	exit 1
 fi
 
+# Build transaction_date_time
+# ---------------------------
+if [ "$transaction_date" = "" -o "$transaction_date" = "transaction_date" ]
+then
+	transaction_date=`now.sh ymd`
+fi
+
+transaction_date_time="${transaction_date} `now.sh seconds`"
 
 # Check for duplication
 # ---------------------
@@ -85,10 +93,6 @@ then
 	echo "</html>"
 	exit 0
 fi
-
-# Build transaction_date_time
-# ---------------------------
-transaction_date_time="${transaction_date} `now.sh seconds`"
 
 # Build check_number
 # ------------------

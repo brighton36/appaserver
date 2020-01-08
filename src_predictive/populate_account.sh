@@ -36,6 +36,13 @@ else
 	element=""
 fi
 
+# Select
+# ======
+
+# Select chart_account_number?
+# ----------------------------
+select_chart_account_number=0
+
 folder_attribute_exists.sh $application account chart_account_number
 
 # Zero means true
@@ -44,14 +51,35 @@ exists_chart_account_number=$?
 
 if [ $exists_chart_account_number = 0 ]
 then
+	chart_account_number_count=`echo			\
+		"select count(1)				\
+		 from account					\
+		 where chart_account_number is not null;"	|
+		 sql.e`
+
+	if [ $chart_account_number_count -qe 1 ]
+	then
+		select_chart_account_number=1
+	fi
+fi
+
+if [ $select_chart_account_number -eq 1 ]
+then
 	select="concat( account, '|', account, '---', ifnull( chart_account_number, '' ) )"
 else
 	select="concat( account, '|', account )"
 fi
 
+# From
+# ----
 from="account"
+
+# Order
+# -----
 order="account"
 
+# Where
+# -----
 if [ "$subclassification" = "" -o "$subclassification" = "subclassification" ]
 then
 	subclassification_where="1 = 1"

@@ -336,7 +336,7 @@ function extract_static_tables()
 		columns=account,subclassification,hard_coded_account_key
 	fi
 
-	where="hard_coded_account_key is not null and hard_coded_account_key not in ( 'cash_key', 'closing_key,contributed_capital_key' )"
+	where="(hard_coded_account_key is not null and hard_coded_account_key not in ( 'cash_key', 'closing_key,contributed_capital_key' ) ) or ( account in ( select account from subclassification where subclassification = 'operating_expense') )"
 
 	get_folder_data a=$application f=$folder s=$columns w="$where"	|
 	insert_statement.e t=$folder field=$columns del='^'		|

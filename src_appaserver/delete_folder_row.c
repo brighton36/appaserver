@@ -47,21 +47,20 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 8 )
+	if ( argc < 6 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored session login_name folder role_name primary_attribute_data_list ignored [dont_delete_mto1_isa_yn]\n",
+"Usage: %s session login_name folder role_name primary_attribute_data_list [dont_delete_mto1_isa_yn]\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	primary_attribute_data_list_string = argv[ 6 ];
-	/* argv[ 7 ] is ignored */
-	if ( argc == 9 ) dont_delete_mto1_isa = (*argv[ 8 ] == 'y');
+	session = argv[ 1 ];
+	login_name = argv[ 2 ];
+	folder_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	primary_attribute_data_list_string = argv[ 5 ];
+	if ( argc == 7 ) dont_delete_mto1_isa = (*argv[ 6 ] == 'y');
 
 	sql_executable = "sql.e";
 	/* sql_executable = "html_paragraph_wrapper"; */

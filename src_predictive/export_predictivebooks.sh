@@ -635,7 +635,7 @@ function extract_inventory()
 	cat >> $output_shell
 
 	folder=inventory
-	columns="inventory_name,credit_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance"
+	columns="inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance"
 	get_folder_data a=$application f=$folder s="$columns"		|
 	insert_statement.e table=$folder field="$columns" del='^'	|
 	cat >> $output_shell

@@ -36,8 +36,19 @@ else
 	element=""
 fi
 
-select="concat( account, '|', account, '---', ifnull( chart_account_number, '' ) )"
-#select="concat( account, '|', account )"
+folder_attribute_exists.sh $application account chart_account_number
+
+# Zero means true
+# ---------------
+exists_chart_account_number=$?
+
+if [ $exists_chart_account_number = 0 ]
+then
+	select="concat( account, '|', account, '---', ifnull( chart_account_number, '' ) )"
+else
+	select="concat( account, '|', account )"
+fi
+
 from="account"
 order="account"
 
@@ -45,7 +56,7 @@ if [ "$subclassification" = "" -o "$subclassification" = "subclassification" ]
 then
 	subclassification_where="1 = 1"
 else
-	subclassification_where="subclassification = '$subclassification'"
+	subclassification_where="account.subclassification = '$subclassification'"
 fi
 
 if [ "$element" != "" ]

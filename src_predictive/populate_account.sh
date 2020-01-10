@@ -57,7 +57,7 @@ then
 		 where chart_account_number is not null;"	|
 		 sql.e`
 
-	if [ $chart_account_number_count -qe 1 ]
+	if [ "$chart_account_number_count" -ge 1 ]
 	then
 		select_chart_account_number=1
 	fi

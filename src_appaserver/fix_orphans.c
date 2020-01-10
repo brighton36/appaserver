@@ -71,7 +71,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *folder_name;
-	char really_yn;
+	char execute_yn;
 	char delete_yn;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -100,7 +100,7 @@ int main( int argc, char **argv )
 	if ( argc < 5 )
 	{
 		fprintf(stderr,
-"Usage: %s process_name folder_name delete_yn really_yn [stdout]\n",
+"Usage: %s process_name folder_name delete_yn execute_yn [stdout]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -108,7 +108,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	folder_name = argv[ 2 ];
 	delete_yn = *argv[ 3 ];
-	really_yn = *argv[ 4 ];
+	execute_yn = *argv[ 4 ];
 
 	if ( argc == 6 )
 	{
@@ -162,7 +162,7 @@ int main( int argc, char **argv )
 		text_output_pipe = popen( "sort | sed 's/|/=/'", "w" );
 	}
 
-	if ( really_yn == 'y' )
+	if ( execute_yn == 'y' )
 	{
 		char sys_string[ 1024 ];
 
@@ -252,7 +252,7 @@ int main( int argc, char **argv )
 
 	if ( !output_medium_stdout )
 	{
-		if ( really_yn == 'y' )
+		if ( execute_yn == 'y' )
 			printf( "<h3>Process Complete</h3>\n" );
 		else
 			printf( "<h3>Process Not Executed</h3>\n" );
@@ -263,7 +263,7 @@ int main( int argc, char **argv )
 		document_close();
 	}
 
-	if ( really_yn == 'y' )
+	if ( execute_yn == 'y' )
 	{
 		process_increment_execution_count(
 				application_name,

@@ -70,9 +70,9 @@ function insert_opening_entry()
 	echo "" >> $output_shell
 
 	echo "automatic_transaction_assign.sh all process_name $fund >/dev/null" >> $output_shell
-	echo "bank_upload_sequence_propagate.sh '' | sql.e" >> $output_shell
+#	echo "bank_upload_sequence_propagate.sh '' | sql.e" >> $output_shell
 	echo "ledger_propagate '' '' ''" >> $output_shell
-	echo "bank_upload_balance_propagate.sh '' | sql.e" >> $output_shell
+#	echo "bank_upload_balance_propagate.sh '' | sql.e" >> $output_shell
 	echo "" >> $output_shell
 }
 # insert_opening_entry()
@@ -336,7 +336,7 @@ function extract_static_tables()
 		columns=account,subclassification,hard_coded_account_key
 	fi
 
-	where="(hard_coded_account_key is not null and hard_coded_account_key not in ( 'cash_key', 'closing_key,contributed_capital_key' ) ) or ( account in ( select account from subclassification where subclassification = 'operating_expense') )"
+	where="( hard_coded_account_key not in ( 'cash_key', 'closing_key,contributed_capital_key' ) ) or ( account in ( select account from account where subclassification in ( 'operating_expense', 'donation', 'entertainment', 'home', 'transportation', 'revenue' ) ) )"
 
 	get_folder_data a=$application f=$folder s=$columns w="$where"	|
 	insert_statement.e t=$folder field=$columns del='^'		|
@@ -833,7 +833,9 @@ function prepend_src_communityband()
 
 # Main
 # ----
-rm $output_shell 2>/dev/null
+echo ":" > $output_shell
+echo "# Created by $0" >> $output_shell
+echo "" >> $output_shell
 
 folder_attribute_exists.sh $application account fund
 
@@ -841,9 +843,9 @@ folder_attribute_exists.sh $application account fund
 # ---------------
 exists_fund=$?
 
-export_predictivebooks $application $input_file $output_shell
-
 create_predictivebooks $application $input_file $output_shell
+
+export_predictivebooks $application $input_file $output_shell
 
 extract_static_tables $application $input_file $output_shell $exists_fund
 

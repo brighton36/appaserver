@@ -33,7 +33,11 @@ login_name=$1
 process_name=$2
 module=$3
 cash_opening_balance=$4
-cash_account_name=$5
+
+# Trim leading and trailing spaces
+# --------------------------------
+cash_account_name=`echo $5`
+
 execute_yn=$6
 
 # Variables
@@ -101,9 +105,15 @@ then
 		where process = '$process_name';" |
 	sql.e
 
+	fix_orphans.sh 0 y >/dev/null
+
 	echo "<h3>Process complete.</h3>"
+	echo "<h3>Change to Role=Supervisor.</h3>"
+	echo "<h3>Run &lt;Output&gt; Trial Balance.</h3"
 else
 	echo "<h3>Will execute: \$APPASERVER_HOME/src_predictive/${process}</h3>"
+#	echo "<h3>Cash Account Name: [${cash_account_name}]</h3>"
+#	echo "<h3>Opening Cash Balance: $cash_opening_balance</h3>"
 fi
 
 echo "</body></html>"

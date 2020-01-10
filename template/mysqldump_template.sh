@@ -1,6 +1,6 @@
 :
-# $APPASERVER_HOME/src_appaserver/mysqldump_template.sh
-# -----------------------------------------------------
+# $APPASERVER_HOME/template/mysqldump_template.sh
+# -----------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then

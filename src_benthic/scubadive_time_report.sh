@@ -1,6 +1,6 @@
 :
-# src_benthic/scubadive_time_report.sh
-# ------------------------------------
+# $APPASERVER_HOME/src_benthic/scubadive_time_report.sh
+# -----------------------------------------------------
 
 # Input
 # -----

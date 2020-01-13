@@ -266,7 +266,7 @@ boolean close_nominal_accounts_fund_execute(
 				self->entity->full_name,
 				self->entity->street_address,
 				transaction_date_time_string,
-				CLOSING_ENTRY_MEMO );
+				LEDGER_CLOSING_ENTRY_MEMO );
 
 	field_list =
 "full_name,street_address,transaction_date_time,account,debit_amount,credit_amount";

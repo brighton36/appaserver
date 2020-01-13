@@ -41,7 +41,7 @@
 #define LEDGER_SUBCLASSIFICATION_RETAINED_EARNINGS	\
 					"retained_earnings"
 
-#define CLOSING_ENTRY_MEMO		"Closing entry"
+#define LEDGER_CLOSING_ENTRY_MEMO	"close closing"
 #define LEDGER_FOLDER_NAME		"journal_ledger"
 #define TRANSACTION_FOLDER_NAME		"transaction"
 #define ACCOUNT_FOLDER_NAME		"account"
@@ -1240,5 +1240,9 @@ JOURNAL_LEDGER *ledger_seek_uncleared_journal_ledger(
 				char *application_name,
 				char *fund_name,
 				LIST *journal_ledger_list );
+
+boolean ledger_exists_closing_entry(
+				char *application_name,
+				char *as_of_date );
 
 #endif

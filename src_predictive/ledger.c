@@ -532,7 +532,16 @@ JOURNAL_LEDGER *ledger_get_latest_ledger(
 	char *results;
 	char *latest_transaction_time;
 
-	latest_transaction_time = LEDGER_CLOSING_TRANSACTION_TIME;
+	if ( ledger_exists_closing_entry(
+		application_name,
+		as_of_date ) )
+	{
+		latest_transaction_time = LEDGER_PRIOR_TRANSACTION_TIME;
+	}
+	else
+	{
+		latest_transaction_time = LEDGER_CLOSING_TRANSACTION_TIME;
+	}
 
 	ledger_table =
 		get_table_name(
@@ -6024,7 +6033,7 @@ char *ledger_get_existing_closing_transaction_date_time(
 	sprintf( where,
 		 "transaction_date_time = '%s' and memo = '%s'",
 		 transaction_date_time,
-		 CLOSING_ENTRY_MEMO );
+		 LEDGER_CLOSING_ENTRY_MEMO );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -6111,7 +6120,7 @@ DATE *ledger_prior_closing_transaction_date(
 
 	sprintf( where,
 		 "memo = '%s' and transaction_date_time < '%s'",
-		 CLOSING_ENTRY_MEMO,
+		 LEDGER_CLOSING_ENTRY_MEMO,
 		 ending_transaction_date_time );
 
 	sprintf( sys_string,
@@ -10240,4 +10249,42 @@ JOURNAL_LEDGER *ledger_seek_uncleared_journal_ledger(
 	return (JOURNAL_LEDGER *)0;
 
 } /* ledger_seek_uncleared_journal_ledger() */
+
+boolean ledger_exists_closing_entry(
+				char *application_name,
+				char *as_of_date )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+	static boolean exists_closing_entry = -1;
+
+	if ( exists_closing_entry != -1 )
+		return exists_closing_entry;
+
+	sprintf( where,
+		 "transaction_date_time = '%s %s' and	"
+		 "memo = '%s'				",
+		 as_of_date,
+		 LEDGER_CLOSING_TRANSACTION_TIME,
+		 LEDGER_CLOSING_ENTRY_MEMO );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=count		"
+		 "			folder=transaction	"
+		 "			where=\"%s\"		",
+		 application_name,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( atoi( results ) )
+		exists_closing_entry = 1;
+	else
+		exists_closing_entry = 0;
+
+	return exists_closing_entry;
+
+} /* ledger_exists_closing_entry() */
 

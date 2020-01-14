@@ -16,6 +16,7 @@
 #include "appaserver_error.h"
 #include "environ.h"
 #include "appaserver_link_file.h"
+#include "ctemplate_wrapper.h"
 
 #define LOCAL_CONTENT_TYPE_YN		"n"
 
@@ -373,21 +374,14 @@ void output_horizontal_frameset(	char *application_name,
 "Content-type: text/html\n\n" );
 	}
 
-	printf(
-"<HTML xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-"<HEAD>\n"
-"	<TITLE>%s</TITLE>\n"
-"</HEAD>\n"
-"<frameset rows=\"*,*\">\n"
-"<frame name=\"%s\" src=\"%s\">\n"
-"<frame name=\"%s\" src=\"%s\">\n"
-"</frameset>\n"
-"</HTML>\n",
-	title,
-	PROMPT_FRAME,
-	prompt_frame_prompt_filename,
-	EDIT_FRAME,
-	edit_frame_prompt_filename );
+  struct CTemplate* tmpl = newCTemplate("frameset");
+  CTemplate_SetValue(tmpl, "title", title);
+  CTemplate_SetValue(tmpl, "prompt_frame_name", PROMPT_FRAME);
+  CTemplate_SetValue(tmpl, "prompt_frame_src", prompt_frame_prompt_filename);
+  CTemplate_SetValue(tmpl, "edit_frame_name", EDIT_FRAME);
+  CTemplate_SetValue(tmpl, "edit_frame_src", edit_frame_prompt_filename);
+  CTemplate_Render(tmpl);
+  deleteCTemplate(tmpl);
 
 } /* output_horizontal_frameset() */
 

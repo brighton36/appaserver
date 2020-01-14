@@ -5,7 +5,7 @@ CC=gcc
 #CFLAGS=-g
 #WARN = -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations
 #CFLAGS=-O3 -s -Wall -W
-CFLAGS=-O3 -s -Wall ${APPASERVER_UNUSED_PARAMETER_FLAG}
+CFLAGS=-O3 -s -Wall -lctemplate_nothreads ${APPASERVER_UNUSED_PARAMETER_FLAG}
 
 LIBRARY=${APPASERVER_HOME}/library
 UTILITY=${APPASERVER_HOME}/utility
@@ -117,7 +117,8 @@ all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
 		pair_one2m.o						\
 		keys_match_sum.o					\
 		julian_time_double_list.o				\
-		token_dvr.e
+		token_dvr.e \
+		ctemplate_wrapper.o
 
 touch:
 	/usr/bin/touch *.c
@@ -1158,3 +1159,5 @@ keys_match_sum.o: keys_match_sum.c keys_match_sum.h			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c keys_match_sum.c
 
+ctemplate_wrapper.o: ctemplate_wrapper.cpp					\
+		${EXTERNAL_LIBS} -lctemplate_nothreads 

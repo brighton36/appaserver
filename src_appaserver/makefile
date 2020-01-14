@@ -300,7 +300,7 @@ post_change_sort_order: post_change_sort_order.c			\
 
 post_login: post_login.c ${EXTERNAL_LIBS}				\
 		${LIB}/post_login_library.o
-	${CC}	${CFLAGS} -I${LIB}					\
+	${CC}	${CFLAGS} -I${LIB} ${CTEMPLATE_FLAGS}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/post_login_library.o				\
@@ -447,12 +447,14 @@ get_folder_data: get_folder_data.c ${EXTERNAL_LIBS}
 		-o get_folder_data
 
 output_frameset: output_frameset.c					\
-		${EXTERNAL_LIBS}
+		${EXTERNAL_LIBS} \
+		${LIB}/ctemplate_wrapper.o -lctemplate_nothreads
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
+		${LIB}/ctemplate_wrapper.o -lctemplate_nothreads -lstdc++ \
 		output_frameset.c					\
-		-o output_frameset
+		-o output_frameset 
 
 synchronize_mysql_produce: synchronize_mysql_produce.c			\
 			${EXTERNAL_LIBS}
